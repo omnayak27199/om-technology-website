@@ -2151,51 +2151,6 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.2; }
 [data-theme="dark"] .dark-toggle .icon-moon { display: none; }
 [data-theme="dark"] .dark-toggle .icon-sun  { display: block; color: #fbbf24; }
 
-/* ═══════════════════════════════════════════════════════════════
-   STATS COUNTER SECTION
-═══════════════════════════════════════════════════════════════ */
-.stats-section {
-  padding: 4rem 0;
-  background: linear-gradient(135deg, var(--primary-dark) 0%, #1a3665 100%);
-  color: #fff;
-}
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 2rem;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
-  text-align: center;
-}
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
-}
-.stat-item.visible { opacity: 1; transform: translateY(0); }
-.stat-number {
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 800;
-  line-height: 1;
-  color: #fff;
-  letter-spacing: -0.02em;
-}
-.stat-number .suffix { color: #7dd3fc; }
-.stat-label {
-  font-size: 0.875rem;
-  color: rgba(255,255,255,.7);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-@media (max-width: 640px) {
-  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 2rem 1rem; }
-}
 
 /* ═══════════════════════════════════════════════════════════════
    TESTIMONIALS CARDS

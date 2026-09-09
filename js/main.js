@@ -293,51 +293,6 @@
     });
   }
 
-  /* ── Stats Counter Animation ─────────────────────────────── */
-  function initCounters() {
-    var items = document.querySelectorAll(".stat-item");
-    if (!items.length) return;
-
-    function countUp(el) {
-      var numEl   = el.querySelector(".stat-number[data-count]");
-      if (!numEl) return;
-      var target  = parseInt(numEl.getAttribute("data-count"), 10);
-      var suffix  = numEl.getAttribute("data-suffix") || "";
-      var duration = 1600;
-      var startTime = null;
-
-      function step(ts) {
-        if (!startTime) startTime = ts;
-        var progress = Math.min((ts - startTime) / duration, 1);
-        var eased = 1 - Math.pow(1 - progress, 3);
-        var current = Math.round(eased * target);
-        numEl.innerHTML = current + '<span class="suffix">' + suffix + '</span>';
-        if (progress < 1) requestAnimationFrame(step);
-      }
-      requestAnimationFrame(step);
-    }
-
-    if ("IntersectionObserver" in window) {
-      var observer = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("visible");
-            countUp(entry.target);
-            observer.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.3 });
-
-      items.forEach(function(item) { observer.observe(item); });
-    } else {
-      // Fallback: no animation, just show values
-      items.forEach(function(item) {
-        item.classList.add("visible");
-        countUp(item);
-      });
-    }
-  }
-
   /* ── Sticky CTA Bar (hide when scrolled to top) ──────────── */
   function initStickyCTA() {
     var bar = document.getElementById("sticky-cta-bar");
@@ -361,7 +316,6 @@
     initIndustryCards();
     initPortfolio();
     initBackToTop();
-    initCounters();
     initStickyCTA();
   }
 
