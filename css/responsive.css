@@ -1,0 +1,317 @@
+/* ================================================================
+   OM Technology — Responsive Stylesheet
+   Mobile-first breakpoints: 480 → 768 → 1024 → 1280 → 1440+
+   ================================================================ */
+
+/* ── Large Desktop (1440px+) ────────────────────────────────── */
+@media (min-width: 1440px) {
+  :root { --section-py: 104px; }
+
+  .hero .container { gap: 80px; }
+  .hero-headline { font-size: 4.25rem; }
+  .industries-grid { grid-template-columns: repeat(6, 1fr); }
+}
+
+/* ── Desktop (max 1279px tweaks) ─────────────────────────────── */
+@media (max-width: 1279px) {
+  .industries-grid { grid-template-columns: repeat(5, 1fr); }
+}
+
+/* ── Tablet & below (max 1023px) ─────────────────────────────── */
+@media (max-width: 1023px) {
+
+  /* Navigation */
+  .nav-links {
+    position: fixed;
+    top: 72px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #fff;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    padding: 20px;
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform .3s ease;
+    margin: 0;
+    z-index: 1000;
+    border-top: 1px solid var(--border);
+    box-shadow: 4px 0 24px rgba(0,0,0,.1);
+  }
+
+  .nav-links--open {
+    transform: translateX(0);
+  }
+
+  .nav-overlay { display: block; }
+  .nav-overlay--visible { opacity: 1; pointer-events: auto; }
+
+  .nav-link {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 1rem;
+    border-radius: var(--radius-sm);
+    border-bottom: 1px solid var(--surface);
+  }
+
+  .nav-cta {
+    display: none;
+  }
+
+  .hamburger { display: flex; }
+
+  /* Hero */
+  .hero .container {
+    grid-template-columns: 1fr;
+    gap: 48px;
+    text-align: center;
+  }
+
+  .hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero-subheadline { max-width: 100%; }
+
+  .hero-visual { order: -1; }
+
+  .device-mockup { max-width: 360px; }
+
+  /* Services */
+  .services-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Pricing */
+  .pricing-grid { grid-template-columns: repeat(2, 1fr); }
+  .pricing-grid-bottom { max-width: 100%; }
+
+  .pricing-card--popular { transform: none; }
+  .pricing-card--popular:hover { transform: translateY(-4px); }
+
+  /* Costs */
+  .costs-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Add-ons */
+  .addons-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Industries */
+  .industries-grid { grid-template-columns: repeat(4, 1fr); }
+
+  /* Portfolio */
+  .portfolio-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Why Us */
+  .why-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Process */
+  .process-steps {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .process-steps::before { display: none; }
+
+  .process-step {
+    flex-direction: row;
+    text-align: left;
+    gap: 20px;
+  }
+
+  .step-number {
+    width: 56px;
+    height: 56px;
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-bottom: 0;
+  }
+
+  .step-content { flex: 1; }
+
+  /* Trust */
+  .trust .container { grid-template-columns: repeat(2, 1fr); }
+
+  /* Contact */
+  .contact-layout { grid-template-columns: 1fr; gap: 40px; }
+
+  /* Footer */
+  .footer-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+
+  /* Pricing bottom */
+  .pricing-grid-bottom { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Mobile (max 767px) ──────────────────────────────────────── */
+@media (max-width: 767px) {
+
+  :root { --section-py: 56px; }
+
+  .container { padding: 0 16px; }
+
+  /* Section headers */
+  .section-header { margin-bottom: 36px; }
+  .section-title { font-size: 1.625rem; }
+  .section-subtitle { font-size: .9375rem; }
+
+  /* Hero */
+  .hero { padding: 72px 0 56px; }
+  .hero-headline { font-size: 2rem; letter-spacing: -.02em; }
+  .hero-subheadline { font-size: 1rem; }
+
+  .hero-actions { flex-direction: column; width: 100%; }
+  .hero-actions .btn { width: 100%; justify-content: center; }
+
+  .hero-benefits { justify-content: center; }
+
+  .device-mockup { max-width: 300px; }
+
+  /* Services */
+  .services-grid { grid-template-columns: 1fr; }
+
+  .service-card { padding: 24px; }
+
+  /* Pricing */
+  .pricing-grid { grid-template-columns: 1fr; }
+  .pricing-grid-bottom { grid-template-columns: 1fr; }
+
+  .pricing-card { padding: 28px 24px; }
+
+  /* Costs */
+  .costs-grid { grid-template-columns: 1fr; }
+
+  /* Add-ons */
+  .addons-grid { grid-template-columns: 1fr; }
+
+  /* Industries */
+  .industries-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .industry-card { padding: 16px 10px; gap: 8px; }
+  .industry-icon { font-size: 1.75rem; }
+  .industry-name { font-size: .75rem; }
+
+  /* Portfolio */
+  .portfolio-grid { grid-template-columns: 1fr; }
+
+  /* Why */
+  .why-grid { grid-template-columns: 1fr; }
+
+  /* Trust */
+  .trust .container { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .trust { padding: 36px 0; }
+
+  /* Process (already column on tablet, fine as-is) */
+  .step-number { width: 48px; height: 48px; font-size: .875rem; }
+
+  /* FAQ */
+  .faq-question { padding: 16px 18px; font-size: .9375rem; }
+  .faq-answer-inner { padding: 0 18px 16px; }
+
+  /* Contact */
+  .enquiry-form-card { padding: 24px 20px; }
+
+  .form-row { grid-template-columns: 1fr; gap: 0; }
+
+  /* Footer */
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .footer-bottom-links { justify-content: center; flex-wrap: wrap; gap: 12px; }
+
+  /* WhatsApp float */
+  .whatsapp-float { bottom: 20px; right: 20px; }
+  .whatsapp-float-btn { width: 52px; height: 52px; }
+
+  .btt { bottom: 84px; right: 20px; }
+
+  /* Separate costs */
+  .separate-costs { padding: 20px 16px; }
+}
+
+/* ── Small mobile (max 480px) ────────────────────────────────── */
+@media (max-width: 479px) {
+
+  .hero-headline { font-size: 1.75rem; }
+
+  .industries-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .industry-card { padding: 12px 8px; }
+  .industry-icon { font-size: 1.5rem; }
+  .industry-name { font-size: .6875rem; }
+
+  .process-step { flex-direction: column; align-items: center; text-align: center; }
+
+  .section-tag { font-size: .6875rem; }
+
+  .benefit-chip { font-size: .75rem; }
+}
+
+/* ── Print ───────────────────────────────────────────────────── */
+@media print {
+  .header,
+  .whatsapp-float,
+  .btt,
+  .hero-visual,
+  .hero-actions,
+  .footer { display: none !important; }
+
+  .hero { background: none; color: #000; padding: 20px 0; }
+  .hero-headline { color: #000; }
+  .hero-subheadline { color: #333; }
+  .text-gradient { -webkit-text-fill-color: #1E40AF; }
+
+  * { box-shadow: none !important; }
+  a { color: #1E40AF; }
+  a::after { content: " (" attr(href) ")"; font-size: .8em; }
+}
+
+/* ── Reduced Motion ──────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  [data-animate] {
+    opacity: 1;
+    transform: none;
+  }
+
+  .whatsapp-float-btn::before { animation: none; }
+  .badge-dot { animation: none; }
+}
+
+/* ── Dark Mode (respects OS preference) ─────────────────────── */
+@media (prefers-color-scheme: dark) {
+  /* Only apply dark mode if explicitly wanted — for now keep light as default */
+  /* Uncomment the block below to enable automatic dark mode */
+
+  /*
+  :root {
+    --bg: #0F172A;
+    --surface: #1E293B;
+    --surface-2: #334155;
+    --card: #1E293B;
+    --text: #F1F5F9;
+    --text-muted: #94A3B8;
+    --border: #334155;
+  }
+
+  .header { background: rgba(15, 23, 42, .95); }
+  .footer { background: #020617; }
+  */
+}

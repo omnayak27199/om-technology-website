@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grand Palace Hotel — Demo | OM Technology</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Inter", system-ui, sans-serif; background: #0C1B33; color: #fff; }
+
+    /* Demo ribbon */
+    .demo-ribbon {
+      background: linear-gradient(90deg, #D97706, #F59E0B);
+      color: #fff;
+      text-align: center;
+      padding: 10px;
+      font-size: .875rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+    }
+    .demo-ribbon a { color: #fff; text-decoration: underline; }
+
+    /* Header */
+    .hotel-header {
+      background: rgba(255,255,255,.05);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      height: 72px;
+      gap: 32px;
+    }
+    .hotel-logo { font-size: 1.25rem; font-weight: 900; letter-spacing: -.02em; color: #D97706; }
+    .hotel-nav { display: flex; gap: 24px; margin-left: auto; }
+    .hotel-nav a { font-size: .9rem; color: rgba(255,255,255,.7); text-decoration: none; }
+    .hotel-nav a:hover { color: #fff; }
+    .hotel-book-btn {
+      background: #D97706;
+      color: #fff;
+      padding: 9px 20px;
+      border-radius: 9999px;
+      font-size: .875rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* Hero */
+    .hotel-hero {
+      height: 80vh;
+      min-height: 480px;
+      background: linear-gradient(135deg, #0C1B33 0%, #1a3665 50%, #0f2952 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      padding: 40px 24px;
+      overflow: hidden;
+    }
+    .hotel-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 30% 50%, rgba(217, 119, 6, .12) 0%, transparent 50%),
+        radial-gradient(circle at 70% 30%, rgba(37, 99, 235, .1) 0%, transparent 40%);
+    }
+    .hotel-hero-content { position: relative; z-index: 1; max-width: 640px; }
+    .hotel-tag { display: inline-block; background: rgba(217,119,6,.15); border: 1px solid rgba(217,119,6,.3); color: #FCD34D; font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 5px 14px; border-radius: 9999px; margin-bottom: 20px; }
+    .hotel-hero h1 { font-size: 3rem; font-weight: 900; letter-spacing: -.03em; line-height: 1.1; margin-bottom: 16px; }
+    .hotel-hero p { font-size: 1.0625rem; color: rgba(255,255,255,.7); margin-bottom: 32px; }
+    .hotel-hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-gold { background: #D97706; color: #fff; padding: 13px 28px; border-radius: 9999px; font-size: .9375rem; font-weight: 700; border: none; cursor: pointer; }
+    .btn-outline-light { background: transparent; color: #fff; padding: 11px 28px; border-radius: 9999px; font-size: .9375rem; font-weight: 600; border: 2px solid rgba(255,255,255,.4); cursor: pointer; }
+
+    /* Features strip */
+    .hotel-features {
+      background: #D97706;
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      padding: 20px 24px;
+      flex-wrap: wrap;
+    }
+    .hotel-feature { font-size: .875rem; font-weight: 700; color: #fff; }
+
+    /* Rooms */
+    .section { padding: 72px 24px; max-width: 1200px; margin: 0 auto; }
+    .section-title { font-size: 2rem; font-weight: 800; text-align: center; margin-bottom: 8px; color: #fff; }
+    .section-sub { text-align: center; color: rgba(255,255,255,.6); margin-bottom: 48px; }
+    .rooms-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .room-card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; overflow: hidden; transition: transform .2s; }
+    .room-card:hover { transform: translateY(-4px); }
+    .room-thumb { height: 160px; display: flex; align-items: center; justify-content: center; font-size: 4rem; }
+    .room-body { padding: 20px; }
+    .room-name { font-size: 1.0625rem; font-weight: 700; margin-bottom: 6px; }
+    .room-desc { font-size: .875rem; color: rgba(255,255,255,.6); margin-bottom: 16px; }
+    .room-price { font-size: 1.25rem; font-weight: 900; color: #FCD34D; margin-bottom: 12px; }
+    .room-btn { width: 100%; background: #D97706; color: #fff; border: none; padding: 10px; border-radius: 9999px; font-weight: 700; cursor: pointer; font-size: .875rem; }
+
+    /* Amenities */
+    .amenities-bg { background: rgba(255,255,255,.03); padding: 72px 24px; }
+    .amenities-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+    .amenity { text-align: center; padding: 24px 16px; }
+    .amenity-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .amenity-name { font-size: .9375rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .amenity-desc { font-size: .8125rem; color: rgba(255,255,255,.55); }
+
+    /* Footer */
+    .hotel-footer {
+      background: rgba(0,0,0,.3);
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding: 32px 24px;
+      text-align: center;
+      color: rgba(255,255,255,.45);
+      font-size: .875rem;
+    }
+    .hotel-footer strong { color: #D97706; }
+
+    @media (max-width: 767px) {
+      .rooms-grid { grid-template-columns: 1fr; }
+      .amenities-grid { grid-template-columns: repeat(2, 1fr); }
+      .hotel-hero h1 { font-size: 2rem; }
+      .hotel-nav { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="demo-ribbon" role="banner">
+    🎨 DEMO WEBSITE — This is a sample hotel website created by <a href="../../index.html">OM Technology</a>. Not a real business.
+  </div>
+
+  <header class="hotel-header" role="banner">
+    <div class="hotel-logo">✦ Grand Palace Hotel</div>
+    <nav class="hotel-nav" aria-label="Hotel navigation">
+      <a href="#">Rooms</a>
+      <a href="#">Amenities</a>
+      <a href="#">Gallery</a>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+    </nav>
+    <button class="hotel-book-btn">Book Now</button>
+  </header>
+
+  <main>
+    <section class="hotel-hero" aria-labelledby="hero-title">
+      <div class="hotel-hero-content">
+        <div class="hotel-tag">Luxury 5-Star Hotel</div>
+        <h1 id="hero-title">Experience Luxury<br>Like Never Before</h1>
+        <p>Indulge in world-class comfort, exceptional dining and unparalleled hospitality in the heart of the city.</p>
+        <div class="hotel-hero-btns">
+          <button class="btn-gold">Book Your Stay</button>
+          <button class="btn-outline-light">View Rooms</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="hotel-features" aria-label="Hotel highlights">
+      <span class="hotel-feature">✓ Free WiFi</span>
+      <span class="hotel-feature">✓ Swimming Pool</span>
+      <span class="hotel-feature">✓ Spa &amp; Wellness</span>
+      <span class="hotel-feature">✓ Fine Dining</span>
+      <span class="hotel-feature">✓ 24/7 Concierge</span>
+    </div>
+
+    <section class="section" aria-labelledby="rooms-title">
+      <h2 class="section-title" id="rooms-title">Our Rooms &amp; Suites</h2>
+      <p class="section-sub">Choose from our carefully curated range of luxurious rooms and suites</p>
+      <div class="rooms-grid">
+        <div class="room-card">
+          <div class="room-thumb" style="background:linear-gradient(135deg,#1a3a5c,#0c1b33)">🛏️</div>
+          <div class="room-body">
+            <div class="room-name">Deluxe Room</div>
+            <div class="room-desc">Comfortable room with city view, king-size bed and modern amenities.</div>
+            <div class="room-price">₹4,500 / night</div>
+            <button class="room-btn">Book Room</button>
+          </div>
+        </div>
+        <div class="room-card">
+          <div class="room-thumb" style="background:linear-gradient(135deg,#2d1a0a,#5a3010)">🏙️</div>
+          <div class="room-body">
+            <div class="room-name">Executive Suite</div>
+            <div class="room-desc">Spacious suite with separate living area, premium view and butler service.</div>
+            <div class="room-price">₹8,500 / night</div>
+            <button class="room-btn">Book Suite</button>
+          </div>
+        </div>
+        <div class="room-card">
+          <div class="room-thumb" style="background:linear-gradient(135deg,#1a2a1a,#1a4a1a)">👑</div>
+          <div class="room-body">
+            <div class="room-name">Presidential Suite</div>
+            <div class="room-desc">The ultimate luxury experience with panoramic views, private pool and 24/7 butler.</div>
+            <div class="room-price">₹22,000 / night</div>
+            <button class="room-btn">Book Suite</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="amenities-bg">
+      <section aria-labelledby="amenities-title">
+        <h2 class="section-title" id="amenities-title" style="margin-bottom:8px">World-Class Amenities</h2>
+        <p class="section-sub" style="margin-bottom:48px">Everything you need for a perfect stay</p>
+        <div class="amenities-grid">
+          <div class="amenity"><div class="amenity-icon">🏊</div><div class="amenity-name">Swimming Pool</div><div class="amenity-desc">Olympic-size heated pool</div></div>
+          <div class="amenity"><div class="amenity-icon">🍽️</div><div class="amenity-name">Fine Dining</div><div class="amenity-desc">3 award-winning restaurants</div></div>
+          <div class="amenity"><div class="amenity-icon">💆</div><div class="amenity-name">Spa &amp; Wellness</div><div class="amenity-desc">Full-service luxury spa</div></div>
+          <div class="amenity"><div class="amenity-icon">🏋️</div><div class="amenity-name">Fitness Centre</div><div class="amenity-desc">State-of-the-art gym</div></div>
+          <div class="amenity"><div class="amenity-icon">🎭</div><div class="amenity-name">Conference Hall</div><div class="amenity-desc">Corporate events &amp; weddings</div></div>
+          <div class="amenity"><div class="amenity-icon">🚗</div><div class="amenity-name">Valet Parking</div><div class="amenity-desc">Complimentary for guests</div></div>
+          <div class="amenity"><div class="amenity-icon">📶</div><div class="amenity-name">Free WiFi</div><div class="amenity-desc">High-speed throughout</div></div>
+          <div class="amenity"><div class="amenity-icon">🛎️</div><div class="amenity-name">24/7 Concierge</div><div class="amenity-desc">Always here for you</div></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="hotel-footer" role="contentinfo">
+    <p><strong>Grand Palace Hotel</strong> — This is a DEMO website created by OM Technology.</p>
+    <p style="margin-top:8px">Want a website like this for your hotel? <a href="../../index.html" style="color:#D97706;text-decoration:underline">Contact OM Technology</a></p>
+  </footer>
+
+</body>
+</html>
