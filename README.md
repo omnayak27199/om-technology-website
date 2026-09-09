@@ -89,7 +89,7 @@ Edit `js/config.js`:
 const CONFIG = {
   COMPANY_NAME : "OM Technology",
   TAGLINE      : "Web • Apps • Software • Digital Solutions",
-  EMAIL        : "hello@omtechnology.online",   // ← update this
+  EMAIL        : "omtechnology.pvt.ltd@gmail.com",   // ← update this
   WEBSITE      : "https://omtechnology.online", // ← update this
   LOCATION     : "India",
   ...
@@ -292,7 +292,7 @@ Future database entities to design: `users`, `customers`, `leads`, `projects`, `
 | Channel | Detail |
 |---|---|
 | WhatsApp | +91 93400 39411 |
-| Email | hello@omtechnology.online |
+| Email | omtechnology.pvt.ltd@gmail.com |
 | Website | https://omtechnology.online |
 
 ---

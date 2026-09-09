@@ -17,9 +17,10 @@ const CONFIG = {
   /* ── Contact ─────────────────────────────────────────────── */
   WHATSAPP_NUMBER  : "919340039411",          // E.164, no +
   WHATSAPP_DISPLAY : "+91 93400 39411",       // Human-readable
-  EMAIL            : "hello@omtechnology.online", // Update with official email
+  EMAIL            : "omtechnology.pvt.ltd@gmail.com",
   WEBSITE          : "https://omtechnology.online",
-  LOCATION         : "India",
+  LOCATION         : "Saraipali, Chhattisgarh",
+  SERVICE_AREAS    : ["Saraipali", "Basna", "Bhawarnpur", "Pithora"],
 
   /* ── Payment ─────────────────────────────────────────────── */
   // Leave empty until a payment gateway is configured.
