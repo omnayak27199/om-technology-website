@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" width="1080" height="1080">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#0C1B33"/>
+      <stop offset="60%"  stop-color="#0D3B6E"/>
+      <stop offset="100%" stop-color="#1A6E9F"/>
+    </linearGradient>
+    <linearGradient id="teal" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#00C8D7"/>
+      <stop offset="100%" stop-color="#0EA5E9"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#FBBF24"/>
+    </linearGradient>
+    <linearGradient id="cardBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.03"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1080" height="1080" fill="url(#bg)"/>
+
+  <!-- Decorative circles -->
+  <circle cx="980" cy="120"  r="200" fill="none" stroke="#00C8D7" stroke-width="1.5" opacity="0.12"/>
+  <circle cx="980" cy="120"  r="140" fill="none" stroke="#00C8D7" stroke-width="1"   opacity="0.10"/>
+  <circle cx="100" cy="960"  r="220" fill="none" stroke="#0EA5E9" stroke-width="1.5" opacity="0.10"/>
+  <circle cx="100" cy="960"  r="140" fill="none" stroke="#0EA5E9" stroke-width="1"   opacity="0.08"/>
+
+  <!-- Top accent line -->
+  <rect x="0" y="0" width="1080" height="5" fill="url(#teal)"/>
+
+  <!-- Logo area -->
+  <image href="/assets/logos/om-technology-logo.png" x="50" y="30" width="260" height="142"/>
+
+  <!-- Top-right: Website URL -->
+  <text x="1040" y="72" font-family="'Segoe UI',Arial,sans-serif" font-size="22" fill="#60CBDA" text-anchor="end" opacity="0.85">omtechnology.online</text>
+
+  <!-- ── HERO HEADLINE ── -->
+  <text x="540" y="220" font-family="'Segoe UI',Arial,sans-serif" font-size="36" font-weight="600" fill="#93C5FD" text-anchor="middle" letter-spacing="4" opacity="0.9">NOW SERVING</text>
+
+  <!-- Big location text -->
+  <text x="540" y="310" font-family="'Segoe UI',Arial,sans-serif" font-size="78" font-weight="900" fill="white" text-anchor="middle" letter-spacing="-1" filter="url(#glow)">Saraipali</text>
+  <text x="540" y="388" font-family="'Segoe UI',Arial,sans-serif" font-size="78" font-weight="900" fill="url(#teal)" text-anchor="middle" letter-spacing="-1">&amp; Surrounding Areas</text>
+
+  <!-- Divider -->
+  <rect x="190" y="420" width="700" height="3" rx="2" fill="url(#teal)" opacity="0.6"/>
+
+  <!-- Service area pills row -->
+  <!-- Pill 1: Saraipali -->
+  <rect x="62"  y="450" width="180" height="52" rx="26" fill="url(#cardBg)" stroke="#00C8D7" stroke-width="1.5"/>
+  <text x="152" y="482" font-family="'Segoe UI',Arial,sans-serif" font-size="24" font-weight="700" fill="white" text-anchor="middle">Saraipali</text>
+
+  <!-- Pill 2: Basna -->
+  <rect x="262" y="450" width="140" height="52" rx="26" fill="url(#cardBg)" stroke="#00C8D7" stroke-width="1.5"/>
+  <text x="332" y="482" font-family="'Segoe UI',Arial,sans-serif" font-size="24" font-weight="700" fill="white" text-anchor="middle">Basna</text>
+
+  <!-- Pill 3: Bhawarnpur -->
+  <rect x="422" y="450" width="210" height="52" rx="26" fill="url(#cardBg)" stroke="#00C8D7" stroke-width="1.5"/>
+  <text x="527" y="482" font-family="'Segoe UI',Arial,sans-serif" font-size="24" font-weight="700" fill="white" text-anchor="middle">Bhawarnpur</text>
+
+  <!-- Pill 4: Pithora -->
+  <rect x="652" y="450" width="155" height="52" rx="26" fill="url(#cardBg)" stroke="#00C8D7" stroke-width="1.5"/>
+  <text x="729" y="482" font-family="'Segoe UI',Arial,sans-serif" font-size="24" font-weight="700" fill="white" text-anchor="middle">Pithora</text>
+
+  <!-- Pill 5: Sankra -->
+  <rect x="827" y="450" width="148" height="52" rx="26" fill="url(#cardBg)" stroke="#00C8D7" stroke-width="1.5"/>
+  <text x="901" y="482" font-family="'Segoe UI',Arial,sans-serif" font-size="24" font-weight="700" fill="white" text-anchor="middle">Sankra</text>
+
+  <!-- ── SERVICES SECTION ── -->
+  <text x="540" y="570" font-family="'Segoe UI',Arial,sans-serif" font-size="30" font-weight="700" fill="url(#gold)" text-anchor="middle" letter-spacing="3">OUR SERVICES</text>
+
+  <!-- Service cards: row 1 -->
+  <!-- Card 1 -->
+  <rect x="50"  y="600" width="226" height="110" rx="16" fill="url(#cardBg)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+  <text x="163" y="648" font-family="'Segoe UI',Arial,sans-serif" font-size="32" text-anchor="middle">🌐</text>
+  <text x="163" y="678" font-family="'Segoe UI',Arial,sans-serif" font-size="20" font-weight="700" fill="white" text-anchor="middle">Website Design</text>
+  <text x="163" y="700" font-family="'Segoe UI',Arial,sans-serif" font-size="16" fill="#93C5FD" text-anchor="middle">from ₹5,000</text>
+
+  <!-- Card 2 -->
+  <rect x="296" y="600" width="226" height="110" rx="16" fill="url(#cardBg)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+  <text x="409" y="648" font-family="'Segoe UI',Arial,sans-serif" font-size="32" text-anchor="middle">🛒</text>
+  <text x="409" y="678" font-family="'Segoe UI',Arial,sans-serif" font-size="20" font-weight="700" fill="white" text-anchor="middle">E-Commerce</text>
+  <text x="409" y="700" font-family="'Segoe UI',Arial,sans-serif" font-size="16" fill="#93C5FD" text-anchor="middle">from ₹25,000</text>
+
+  <!-- Card 3 -->
+  <rect x="542" y="600" width="226" height="110" rx="16" fill="url(#cardBg)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+  <text x="655" y="648" font-family="'Segoe UI',Arial,sans-serif" font-size="32" text-anchor="middle">📱</text>
+  <text x="655" y="678" font-family="'Segoe UI',Arial,sans-serif" font-size="20" font-weight="700" fill="white" text-anchor="middle">Mobile Apps</text>
+  <text x="655" y="700" font-family="'Segoe UI',Arial,sans-serif" font-size="16" fill="#93C5FD" text-anchor="middle">Custom pricing</text>
+
+  <!-- Card 4 -->
+  <rect x="788" y="600" width="242" height="110" rx="16" fill="url(#cardBg)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+  <text x="909" y="648" font-family="'Segoe UI',Arial,sans-serif" font-size="32" text-anchor="middle">⚙️</text>
+  <text x="909" y="678" font-family="'Segoe UI',Arial,sans-serif" font-size="20" font-weight="700" fill="white" text-anchor="middle">Custom Software</text>
+  <text x="909" y="700" font-family="'Segoe UI',Arial,sans-serif" font-size="16" fill="#93C5FD" text-anchor="middle">Let's Discuss</text>
+
+  <!-- Row 2 -->
+  <!-- Card 5 -->
+  <rect x="50"  y="730" width="226" height="110" rx="16" fill="url(#cardBg)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+  <text x="163" y="778" font-family="'Segoe UI',Arial,sans-serif" font-size="32" text-anchor="middle">🔍</text>
+  <text x="163" y="808" font-family="'Segoe UI',Arial,sans-serif" font-size="20" font-weight="700" fill="white" text-anchor="middle">SEO &amp; Marketing</text>
+  <text x="163" y="830" font-family="'Segoe UI',Arial,sans-serif" font-size="16" fill="#93C5FD" text-anchor="middle">Grow your reach</text>
+
+  <!-- Card 6 -->
+  <rect x="296" y="730" width="226" height="110" rx="16" fill="url(#cardBg)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+  <text x="409" y="778" font-family="'Segoe UI',Arial,sans-serif" font-size="32" text-anchor="middle">🏥</text>
+  <text x="409" y="808" font-family="'Segoe UI',Arial,sans-serif" font-size="20" font-weight="700" fill="white" text-anchor="middle">Hospital / School</text>
+  <text x="409" y="830" font-family="'Segoe UI',Arial,sans-serif" font-size="16" fill="#93C5FD" text-anchor="middle">Management systems</text>
+
+  <!-- Card 7 -->
+  <rect x="542" y="730" width="226" height="110" rx="16" fill="url(#cardBg)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+  <text x="655" y="778" font-family="'Segoe UI',Arial,sans-serif" font-size="32" text-anchor="middle">💳</text>
+  <text x="655" y="808" font-family="'Segoe UI',Arial,sans-serif" font-size="20" font-weight="700" fill="white" text-anchor="middle">Payment Gateway</text>
+  <text x="655" y="830" font-family="'Segoe UI',Arial,sans-serif" font-size="16" fill="#93C5FD" text-anchor="middle">Razorpay / PhonePe</text>
+
+  <!-- Card 8 -->
+  <rect x="788" y="730" width="242" height="110" rx="16" fill="url(#cardBg)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+  <text x="909" y="778" font-family="'Segoe UI',Arial,sans-serif" font-size="32" text-anchor="middle">🛡️</text>
+  <text x="909" y="808" font-family="'Segoe UI',Arial,sans-serif" font-size="20" font-weight="700" fill="white" text-anchor="middle">Domain &amp; Hosting</text>
+  <text x="909" y="830" font-family="'Segoe UI',Arial,sans-serif" font-size="16" fill="#93C5FD" text-anchor="middle">Setup &amp; support</text>
+
+  <!-- Divider -->
+  <rect x="50" y="865" width="980" height="2" rx="1" fill="rgba(255,255,255,0.10)"/>
+
+  <!-- ── BOTTOM CTA ── -->
+  <!-- WhatsApp CTA button shape -->
+  <rect x="240" y="885" width="600" height="80" rx="40" fill="#25D366"/>
+  <text x="540" y="917" font-family="'Segoe UI',Arial,sans-serif" font-size="22" font-weight="700" fill="white" text-anchor="middle">📲 Chat on WhatsApp</text>
+  <text x="540" y="948" font-family="'Segoe UI',Arial,sans-serif" font-size="26" font-weight="900" fill="white" text-anchor="middle">+91 93400 39411</text>
+
+  <!-- Bottom tagline -->
+  <text x="540" y="1010" font-family="'Segoe UI',Arial,sans-serif" font-size="22" fill="#93C5FD" text-anchor="middle" opacity="0.8">Affordable Websites · Fast Delivery · Local Support</text>
+
+  <!-- Bottom accent line -->
+  <rect x="0" y="1075" width="1080" height="5" fill="url(#teal)"/>
+
+  <!-- Chhattisgarh text bottom right -->
+  <text x="1040" y="1060" font-family="'Segoe UI',Arial,sans-serif" font-size="18" fill="rgba(255,255,255,0.4)" text-anchor="end">Chhattisgarh, India</text>
+</svg>
