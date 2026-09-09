@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 120" width="280" height="120" role="img" aria-label="OM Technology — Innovating the Future">
+  <defs>
+    <!-- Outer ring gradient: teal top to dark blue bottom -->
+    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#00C8D7"/>
+      <stop offset="50%"  stop-color="#1A6E9F"/>
+      <stop offset="100%" stop-color="#0D3B6E"/>
+    </linearGradient>
+    <!-- T letter gradient -->
+    <linearGradient id="tGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#00D4E8"/>
+      <stop offset="100%" stop-color="#0A5FA0"/>
+    </linearGradient>
+    <!-- Inner fill gradient for O shape -->
+    <linearGradient id="oGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#0D3B6E"/>
+      <stop offset="100%" stop-color="#0A2A52"/>
+    </linearGradient>
+    <!-- Drop shadow -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0D3B6E" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- ── Mark: circular OT ── -->
+  <g transform="translate(55,58)" filter="url(#shadow)">
+
+    <!-- Outer ring (O shape) — thick teal/blue circle -->
+    <circle cx="0" cy="0" r="46" fill="none" stroke="url(#ringGrad)" stroke-width="10"/>
+
+    <!-- Inner dark fill for depth -->
+    <circle cx="0" cy="0" r="36" fill="url(#oGrad)" opacity="0.5"/>
+
+    <!-- Sweep arc highlight (top-right) — gives 3D look -->
+    <path d="M 10,-45 A 46,46 0 0,1 43,-16" fill="none" stroke="#00E5F5" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+    <!-- Sweep arc shadow (bottom-left) -->
+    <path d="M -10,45 A 46,46 0 0,1 -43,16" fill="none" stroke="#05547A" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+
+    <!-- T crossbar -->
+    <rect x="-22" y="-30" width="44" height="9" rx="4.5" fill="url(#tGrad)"/>
+
+    <!-- T vertical bar -->
+    <rect x="-6" y="-30" width="12" height="42" rx="5" fill="url(#tGrad)"/>
+
+    <!-- T crossbar shine -->
+    <rect x="-22" y="-30" width="44" height="3" rx="1.5" fill="white" opacity="0.25"/>
+
+    <!-- Decorative swoosh below T (matches the Gemini logo style) -->
+    <path d="M -28,18 Q -10,32 12,22" fill="none" stroke="url(#ringGrad)" stroke-width="4" stroke-linecap="round" opacity="0.7"/>
+
+  </g>
+
+  <!-- ── Text: OM TECHNOLOGY ── -->
+  <!-- OM -->
+  <text x="122" y="48"
+        font-family="'Segoe UI', Arial, sans-serif"
+        font-size="28"
+        font-weight="900"
+        fill="#0D3B6E"
+        letter-spacing="2">OM</text>
+
+  <!-- TECHNOLOGY -->
+  <text x="122" y="75"
+        font-family="'Segoe UI', Arial, sans-serif"
+        font-size="18"
+        font-weight="700"
+        fill="#1A6E9F"
+        letter-spacing="3">TECHNOLOGY</text>
+
+  <!-- INNOVATING THE FUTURE -->
+  <text x="122" y="96"
+        font-family="'Segoe UI', Arial, sans-serif"
+        font-size="9"
+        font-weight="500"
+        fill="#6B8CAE"
+        letter-spacing="2.5">INNOVATING THE FUTURE</text>
+
+</svg>
