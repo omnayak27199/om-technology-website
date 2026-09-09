@@ -20,7 +20,7 @@ const CONFIG = {
   EMAIL            : "omtechnology.pvt.ltd@gmail.com",
   WEBSITE          : "https://omtechnology.online",
   LOCATION         : "Saraipali, Chhattisgarh",
-  SERVICE_AREAS    : ["Saraipali", "Basna", "Bhawarnpur", "Pithora"],
+  SERVICE_AREAS    : ["Saraipali", "Basna", "Bhawarnpur", "Pithora", "Sankra"],
 
   /* ── Payment ─────────────────────────────────────────────── */
   // Leave empty until a payment gateway is configured.
