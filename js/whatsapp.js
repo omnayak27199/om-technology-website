@@ -74,6 +74,67 @@ function getDefaultMessage() {
 }
 
 /**
+ * WhatsApp Chat Popup Widget
+ * Wires up the floating chat bubble with open/close toggle and send button.
+ */
+function initWhatsAppWidget() {
+  var floatBtn  = document.getElementById("wa-float-btn");
+  var popup     = document.getElementById("wa-popup");
+  var closeBtn  = document.getElementById("wa-popup-close");
+  var input     = document.getElementById("wa-input");
+  var sendBtn   = document.getElementById("wa-send-btn");
+
+  if (!floatBtn || !popup) return;
+
+  function openPopup() {
+    popup.classList.add("wa-popup--open");
+    popup.setAttribute("aria-hidden", "false");
+    floatBtn.setAttribute("aria-expanded", "true");
+    if (input) setTimeout(function() { input.focus(); }, 250);
+  }
+
+  function closePopup() {
+    popup.classList.remove("wa-popup--open");
+    popup.setAttribute("aria-hidden", "true");
+    floatBtn.setAttribute("aria-expanded", "false");
+    floatBtn.focus();
+  }
+
+  function sendMessage() {
+    var text = input ? input.value.trim() : "";
+    var msg  = text || getDefaultMessage();
+    openWhatsApp(msg);
+    closePopup();
+    if (input) input.value = "";
+  }
+
+  floatBtn.addEventListener("click", function() {
+    var isOpen = floatBtn.getAttribute("aria-expanded") === "true";
+    isOpen ? closePopup() : openPopup();
+  });
+
+  if (closeBtn) closeBtn.addEventListener("click", closePopup);
+
+  if (sendBtn)  sendBtn.addEventListener("click", sendMessage);
+
+  if (input) {
+    input.addEventListener("keydown", function(e) {
+      if (e.key === "Enter") sendMessage();
+    });
+  }
+
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape" && floatBtn.getAttribute("aria-expanded") === "true") {
+      closePopup();
+    }
+  });
+
+  setTimeout(openPopup, 4000);
+}
+
+document.addEventListener("DOMContentLoaded", initWhatsAppWidget);
+
+/**
  * Payment CTA handler.
  * Opens the configured PAYMENT_LINK, or falls back to WhatsApp if none is set.
  * @param {string} [packageId] - Optional package key for the message
