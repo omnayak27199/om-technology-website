@@ -266,34 +266,7 @@
     }
   }
 
-  /* ── Dark Mode Toggle ────────────────────────────────────── */
-  function initDarkMode() {
-    var btn  = document.getElementById("dark-toggle");
-    var html = document.documentElement;
-    var PREF_KEY = "omt-theme";
-
-    function applyTheme(theme) {
-      html.setAttribute("data-theme", theme);
-      try { localStorage.setItem(PREF_KEY, theme); } catch(e) {}
-    }
-
-    // Restore saved preference
-    var saved;
-    try { saved = localStorage.getItem(PREF_KEY); } catch(e) {}
-    if (saved === "dark" || saved === "light") {
-      applyTheme(saved);
-    } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      applyTheme("dark");
-    }
-
-    if (!btn) return;
-    btn.addEventListener("click", function() {
-      var current = html.getAttribute("data-theme");
-      applyTheme(current === "dark" ? "light" : "dark");
-    });
-  }
-
-  /* ── Sticky CTA Bar (hide when scrolled to top) ──────────── */
+/* ── Sticky CTA Bar (hide when scrolled to top) ──────────── */
   function initStickyCTA() {
     var bar = document.getElementById("sticky-cta-bar");
     if (!bar) return;
@@ -308,7 +281,6 @@
    * ═══════════════════════════════════════════════════════════ */
   function boot() {
     initLoader();
-    initDarkMode();
     initNavigation();
     initSmoothScroll();
     initEnquiryForm();
