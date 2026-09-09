@@ -250,10 +250,110 @@
     }, { passive: true });
   }
 
+  /* ── Page Loader ─────────────────────────────────────────── */
+  function initLoader() {
+    var loader = document.getElementById("page-loader");
+    if (!loader) return;
+    function hide() {
+      loader.classList.add("hidden");
+    }
+    if (document.readyState === "complete") {
+      hide();
+    } else {
+      window.addEventListener("load", hide);
+      // Safety fallback — never block UX beyond 3 s
+      setTimeout(hide, 3000);
+    }
+  }
+
+  /* ── Dark Mode Toggle ────────────────────────────────────── */
+  function initDarkMode() {
+    var btn  = document.getElementById("dark-toggle");
+    var html = document.documentElement;
+    var PREF_KEY = "omt-theme";
+
+    function applyTheme(theme) {
+      html.setAttribute("data-theme", theme);
+      try { localStorage.setItem(PREF_KEY, theme); } catch(e) {}
+    }
+
+    // Restore saved preference
+    var saved;
+    try { saved = localStorage.getItem(PREF_KEY); } catch(e) {}
+    if (saved === "dark" || saved === "light") {
+      applyTheme(saved);
+    } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      applyTheme("dark");
+    }
+
+    if (!btn) return;
+    btn.addEventListener("click", function() {
+      var current = html.getAttribute("data-theme");
+      applyTheme(current === "dark" ? "light" : "dark");
+    });
+  }
+
+  /* ── Stats Counter Animation ─────────────────────────────── */
+  function initCounters() {
+    var items = document.querySelectorAll(".stat-item");
+    if (!items.length) return;
+
+    function countUp(el) {
+      var numEl   = el.querySelector(".stat-number[data-count]");
+      if (!numEl) return;
+      var target  = parseInt(numEl.getAttribute("data-count"), 10);
+      var suffix  = numEl.getAttribute("data-suffix") || "";
+      var duration = 1600;
+      var startTime = null;
+
+      function step(ts) {
+        if (!startTime) startTime = ts;
+        var progress = Math.min((ts - startTime) / duration, 1);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        var current = Math.round(eased * target);
+        numEl.innerHTML = current + '<span class="suffix">' + suffix + '</span>';
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    if ("IntersectionObserver" in window) {
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            countUp(entry.target);
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.3 });
+
+      items.forEach(function(item) { observer.observe(item); });
+    } else {
+      // Fallback: no animation, just show values
+      items.forEach(function(item) {
+        item.classList.add("visible");
+        countUp(item);
+      });
+    }
+  }
+
+  /* ── Sticky CTA Bar (hide when scrolled to top) ──────────── */
+  function initStickyCTA() {
+    var bar = document.getElementById("sticky-cta-bar");
+    if (!bar) return;
+    window.addEventListener("scroll", function() {
+      bar.classList.toggle("hidden-bar", window.scrollY < 80);
+    }, { passive: true });
+    bar.classList.add("hidden-bar");
+  }
+
   /* ═══════════════════════════════════════════════════════════
    * Boot
    * ═══════════════════════════════════════════════════════════ */
   function boot() {
+    initLoader();
+    initDarkMode();
     initNavigation();
     initSmoothScroll();
     initEnquiryForm();
@@ -261,6 +361,8 @@
     initIndustryCards();
     initPortfolio();
     initBackToTop();
+    initCounters();
+    initStickyCTA();
   }
 
   if (document.readyState === "loading") {

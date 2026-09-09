@@ -17,10 +17,15 @@ const CONFIG = {
   /* ── Contact ─────────────────────────────────────────────── */
   WHATSAPP_NUMBER  : "919340039411",          // E.164, no +
   WHATSAPP_DISPLAY : "+91 93400 39411",       // Human-readable
+  PHONE_DISPLAY    : "+91 93400 39411",       // Call button display
   EMAIL            : "omtechnology.pvt.ltd@gmail.com",
   WEBSITE          : "https://omtechnology.online",
   LOCATION         : "Saraipali, Chhattisgarh",
   SERVICE_AREAS    : ["Saraipali", "Basna", "Bhawarnpur", "Pithora", "Sankra"],
+
+  /* ── Analytics ───────────────────────────────────────────── */
+  // Paste your GA4 Measurement ID here (e.g. "G-XXXXXXXXXX")
+  ANALYTICS_ID     : "",
 
   /* ── Payment ─────────────────────────────────────────────── */
   // Leave empty until a payment gateway is configured.
