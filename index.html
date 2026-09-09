@@ -428,7 +428,14 @@
         <div class="section-header">
           <span class="section-tag">Transparent Pricing</span>
           <h2 class="section-title" id="pricing-heading">Simple, Clear Pricing</h2>
-          <p class="section-subtitle">No hidden charges. Domain and hosting are charged separately and will be clearly stated in your quotation.</p>
+          <p class="section-subtitle">No hidden charges. Every plan shows exactly what's included and what's not — so you know before you buy.</p>
+        </div>
+
+        <!-- Legend -->
+        <div class="pricing-legend" aria-label="Feature legend">
+          <span class="legend-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> Included</span>
+          <span class="legend-item"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="3" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Not in this plan</span>
+          <span class="legend-item"><span class="legend-addon" aria-hidden="true">+</span> Add-on available</span>
         </div>
 
         <!-- Top 3 cards -->
@@ -436,68 +443,86 @@
 
           <!-- Basic -->
           <div class="pricing-card" data-animate>
+            <div class="pricing-badge-row"><span class="pricing-type-tag">Static Website</span></div>
             <div class="pricing-name">Basic Website</div>
             <div class="pricing-amount">₹<span data-price-key="basic">5,000</span></div>
-            <div class="pricing-period">One-time</div>
+            <div class="pricing-period">One-time payment</div>
             <div class="pricing-note">⚠ Domain &amp; hosting charged separately</div>
+            <div class="pricing-ideal">Ideal for: Small shops, personal brands, freelancers</div>
             <div class="pricing-divider" aria-hidden="true"></div>
             <ul class="pricing-features" aria-label="Basic website features">
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Up to 5 pages</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Mobile responsive design</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>WhatsApp integration</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Contact form</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Google Maps</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Social media links</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Basic SEO</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>SSL certificate</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Website deployment</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Basic customization</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Up to 5 pages</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Mobile responsive design</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>WhatsApp chat button</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Contact form</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Google Maps</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Social media links</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Basic SEO</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>SSL certificate</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Website deployment</li>
+              <li class="pricing-feature pf-no"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Photo gallery</li>
+              <li class="pricing-feature pf-no"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Google Analytics</li>
+              <li class="pricing-feature pf-no"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Login / User accounts</li>
+              <li class="pricing-feature pf-no"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Payment gateway</li>
+              <li class="pricing-feature pf-no"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Database / dynamic content</li>
+              <li class="pricing-feature pf-no"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Admin panel</li>
             </ul>
             <button class="btn btn-outline pricing-cta" data-package="basic">Get Basic Website</button>
           </div>
 
           <!-- Business (Popular) -->
           <div class="pricing-card pricing-card--popular" data-animate data-animate-delay="1">
+            <div class="pricing-badge-row"><span class="pricing-type-tag ptt-white">Static Website</span></div>
             <div class="pricing-name">Business Website</div>
             <div class="pricing-amount">₹<span data-price-key="business">10,000</span></div>
-            <div class="pricing-period">One-time</div>
+            <div class="pricing-period">One-time payment</div>
             <div class="pricing-note">⚠ Domain &amp; hosting charged separately</div>
+            <div class="pricing-ideal ptt-white-text">Ideal for: Restaurants, clinics, agencies, local businesses</div>
             <div class="pricing-divider" aria-hidden="true"></div>
             <ul class="pricing-features" aria-label="Business website features">
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Up to 8–10 pages</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Professional UI design</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Mobile responsive design</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>WhatsApp integration</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Contact form</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Google Maps</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Social media integration</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Basic SEO</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Photo gallery</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Business sections</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Website deployment</li>
+              <li class="pricing-feature pf-yes pf-white"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Up to 10 pages</li>
+              <li class="pricing-feature pf-yes pf-white"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Professional UI design</li>
+              <li class="pricing-feature pf-yes pf-white"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Mobile responsive design</li>
+              <li class="pricing-feature pf-yes pf-white"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>WhatsApp chat button</li>
+              <li class="pricing-feature pf-yes pf-white"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Contact form</li>
+              <li class="pricing-feature pf-yes pf-white"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Google Maps</li>
+              <li class="pricing-feature pf-yes pf-white"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Photo gallery</li>
+              <li class="pricing-feature pf-yes pf-white"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Social media links</li>
+              <li class="pricing-feature pf-yes pf-white"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Basic SEO</li>
+              <li class="pricing-feature pf-yes pf-white"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>SSL certificate + Deployment</li>
+              <li class="pricing-feature pf-no pf-white-no"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Google Analytics</li>
+              <li class="pricing-feature pf-no pf-white-no"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Login / User accounts</li>
+              <li class="pricing-feature pf-no pf-white-no"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Payment gateway</li>
+              <li class="pricing-feature pf-no pf-white-no"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Database / dynamic content</li>
+              <li class="pricing-feature pf-no pf-white-no"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Admin panel</li>
             </ul>
             <button class="btn btn-outline-white pricing-cta" data-package="business">Get Business Website</button>
           </div>
 
           <!-- Professional -->
           <div class="pricing-card" data-animate data-animate-delay="2">
+            <div class="pricing-badge-row"><span class="pricing-type-tag">Static Website</span></div>
             <div class="pricing-name">Professional Website</div>
             <div class="pricing-amount">₹<span data-price-key="professional">15,000</span></div>
-            <div class="pricing-period">One-time</div>
+            <div class="pricing-period">One-time payment</div>
             <div class="pricing-note">⚠ Domain &amp; hosting charged separately</div>
+            <div class="pricing-ideal">Ideal for: Established businesses, corporate, educational</div>
             <div class="pricing-divider" aria-hidden="true"></div>
             <ul class="pricing-features" aria-label="Professional website features">
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Up to 15 pages</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Premium UI design</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Advanced sections</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>WhatsApp integration</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Multiple contact forms</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>SEO optimization</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Google Analytics</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Social media integrations</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Performance optimization</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Photo gallery</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Website deployment</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Up to 15 pages</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Premium UI design</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>WhatsApp chat popup widget</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Multiple contact forms</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Photo gallery</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Google Maps + Social links</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Advanced SEO</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Google Analytics setup</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Performance optimization</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>SSL certificate + Deployment</li>
+              <li class="pricing-feature pf-no"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Login / User accounts</li>
+              <li class="pricing-feature pf-no"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Payment gateway</li>
+              <li class="pricing-feature pf-no"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Database / dynamic content</li>
+              <li class="pricing-feature pf-no"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Admin panel</li>
             </ul>
             <button class="btn btn-outline pricing-cta" data-package="professional">Get Professional Website</button>
           </div>
@@ -509,36 +534,49 @@
 
           <!-- E-Commerce -->
           <div class="pricing-card" data-animate>
+            <div class="pricing-badge-row"><span class="pricing-type-tag ptt-ecom">Dynamic Website</span></div>
             <div class="pricing-name">E-Commerce</div>
             <div class="pricing-amount">₹<span data-price-key="ecommerce">25,000</span><span style="font-size:1.5rem">+</span></div>
             <div class="pricing-period">Price based on requirements</div>
-            <div class="pricing-note">⚠ Payment gateway charges apply separately</div>
+            <div class="pricing-note">⚠ Payment gateway transaction charges apply separately</div>
+            <div class="pricing-ideal">Ideal for: Online shops, product sellers, service booking</div>
             <div class="pricing-divider" aria-hidden="true"></div>
             <ul class="pricing-features" aria-label="E-commerce features">
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Product catalog</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Shopping cart &amp; checkout</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Payment integration</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Order management</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Customer accounts</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Admin functionality</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Product catalog &amp; pages</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Shopping cart &amp; checkout</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Payment gateway (Razorpay / PhonePe)</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Order management system</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Customer login accounts</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Admin panel (manage products &amp; orders)</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Database (dynamic content)</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Inventory management</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Mobile responsive + SEO</li>
+              <li class="pricing-feature pf-no"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Mobile app (Android/iOS)</li>
+              <li class="pricing-feature pf-no"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Custom CRM / ERP integration</li>
             </ul>
             <button class="btn btn-outline pricing-cta" data-package="ecommerce">Request E-Commerce</button>
           </div>
 
           <!-- Custom Application -->
           <div class="pricing-card" data-animate data-animate-delay="1">
+            <div class="pricing-badge-row"><span class="pricing-type-tag ptt-custom">Full Custom App</span></div>
             <div class="pricing-name">Custom Application</div>
             <div class="pricing-amount" style="font-size:2rem">Let's Discuss</div>
             <div class="pricing-period">Price based on requirements</div>
-            <div class="pricing-note" style="background:var(--accent-light);color:var(--accent);border-color:rgba(5,150,105,.2)">📋 Free consultation available</div>
+            <div class="pricing-note" style="background:var(--accent-light);color:var(--accent);border-color:rgba(5,150,105,.2)">Free consultation available</div>
+            <div class="pricing-ideal">Ideal for: Hospitals, schools, logistics, SaaS startups</div>
             <div class="pricing-divider" aria-hidden="true"></div>
-            <ul class="pricing-features" aria-label="Custom application examples">
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>CRM &amp; ERP systems</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Booking systems</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Hospital &amp; school management</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Inventory &amp; billing</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Business dashboards</li>
-              <li class="pricing-feature"><svg class="pricing-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Custom SaaS applications</li>
+            <ul class="pricing-features" aria-label="Custom application features">
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Custom login &amp; user roles</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Custom database design</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Payment gateway integration</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Admin / staff dashboards</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>CRM, ERP, billing systems</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Hospital / school management</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Booking &amp; appointment systems</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>API &amp; third-party integrations</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Mobile app (Android / iOS) — optional</li>
+              <li class="pricing-feature pf-yes"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Custom SaaS applications</li>
             </ul>
             <button class="btn btn-primary pricing-cta" data-package="custom">Request Consultation</button>
           </div>
@@ -547,14 +585,14 @@
 
         <!-- Separate costs clarification -->
         <div class="separate-costs" data-animate>
-          <h3 class="separate-costs-title">ℹ What Is Charged Separately</h3>
+          <h3 class="separate-costs-title">What Is Always Charged Separately</h3>
           <div class="costs-grid">
-            <div class="cost-item"><span class="cost-dot"></span><div><strong>Domain:</strong> Charged separately (renews yearly)</div></div>
-            <div class="cost-item"><span class="cost-dot"></span><div><strong>Hosting:</strong> Charged separately unless included in quote</div></div>
-            <div class="cost-item"><span class="cost-dot"></span><div><strong>Premium plugins:</strong> If required for your project</div></div>
-            <div class="cost-item"><span class="cost-dot"></span><div><strong>Premium images / content:</strong> If required</div></div>
-            <div class="cost-item"><span class="cost-dot"></span><div><strong>Payment gateway:</strong> Gateway transaction charges apply</div></div>
-            <div class="cost-item"><span class="cost-dot"></span><div><strong>Maintenance:</strong> Optional ongoing support plans available</div></div>
+            <div class="cost-item"><span class="cost-dot"></span><div><strong>Domain name:</strong> ~₹800–1,200/year (GoDaddy, Namecheap, etc.)</div></div>
+            <div class="cost-item"><span class="cost-dot"></span><div><strong>Web hosting:</strong> ~₹2,000–6,000/year (charged separately unless in quote)</div></div>
+            <div class="cost-item"><span class="cost-dot"></span><div><strong>Payment gateway fees:</strong> 2–3% per transaction (Razorpay / PhonePe)</div></div>
+            <div class="cost-item"><span class="cost-dot"></span><div><strong>Premium plugins / themes:</strong> Only if your project needs them</div></div>
+            <div class="cost-item"><span class="cost-dot"></span><div><strong>Stock images / content:</strong> If you need us to source them</div></div>
+            <div class="cost-item"><span class="cost-dot"></span><div><strong>Annual maintenance:</strong> Optional — ₹2,000+/year for updates &amp; support</div></div>
           </div>
         </div>
 

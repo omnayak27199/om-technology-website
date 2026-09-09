@@ -925,6 +925,94 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.2; }
   margin-top: auto;
 }
 
+/* ── Pricing legend ───────────────────────────────────────────── */
+.pricing-legend {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  justify-content: center;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.legend-addon {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--primary-600);
+  color: #fff;
+  font-size: .7rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Pricing type tag ─────────────────────────────────────────── */
+.pricing-badge-row {
+  margin-bottom: 10px;
+}
+
+.pricing-type-tag {
+  display: inline-block;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  background: var(--primary-50, #EFF6FF);
+  color: var(--primary-600);
+  border: 1px solid rgba(37,99,235,.15);
+}
+
+.pricing-type-tag.ptt-white {
+  background: rgba(255,255,255,.15);
+  color: rgba(255,255,255,.9);
+  border-color: rgba(255,255,255,.2);
+}
+
+.pricing-type-tag.ptt-ecom {
+  background: #FFF7ED;
+  color: #C2410C;
+  border-color: rgba(194,65,12,.15);
+}
+
+.pricing-type-tag.ptt-custom {
+  background: #F5F3FF;
+  color: #7C3AED;
+  border-color: rgba(124,58,237,.15);
+}
+
+/* ── Ideal for line ───────────────────────────────────────────── */
+.pricing-ideal {
+  font-size: .78rem;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  font-style: italic;
+}
+
+.ptt-white-text { color: rgba(255,255,255,.6); }
+
+/* ── Feature yes / no rows ────────────────────────────────────── */
+.pf-yes svg { color: #16a34a; flex-shrink: 0; margin-top: 2px; }
+.pf-no  { opacity: .55; }
+.pf-no  svg { color: #dc2626; flex-shrink: 0; margin-top: 2px; }
+
+.pf-white     { color: rgba(255,255,255,.9); }
+.pf-white svg { color: #34D399; }
+.pf-white-no  { color: rgba(255,255,255,.5); opacity: 1; }
+.pf-white-no svg { color: rgba(255,100,100,.7); }
+
 .separate-costs {
   background: var(--card);
   border: 1px solid var(--border);
