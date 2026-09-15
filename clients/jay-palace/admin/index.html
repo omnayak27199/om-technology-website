@@ -132,6 +132,44 @@
     /* LOADING */
     .loading { text-align: center; padding: 40px; color: var(--muted); }
 
+    /* MAIN VIEW TABS */
+    .main-tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+    .main-tab { background: var(--surface); border: 1px solid var(--border); color: var(--muted); padding: 9px 22px; border-radius: 9999px; font-size: .875rem; font-weight: 700; }
+    .main-tab.active { background: var(--gold); border-color: var(--gold); color: #000; }
+    .main-tab:hover:not(.active) { border-color: rgba(255,255,255,.25); color: var(--text); }
+
+    /* ROOM MANAGEMENT */
+    .rooms-admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 8px; }
+    .room-admin-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .room-admin-thumb { height: 90px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+    .room-admin-body { padding: 16px; }
+    .room-admin-name { font-size: .9375rem; font-weight: 800; margin-bottom: 4px; }
+    .room-admin-price { font-size: 1.4rem; font-weight: 900; color: var(--gold-light); margin-bottom: 10px; }
+    .room-admin-price small { font-size: .75rem; color: var(--muted); font-weight: 400; }
+    .room-admin-amenities { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
+    .room-admin-amenities span { font-size: .7rem; color: var(--muted); background: rgba(255,255,255,.04); border: 1px solid var(--border); padding: 2px 8px; border-radius: 9999px; }
+    .btn-edit-room { width: 100%; background: var(--gold); color: #000; border: none; padding: 9px; border-radius: 9999px; font-size: .8125rem; font-weight: 800; }
+
+    /* EDIT ROOM MODAL */
+    .edit-modal-overlay { display: none; position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,.8); backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 16px; }
+    .edit-modal-overlay.open { display: flex; }
+    .edit-modal { background: #0c1729; border: 1px solid var(--border); border-radius: 20px; padding: 28px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+    .edit-modal h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 20px; }
+    .edit-field { margin-bottom: 18px; }
+    .edit-field label { display: block; font-size: .78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 7px; }
+    .edit-field input { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; color: var(--text); font-size: .9375rem; font-weight: 700; }
+    .edit-field input:focus { outline: none; border-color: var(--gold); }
+    .amenity-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 10px; }
+    .amenity-chip { display: flex; align-items: center; gap: 5px; background: var(--surface); border: 1px solid var(--border); border-radius: 9999px; padding: 4px 10px; font-size: .78rem; color: var(--text); }
+    .amenity-chip button { background: none; border: none; color: var(--danger); font-size: .85rem; line-height: 1; padding: 0; cursor: pointer; font-weight: 700; }
+    .add-amenity-row { display: flex; gap: 8px; }
+    .add-amenity-row input { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 9999px; padding: 8px 14px; color: var(--text); font-size: .85rem; }
+    .add-amenity-row input:focus { outline: none; border-color: var(--gold); }
+    .btn-add-amenity { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 16px; border-radius: 9999px; font-size: .82rem; font-weight: 700; white-space: nowrap; }
+    .edit-modal-actions { display: flex; gap: 10px; margin-top: 22px; }
+    .btn-save-room { flex: 1; background: var(--gold); color: #000; border: none; padding: 12px; border-radius: 9999px; font-size: .9375rem; font-weight: 800; }
+    .btn-cancel-edit { flex: 1; background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 11px; border-radius: 9999px; font-size: .875rem; }
+
     /* ADMIN TOAST */
     .a-toast {
       position: fixed; bottom: 24px; right: 24px; z-index: 9999;
@@ -197,6 +235,14 @@
   </header>
 
   <div class="admin-body">
+    <!-- Main view tabs -->
+    <div class="main-tabs">
+      <button class="main-tab active" onclick="showView('bookings', this)">📋 Bookings</button>
+      <button class="main-tab" onclick="showView('rooms', this)">🏨 Manage Rooms</button>
+    </div>
+
+    <!-- BOOKINGS VIEW -->
+    <div id="bookingsView">
     <!-- Stats -->
     <div class="stats-grid">
       <div class="stat-card pending">
@@ -229,6 +275,46 @@
     <!-- Bookings list -->
     <div class="bookings-list" id="bookingsList">
       <div class="loading">Loading bookings...</div>
+    </div>
+    </div><!-- end bookingsView -->
+
+    <!-- ROOMS VIEW -->
+    <div id="roomsView" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div>
+          <h2 style="font-size:1.1rem;font-weight:800">Room Pricing &amp; Amenities</h2>
+          <p style="font-size:.8rem;color:var(--muted);margin-top:4px">Changes go live on the website immediately.</p>
+        </div>
+      </div>
+      <div class="rooms-admin-grid" id="roomsAdminGrid">
+        <div class="loading">Loading rooms...</div>
+      </div>
+    </div>
+
+  </div><!-- end admin-body -->
+</div><!-- end adminWrap -->
+
+<!-- EDIT ROOM MODAL -->
+<div class="edit-modal-overlay" id="editRoomModal">
+  <div class="edit-modal">
+    <h3 id="editRoomTitle">Edit Room</h3>
+    <input type="hidden" id="editRoomId">
+    <div class="edit-field">
+      <label>Price per night (₹)</label>
+      <input type="number" id="editRoomPrice" min="100" step="50">
+    </div>
+    <div class="edit-field">
+      <label>Amenities</label>
+      <div class="amenity-chips" id="amenityChips"></div>
+      <div class="add-amenity-row">
+        <input type="text" id="newAmenityInput" placeholder="e.g. Balcony, Mini Bar…"
+               onkeypress="if(event.key==='Enter'){event.preventDefault();addAmenityChip()}">
+        <button class="btn-add-amenity" onclick="addAmenityChip()">+ Add</button>
+      </div>
+    </div>
+    <div class="edit-modal-actions">
+      <button class="btn-save-room" onclick="saveRoom()">Save Changes</button>
+      <button class="btn-cancel-edit" onclick="closeEditModal()">Cancel</button>
     </div>
   </div>
 </div>
@@ -749,8 +835,107 @@
   function fmtDate(d) {
     return d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'
   }
-</script>
 
+  // ── View switcher ─────────────────────────────────────────
+  function showView(view, btn) {
+    document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'))
+    btn.classList.add('active')
+    document.getElementById('bookingsView').style.display = view === 'bookings' ? 'block' : 'none'
+    document.getElementById('roomsView').style.display    = view === 'rooms'    ? 'block' : 'none'
+    if (view === 'rooms') renderAdminRooms()
+  }
+
+  // ── Room Management ───────────────────────────────────────
+  let _adminRooms = []
+
+  function renderAdminRooms() {
+    db.collection('config').doc('rooms').get()
+      .then(doc => {
+        _adminRooms = (doc.exists && doc.data().rooms && doc.data().rooms.length)
+          ? doc.data().rooms
+          : JSON.parse(JSON.stringify(window.ROOMS))
+        paintAdminRooms()
+      })
+      .catch(() => {
+        _adminRooms = JSON.parse(JSON.stringify(window.ROOMS))
+        paintAdminRooms()
+      })
+  }
+
+  function paintAdminRooms() {
+    document.getElementById('roomsAdminGrid').innerHTML = _adminRooms.map(r => `
+      <div class="room-admin-card">
+        <div class="room-admin-thumb" style="background:${r.gradient}">${r.emoji}</div>
+        <div class="room-admin-body">
+          <div class="room-admin-name">${r.name}</div>
+          <div class="room-admin-price">₹${r.price.toLocaleString('en-IN')} <small>/ night</small></div>
+          <div class="room-admin-amenities">
+            ${r.amenities.map(a => `<span>${a}</span>`).join('')}
+          </div>
+          <button class="btn-edit-room" onclick="openEditModal('${r.id}')">✏️ Edit Price &amp; Amenities</button>
+        </div>
+      </div>
+    `).join('')
+  }
+
+  function openEditModal(id) {
+    const room = _adminRooms.find(r => r.id === id)
+    if (!room) return
+    document.getElementById('editRoomId').value       = id
+    document.getElementById('editRoomTitle').textContent = 'Edit: ' + room.name
+    document.getElementById('editRoomPrice').value    = room.price
+    renderAmenityChips(room.amenities.slice())
+    document.getElementById('editRoomModal').classList.add('open')
+  }
+
+  function closeEditModal() {
+    document.getElementById('editRoomModal').classList.remove('open')
+    document.getElementById('newAmenityInput').value = ''
+  }
+
+  let _editAmenities = []
+
+  function renderAmenityChips(list) {
+    _editAmenities = list
+    document.getElementById('amenityChips').innerHTML = _editAmenities.map((a, i) => `
+      <div class="amenity-chip">
+        <span>${a}</span>
+        <button onclick="removeAmenity(${i})" title="Remove">✕</button>
+      </div>
+    `).join('')
+  }
+
+  function removeAmenity(idx) {
+    _editAmenities.splice(idx, 1)
+    renderAmenityChips(_editAmenities)
+  }
+
+  function addAmenityChip() {
+    const val = document.getElementById('newAmenityInput').value.trim()
+    if (!val) return
+    _editAmenities.push(val)
+    renderAmenityChips(_editAmenities)
+    document.getElementById('newAmenityInput').value = ''
+  }
+
+  function saveRoom() {
+    const id    = document.getElementById('editRoomId').value
+    const price = parseInt(document.getElementById('editRoomPrice').value)
+    if (!price || price < 100) { showAdminToast('Enter a valid price', 'error'); return }
+
+    const idx = _adminRooms.findIndex(r => r.id === id)
+    if (idx < 0) return
+    _adminRooms[idx] = { ..._adminRooms[idx], price, amenities: [..._editAmenities] }
+
+    db.collection('config').doc('rooms').set({ rooms: _adminRooms })
+      .then(() => {
+        closeEditModal()
+        paintAdminRooms()
+        showAdminToast('Room updated! Live on website now.')
+      })
+      .catch(err => showAdminToast('Save failed: ' + err.message, 'error'))
+  }
+</script>
 
 </body>
 </html>

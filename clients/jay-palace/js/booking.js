@@ -7,10 +7,8 @@ let _pendingBooking = null   // stores booking data between form step and paymen
 
 // ── Init ───────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  renderRooms()
   renderAmenities()
   renderContact()
-  populateRoomSelect()
   setMinDates()
 
   document.getElementById('bookingModal').addEventListener('click', function(e) {
@@ -20,10 +18,28 @@ document.addEventListener('DOMContentLoaded', () => {
   try {
     if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG)
     db = firebase.firestore()
+    loadRoomsFromDB()
   } catch (e) {
     console.error('Firebase init failed:', e)
+    renderRooms()
+    populateRoomSelect()
   }
 })
+
+function loadRoomsFromDB() {
+  db.collection('config').doc('rooms').get()
+    .then(doc => {
+      if (doc.exists && doc.data().rooms && doc.data().rooms.length) {
+        window.ROOMS = doc.data().rooms
+      }
+      renderRooms()
+      populateRoomSelect()
+    })
+    .catch(() => {
+      renderRooms()
+      populateRoomSelect()
+    })
+}
 
 // ── Render ─────────────────────────────────────────────────
 function renderRooms() {
