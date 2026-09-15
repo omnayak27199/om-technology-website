@@ -257,7 +257,13 @@ function showUpiQR() {
 function confirmUpiPayment() {
   const b = _pendingBooking
   if (!b) return
-  saveBooking({ ...b, status: 'pending', paymentMethod: 'upi', paymentId: 'UPI-VERIFY' })
+  const utr = (document.getElementById('utrInput').value || '').trim()
+  if (!utr || utr.length < 6) {
+    showToast('Please enter the UTR / Transaction ID from your UPI app', true)
+    document.getElementById('utrInput').focus()
+    return
+  }
+  saveBooking({ ...b, status: 'pending', paymentMethod: 'upi', paymentId: 'UTR:' + utr })
 }
 
 // ── Step 2c: Pay at Hotel ──────────────────────────────────
@@ -278,8 +284,10 @@ function saveBooking(booking) {
 
   db.collection('bookings').add(data)
     .then(() => {
+      const utrNum   = booking.paymentId && booking.paymentId.startsWith('UTR:')
+                     ? booking.paymentId.replace('UTR:', '') : null
       const payLabel = booking.paymentMethod === 'razorpay' ? 'Paid via Razorpay ✓'
-                     : booking.paymentMethod === 'upi'      ? 'UPI payment (pending verification)'
+                     : booking.paymentMethod === 'upi'      ? `UPI — UTR: ${utrNum || 'unknown'} ⚠️ VERIFY IN PAYTM APP`
                      : 'Pay at Hotel (cash on arrival)'
 
       const ownerMsg = encodeURIComponent(

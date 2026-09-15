@@ -185,8 +185,11 @@
     /* PAYMENT METHOD CHIP */
     .pay-chip { font-size: .7rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px; display: inline-block; margin-bottom: 8px; }
     .pay-chip.razorpay { background: rgba(59,130,246,.15); color: var(--info); border: 1px solid rgba(59,130,246,.3); }
-    .pay-chip.upi      { background: rgba(16,185,129,.15); color: var(--success); border: 1px solid rgba(16,185,129,.3); }
-    .pay-chip.cash     { background: rgba(245,158,11,.15); color: var(--warning); border: 1px solid rgba(245,158,11,.3); }
+    .pay-chip.upi      { background: rgba(245,158,11,.15); color: var(--warning); border: 1px solid rgba(245,158,11,.3); }
+    .pay-chip.cash     { background: rgba(107,66,38,.12); color: #9b6b46; border: 1px solid rgba(107,66,38,.25); }
+    .utr-verify-box { background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.35); border-radius: 8px; padding: 8px 12px; margin-bottom: 8px; font-size: .75rem; }
+    .utr-verify-box strong { color: var(--warning); display: block; margin-bottom: 2px; }
+    .utr-verify-box span { color: var(--muted); }
     .btn-email { background: #8b5cf6; color: #fff; border: none; padding: 9px 16px; border-radius: 9999px; font-size: .8125rem; font-weight: 700; }
     .btn-email:hover { opacity: .9; }
     .btn-mark-paid { background: var(--success); color: #fff; border: none; padding: 9px 16px; border-radius: 9999px; font-size: .8125rem; font-weight: 700; }
@@ -466,15 +469,24 @@
     // Payment method chip
     const chipClass = b.paymentMethod || 'cash'
     const chipLabel = b.paymentMethod === 'razorpay' ? '💳 Razorpay'
-                    : b.paymentMethod === 'upi'      ? '📱 UPI Paid'
+                    : b.paymentMethod === 'upi'      ? '📱 UPI — Verify'
                     : b.paymentMethod === 'cash'     ? '🏨 Pay at Hotel'
                     : ''
     const chip = chipLabel
       ? `<div class="pay-chip ${chipClass}">${chipLabel}</div>`
       : ''
 
+    // UTR verify box for UPI bookings
+    const utrNum = b.paymentId && b.paymentId.startsWith('UTR:') ? b.paymentId.replace('UTR:', '') : null
+    const utrBox = (b.paymentMethod === 'upi' && b.status === 'pending')
+      ? `<div class="utr-verify-box">
+          <strong>⚠️ Verify UPI Payment First</strong>
+          <span>UTR: <strong style="color:var(--text)">${utrNum || 'not provided'}</strong> — Check in your Paytm app before approving.</span>
+         </div>`
+      : ''
+
     if (b.status === 'pending') {
-      return `${chip}
+      return `${chip}${utrBox}
         <button class="btn-approve" onclick="approveBooking('${id}')">✓ Approve</button>
         <button class="btn-reject"  onclick="rejectBooking('${id}')">✗ Reject</button>`
     }

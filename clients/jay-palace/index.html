@@ -272,9 +272,23 @@
           <span>📲 GPay</span><span>📲 PhonePe</span><span>📲 Paytm</span><span>📲 Any UPI App</span>
         </div>
         <p style="font-size:.82rem;color:var(--muted);margin-bottom:16px">
-          After paying, click <strong>"I've Paid"</strong> to confirm your booking.
+          After paying, enter your <strong>UTR / Transaction ID</strong> from the UPI app to confirm.
         </p>
-        <button class="btn-paid" onclick="confirmUpiPayment()">✓ I've Paid — Confirm Booking</button>
+
+        <!-- UTR entry (shown after scanning) -->
+        <div id="utrSection">
+          <div style="background:#f5f0ea;border:1px solid #d6c8bb;border-radius:10px;padding:14px;margin-bottom:12px;text-align:left">
+            <div style="font-size:.75rem;font-weight:700;color:#7b4f2e;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Step: Find UTR in your UPI app</div>
+            <div style="font-size:.78rem;color:#6b6560;line-height:1.6">
+              📱 Open <strong>GPay / PhonePe / Paytm</strong> → Transaction History → Copy the <strong>UTR number</strong> (12 digits shown after payment)
+            </div>
+          </div>
+          <input type="text" id="utrInput"
+            placeholder="Enter UTR / Transaction ID (e.g. 428539102847)"
+            style="width:100%;background:#faf8f5;border:1.5px solid #d6c8bb;border-radius:10px;padding:11px 14px;color:#1a0f08;font-size:.9rem;margin-bottom:10px;font-family:inherit">
+          <button class="btn-paid" onclick="confirmUpiPayment()">✓ Submit &amp; Confirm Booking</button>
+        </div>
+
         <button class="btn-back" onclick="backToPayment()">← Choose different payment</button>
       </div>
     </div>
