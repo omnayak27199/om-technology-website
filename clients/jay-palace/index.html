@@ -260,36 +260,75 @@
       <button class="btn-back" onclick="backToForm()">← Back to form</button>
     </div>
 
-    <!-- Step 2b: UPI QR -->
+    <!-- Step 2b: UPI -->
     <div id="upiStep" style="display:none">
       <div class="upi-box">
-        <h4>Scan &amp; Pay ₹<span id="upiAmountDisplay"></span></h4>
+
+        <!-- Countdown timer -->
+        <div class="upi-timer-wrap">
+          <div class="upi-timer" id="upiTimerEl">
+            <svg viewBox="0 0 68 68">
+              <circle cx="34" cy="34" r="29" fill="none" stroke="#e0d5cc" stroke-width="5"/>
+              <circle id="timerRing" cx="34" cy="34" r="29" fill="none" stroke="#7b4f2e" stroke-width="5"
+                      stroke-dasharray="182.2" stroke-dashoffset="0" stroke-linecap="round"
+                      transform="rotate(-90 34 34)" style="transition:stroke-dashoffset 1s linear,stroke .5s"/>
+            </svg>
+            <span class="timer-text" id="timerDisplay">7:00</span>
+          </div>
+          <div class="timer-label">Complete payment within 7 minutes</div>
+        </div>
+
+        <!-- Amount + UPI ID -->
+        <div class="upi-amount-row">
+          <span class="upi-amt">₹<span id="upiAmountDisplay"></span></span>
+          <span class="upi-to">→</span>
+          <span class="upi-id" id="upiIdDisplay"></span>
+        </div>
+
+        <!-- App buttons -->
+        <div class="upi-apps-grid">
+          <button class="upi-app-btn gpay" onclick="openUpiApp('gpay')">
+            <div class="app-logo">G</div>
+            <span class="app-name">Google Pay</span>
+          </button>
+          <button class="upi-app-btn phonepe" onclick="openUpiApp('phonepe')">
+            <div class="app-logo">Pe</div>
+            <span class="app-name">PhonePe</span>
+          </button>
+          <button class="upi-app-btn paytm" onclick="openUpiApp('paytm')">
+            <div class="app-logo">P</div>
+            <span class="app-name">Paytm</span>
+          </button>
+          <button class="upi-app-btn bhim" onclick="openUpiApp('bhim')">
+            <div class="app-logo">B</div>
+            <span class="app-name">BHIM / Any</span>
+          </button>
+        </div>
+
+        <!-- QR code (for desktop or scan) -->
+        <div class="upi-or">or scan QR code</div>
         <div class="upi-qr-wrap">
           <img id="upiQRImg" src="" alt="UPI QR Code">
         </div>
-        <div class="upi-id-chip" id="upiIdDisplay"></div>
-        <div class="upi-apps">
-          <span>📲 GPay</span><span>📲 PhonePe</span><span>📲 Paytm</span><span>📲 Any UPI App</span>
-        </div>
-        <p style="font-size:.82rem;color:var(--muted);margin-bottom:16px">
-          After paying, enter your <strong>UTR / Transaction ID</strong> from the UPI app to confirm.
-        </p>
 
-        <!-- UTR entry (shown after scanning) -->
-        <div id="utrSection">
-          <div style="background:#f5f0ea;border:1px solid #d6c8bb;border-radius:10px;padding:14px;margin-bottom:12px;text-align:left">
-            <div style="font-size:.75rem;font-weight:700;color:#7b4f2e;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Step: Find UTR in your UPI app</div>
-            <div style="font-size:.78rem;color:#6b6560;line-height:1.6">
-              📱 Open <strong>GPay / PhonePe / Paytm</strong> → Transaction History → Copy the <strong>UTR number</strong> (12 digits shown after payment)
-            </div>
-          </div>
-          <input type="text" id="utrInput"
-            placeholder="Enter UTR / Transaction ID (e.g. 428539102847)"
-            style="width:100%;background:#faf8f5;border:1.5px solid #d6c8bb;border-radius:10px;padding:11px 14px;color:#1a0f08;font-size:.9rem;margin-bottom:10px;font-family:inherit">
-          <button class="btn-paid" onclick="confirmUpiPayment()">✓ Submit &amp; Confirm Booking</button>
+        <!-- UTR input -->
+        <div class="utr-input-section" id="utrSection">
+          <p class="utr-hint">
+            After paying → open your UPI app → <strong>Transaction History</strong> → copy the <strong>UTR / Reference number</strong>
+          </p>
+          <input type="text" id="utrInput" placeholder="Enter UTR / Transaction ID (e.g. 428539102847)"
+                 inputmode="numeric">
+          <button class="btn-paid" id="btnConfirmUpi" onclick="confirmUpiPayment()">
+            ✓ Submit &amp; Confirm Booking
+          </button>
         </div>
 
-        <button class="btn-back" onclick="backToPayment()">← Choose different payment</button>
+        <!-- Timer expired message -->
+        <div class="upi-expired" id="upiExpired" style="display:none">
+          ⏰ Session expired. Please go back and start a new payment.
+        </div>
+
+        <button class="btn-back" onclick="backToPaymentFromUpi()">← Choose different payment</button>
       </div>
     </div>
 

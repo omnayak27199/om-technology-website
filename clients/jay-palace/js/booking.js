@@ -239,30 +239,109 @@ function payWithRazorpay() {
   rzp.open()
 }
 
-// ── Step 2b: UPI QR ────────────────────────────────────────
+// ── Step 2b: UPI QR + App buttons ──────────────────────────
+let _upiTimer    = null
+let _upiTimeLeft = 0
+const UPI_DURATION = 420  // 7 minutes
+
 function showUpiQR() {
   const b = _pendingBooking
   if (!b) return
 
-  const upiLink = `upi://pay?pa=${encodeURIComponent(HOTEL.upiId)}&pn=${encodeURIComponent('Hotel Jay Palace')}&am=${b.totalAmount}&cu=INR&tn=${encodeURIComponent('Room booking ' + b.bookingCode)}`
+  const pa = encodeURIComponent(HOTEL.upiId)
+  const pn = encodeURIComponent('Hotel Jay Palace')
+  const tn = encodeURIComponent('Room booking ' + b.bookingCode)
+  const upiLink = `upi://pay?pa=${pa}&pn=${pn}&am=${b.totalAmount}&cu=INR&tn=${tn}`
   const qrUrl   = `https://chart.googleapis.com/chart?chs=220x220&cht=qr&choe=UTF-8&chl=${encodeURIComponent(upiLink)}`
 
   document.getElementById('upiAmountDisplay').textContent = b.totalAmount.toLocaleString('en-IN')
   document.getElementById('upiIdDisplay').textContent     = HOTEL.upiId
   document.getElementById('upiQRImg').src                 = qrUrl
+  document.getElementById('utrInput').value               = ''
+  document.getElementById('upiExpired').style.display     = 'none'
+  document.getElementById('utrSection').style.display     = 'block'
+  const btn = document.getElementById('btnConfirmUpi')
+  if (btn) btn.disabled = false
 
   showStep('upiStep')
+  startUpiTimer()
+}
+
+function openUpiApp(app) {
+  const b = _pendingBooking
+  if (!b) return
+  const pa = encodeURIComponent(HOTEL.upiId)
+  const pn = encodeURIComponent('Hotel Jay Palace')
+  const am = b.totalAmount
+  const tn = encodeURIComponent('Room booking ' + b.bookingCode)
+  const links = {
+    gpay:    `tez://upi/pay?pa=${pa}&pn=${pn}&am=${am}&cu=INR&tn=${tn}`,
+    phonepe: `phonepe://pay?pa=${pa}&pn=${pn}&am=${am}&cu=INR&tn=${tn}`,
+    paytm:   `paytmmp://pay?pa=${pa}&pn=${pn}&am=${am}&cu=INR&tn=${tn}`,
+    bhim:    `upi://pay?pa=${pa}&pn=${pn}&am=${am}&cu=INR&tn=${tn}`,
+  }
+  window.location.href = links[app] || links.bhim
+}
+
+function startUpiTimer() {
+  clearInterval(_upiTimer)
+  _upiTimeLeft = UPI_DURATION
+  const ring = document.getElementById('timerRing')
+  const circumference = 182.2  // 2π × r(29)
+
+  function tick() {
+    const mins = Math.floor(_upiTimeLeft / 60)
+    const secs = _upiTimeLeft % 60
+    const el = document.getElementById('timerDisplay')
+    const timerEl = document.getElementById('upiTimerEl')
+    if (el) el.textContent = `${mins}:${secs.toString().padStart(2, '0')}`
+
+    // Ring progress
+    if (ring) ring.style.strokeDashoffset = circumference * (1 - _upiTimeLeft / UPI_DURATION)
+
+    // Colour stages
+    if (timerEl) {
+      timerEl.className = 'upi-timer' +
+        (_upiTimeLeft <= 60 ? ' timer-danger' : _upiTimeLeft <= 180 ? ' timer-warn' : '')
+    }
+    if (ring) {
+      ring.style.stroke = _upiTimeLeft <= 60 ? '#dc2626'
+                        : _upiTimeLeft <= 180 ? '#d97706'
+                        : '#7b4f2e'
+    }
+
+    if (_upiTimeLeft <= 0) {
+      clearInterval(_upiTimer)
+      const expiredEl = document.getElementById('upiExpired')
+      const utrEl     = document.getElementById('utrSection')
+      const btn       = document.getElementById('btnConfirmUpi')
+      if (expiredEl) expiredEl.style.display = 'block'
+      if (utrEl)     utrEl.style.display     = 'none'
+      if (btn)       btn.disabled            = true
+      return
+    }
+    _upiTimeLeft--
+  }
+  tick()
+  _upiTimer = setInterval(tick, 1000)
+}
+
+function backToPaymentFromUpi() {
+  clearInterval(_upiTimer)
+  backToPayment()
 }
 
 function confirmUpiPayment() {
   const b = _pendingBooking
   if (!b) return
+  if (_upiTimeLeft <= 0) { showToast('Session expired. Please go back and try again.', true); return }
   const utr = (document.getElementById('utrInput').value || '').trim()
   if (!utr || utr.length < 6) {
     showToast('Please enter the UTR / Transaction ID from your UPI app', true)
     document.getElementById('utrInput').focus()
     return
   }
+  clearInterval(_upiTimer)
   saveBooking({ ...b, status: 'pending', paymentMethod: 'upi', paymentId: 'UTR:' + utr })
 }
 
@@ -521,14 +600,16 @@ function showToast(msg, isError) {
 }
 
 // Expose to HTML
-window.openBookingModal   = openBookingModal
-window.closeBookingModal  = closeBookingModal
-window.submitBooking      = submitBooking
-window.onRoomTypeChange   = onRoomTypeChange
-window.recalcPrice        = recalcPrice
-window.payWithRazorpay    = payWithRazorpay
-window.showUpiQR          = showUpiQR
-window.confirmUpiPayment  = confirmUpiPayment
-window.payAtHotel         = payAtHotel
-window.backToForm         = backToForm
-window.backToPayment      = backToPayment
+window.openBookingModal      = openBookingModal
+window.closeBookingModal     = closeBookingModal
+window.submitBooking         = submitBooking
+window.onRoomTypeChange      = onRoomTypeChange
+window.recalcPrice           = recalcPrice
+window.payWithRazorpay       = payWithRazorpay
+window.showUpiQR             = showUpiQR
+window.openUpiApp            = openUpiApp
+window.confirmUpiPayment     = confirmUpiPayment
+window.payAtHotel            = payAtHotel
+window.backToForm            = backToForm
+window.backToPayment         = backToPayment
+window.backToPaymentFromUpi  = backToPaymentFromUpi
