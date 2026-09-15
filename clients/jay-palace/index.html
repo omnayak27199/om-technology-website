@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jay Palace — Saraipali's Finest Hotel</title>
-  <meta name="description" content="Experience comfort and hospitality at Jay Palace, Saraipali's premier hotel. Book your stay online.">
+  <title>Hotel Jay Palace — Saraipali's Finest Hotel</title>
+  <meta name="description" content="Experience comfort and hospitality at Hotel Jay Palace, Saraipali's premier hotel. Book your stay online.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -14,7 +14,7 @@
 
 <!-- ── HEADER ─────────────────────────────────────────────── -->
 <header class="header">
-  <div class="header-logo">✦ Jay Palace <span>Hotel</span></div>
+  <div class="header-logo">✦ Hotel Jay Palace</div>
   <nav class="header-nav">
     <a href="#rooms">Rooms</a>
     <a href="#amenities">Amenities</a>
@@ -27,7 +27,7 @@
 <section class="hero">
   <div class="hero-content">
     <div class="hero-badge">Premium Hotel · Saraipali, Chhattisgarh</div>
-    <h1>Welcome to<br><em>Jay Palace</em></h1>
+    <h1>Welcome to<br><em>Hotel Jay Palace</em></h1>
     <p>Experience warm hospitality, comfortable rooms and world-class service in the heart of Saraipali.</p>
     <div class="hero-btns">
       <button class="btn-primary" onclick="openBookingModal()">Book Your Stay</button>
@@ -113,14 +113,19 @@
       </div>
     </div>
     <div>
-      <div class="map-placeholder" id="mapContainer">
-        <div class="map-icon">📍</div>
-        <strong>Jay Palace</strong>
-        <span style="color:var(--muted);font-size:.8rem">Saraipali, Chhattisgarh</span>
-        <a href="#" id="mapLink" target="_blank"
-           style="margin-top:8px;background:var(--gold);color:#000;padding:8px 20px;border-radius:9999px;font-size:.8rem;font-weight:700;">
-          Open in Google Maps
-        </a>
+      <div style="border-radius:16px;overflow:hidden;border:1px solid var(--border);">
+        <iframe
+          src="https://maps.google.com/maps?q=Hotel+Jay+Palace+Saraipali&output=embed"
+          width="100%" height="280" style="border:0;display:block;"
+          allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+        <div style="padding:12px 16px;background:var(--surface);display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:.8rem;color:var(--muted);">📍 Saraipali, Chhattisgarh</span>
+          <a href="https://maps.app.goo.gl/wbtZpwUweqdRTicHA" target="_blank"
+             style="background:var(--gold);color:#000;padding:7px 16px;border-radius:9999px;font-size:.75rem;font-weight:700;">
+            Open in Maps
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -128,7 +133,7 @@
 
 <!-- ── FOOTER ─────────────────────────────────────────────── -->
 <footer class="footer">
-  <div class="footer-logo">✦ Jay Palace Hotel</div>
+  <div class="footer-logo">✦ Hotel Jay Palace</div>
   <div class="footer-tagline">Saraipali's Finest Hotel</div>
   <div class="footer-links">
     <a href="#rooms">Rooms</a>

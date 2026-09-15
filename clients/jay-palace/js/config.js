@@ -5,13 +5,13 @@
 
 // Assigned to window so ES modules (booking.js, admin.js) can read them as globals
 window.HOTEL = {
-  name:        'Jay Palace',
+  name:        'Hotel Jay Palace',
   tagline:     "Saraipali's Finest Hotel",
   phone:       '+91 XXXXX XXXXX',      // TODO: owner's phone number
   whatsapp:    '91XXXXXXXXXX',          // TODO: owner's WhatsApp (country code + number, no +)
   email:       'jaypalace@gmail.com',   // TODO: hotel email
   address:     'Main Road, Saraipali, Chhattisgarh 493558',
-  mapLink:     '#',                     // TODO: paste Google Maps share link here
+  mapLink:     'https://maps.app.goo.gl/wbtZpwUweqdRTicHA',
   checkIn:     '12:00 PM',
   checkOut:    '11:00 AM',
   gst:         0,                       // GST % to add on total (e.g. 12 for 12%). 0 = no GST
