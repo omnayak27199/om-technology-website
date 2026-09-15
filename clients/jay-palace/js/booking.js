@@ -1,19 +1,11 @@
 // ============================================================
-//  JAY PALACE — Booking Logic (Frontend)
-//  Uses Firebase Firestore to store bookings
-//  Uses WhatsApp wa.me links for notifications (no API cost)
+//  JAY PALACE — Booking Logic
+//  Firebase compat SDK (loaded via CDN in index.html)
 // ============================================================
 
 // ── Firebase Init ──────────────────────────────────────────
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js'
-import { getFirestore, collection, addDoc, serverTimestamp }
-  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'
-
-if (!window.FIREBASE_CONFIG) {
-  console.error('FIREBASE_CONFIG not loaded — check config.js is included before booking.js')
-}
-const app = initializeApp(window.FIREBASE_CONFIG)
-const db  = getFirestore(app)
+firebase.initializeApp(window.FIREBASE_CONFIG)
+const db = firebase.firestore()
 
 // ── Page Init ──────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -22,6 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
   renderContact()
   populateRoomSelect()
   setMinDates()
+
+  document.getElementById('bookingModal').addEventListener('click', function(e) {
+    if (e.target === this) closeBookingModal()
+  })
 })
 
 // ── Render Rooms ───────────────────────────────────────────
@@ -41,8 +37,8 @@ function renderRooms() {
         </div>
         <div class="room-desc">${room.desc}</div>
         <div class="room-amenities">
-          ${room.amenities.slice(0, 5).map(a => `<span>${a}</span>`).join('')}
-          ${room.amenities.length > 5 ? `<span>+${room.amenities.length - 5} more</span>` : ''}
+          ${room.amenities.slice(0,5).map(a => `<span>${a}</span>`).join('')}
+          ${room.amenities.length > 5 ? `<span>+${room.amenities.length-5} more</span>` : ''}
         </div>
         <div class="room-price">₹${room.price.toLocaleString('en-IN')} <small>/ night</small></div>
         <button class="btn-book-room" onclick="openBookingModal('${room.id}')">Book Now</button>
@@ -72,14 +68,11 @@ function renderContact() {
     `Check-in: ${HOTEL.checkIn} · Check-out: ${HOTEL.checkOut}`
 
   const wa = document.getElementById('contactWA')
-  wa.href = `https://wa.me/${HOTEL.whatsapp}?text=Hello%20Jay%20Palace%2C%20I%20have%20a%20query.`
+  wa.href = `https://wa.me/${HOTEL.whatsapp}?text=Hello%20Hotel%20Jay%20Palace%2C%20I%20have%20a%20query.`
   wa.textContent = 'Chat on WhatsApp'
 
-  const waFloat = document.getElementById('waFloat')
-  waFloat.href = `https://wa.me/${HOTEL.whatsapp}?text=Hello%20Jay%20Palace!`
-
-  const mapLinkEl = document.getElementById('mapLink')
-  if (HOTEL.mapLink && HOTEL.mapLink !== '#') mapLinkEl.href = HOTEL.mapLink
+  document.getElementById('waFloat').href =
+    `https://wa.me/${HOTEL.whatsapp}?text=Hello%20Hotel%20Jay%20Palace!`
 }
 
 // ── Room Select Dropdown ───────────────────────────────────
@@ -114,8 +107,8 @@ function recalcPrice() {
     return
   }
 
-  const base = nights * room.price
-  const gst  = HOTEL.gst ? Math.round(base * HOTEL.gst / 100) : 0
+  const base  = nights * room.price
+  const gst   = HOTEL.gst ? Math.round(base * HOTEL.gst / 100) : 0
   const total = base + gst
 
   document.getElementById('priceLabel').textContent = `${nights} night${nights > 1 ? 's' : ''} × ₹${room.price.toLocaleString('en-IN')}`
@@ -129,10 +122,8 @@ function recalcPrice() {
   } else {
     gstRow.style.display = 'none'
   }
-
   document.getElementById('priceSummary').style.display = 'block'
 
-  // Update check-out min
   const nextDay = new Date(checkIn)
   nextDay.setDate(nextDay.getDate() + 1)
   document.getElementById('checkOut').min = nextDay.toISOString().split('T')[0]
@@ -142,7 +133,7 @@ function onRoomTypeChange() {
   const roomId = document.getElementById('roomType').value
   const room   = ROOMS.find(r => r.id === roomId)
   if (room) {
-    document.getElementById('selectedRoomId').value   = room.id
+    document.getElementById('selectedRoomId').value       = room.id
     document.getElementById('modalRoomEmoji').textContent = room.emoji
     document.getElementById('modalRoomName').textContent  = room.name
     document.getElementById('modalRoomPrice').textContent = `₹${room.price.toLocaleString('en-IN')} / night`
@@ -150,7 +141,7 @@ function onRoomTypeChange() {
   }
 }
 
-// ── Modal Open/Close ───────────────────────────────────────
+// ── Modal ──────────────────────────────────────────────────
 function openBookingModal(roomId) {
   const modal   = document.getElementById('bookingModal')
   const form    = document.getElementById('bookingForm')
@@ -160,17 +151,10 @@ function openBookingModal(roomId) {
   success.style.display = 'none'
   modal.classList.add('open')
 
-  if (roomId) {
-    document.getElementById('roomType').value     = roomId
-    document.getElementById('selectedRoomId').value = roomId
-    onRoomTypeChange()
-  } else {
-    // default to first room
-    const first = ROOMS[0]
-    document.getElementById('roomType').value     = first.id
-    document.getElementById('selectedRoomId').value = first.id
-    onRoomTypeChange()
-  }
+  const id = roomId || ROOMS[0].id
+  document.getElementById('roomType').value       = id
+  document.getElementById('selectedRoomId').value = id
+  onRoomTypeChange()
   setMinDates()
 }
 
@@ -180,13 +164,8 @@ function closeBookingModal() {
   document.getElementById('priceSummary').style.display = 'none'
 }
 
-// close on overlay click
-document.getElementById('bookingModal').addEventListener('click', function(e) {
-  if (e.target === this) closeBookingModal()
-})
-
 // ── Submit Booking ─────────────────────────────────────────
-async function submitBooking(e) {
+function submitBooking(e) {
   e.preventDefault()
 
   const btn    = document.getElementById('submitBtn')
@@ -195,19 +174,23 @@ async function submitBooking(e) {
 
   const checkIn  = document.getElementById('checkIn').value
   const checkOut = document.getElementById('checkOut').value
-  const nights   = Math.ceil((new Date(checkOut) - new Date(checkIn)) / 86400000)
 
-  if (nights < 1) { showToast('Please select valid check-in and check-out dates', true); return }
+  if (!checkIn || !checkOut) {
+    showToast('Please select check-in and check-out dates', true)
+    return
+  }
 
-  const base  = nights * room.price
-  const gst   = HOTEL.gst ? Math.round(base * HOTEL.gst / 100) : 0
-  const total = base + gst
+  const nights = Math.ceil((new Date(checkOut) - new Date(checkIn)) / 86400000)
+  if (nights < 1) { showToast('Check-out must be after check-in', true); return }
 
   const phone = document.getElementById('guestPhone').value.trim()
   if (!/^\+?[0-9\s\-]{10,15}$/.test(phone)) {
     showToast('Please enter a valid phone number', true); return
   }
 
+  const base  = nights * room.price
+  const gst   = HOTEL.gst ? Math.round(base * HOTEL.gst / 100) : 0
+  const total = base + gst
   const bookingCode = 'JP-' + Date.now().toString().slice(-6)
 
   const booking = {
@@ -227,46 +210,44 @@ async function submitBooking(e) {
     gstAmount:       gst,
     status:          'pending',
     paymentId:       null,
-    createdAt:       serverTimestamp(),
+    createdAt:       firebase.firestore.FieldValue.serverTimestamp(),
   }
 
-  btn.disabled = true
+  btn.disabled    = true
   btn.textContent = 'Sending...'
 
-  try {
-    await addDoc(collection(db, 'bookings'), booking)
+  db.collection('bookings').add(booking)
+    .then(() => {
+      // Notify owner via WhatsApp
+      const ownerMsg = encodeURIComponent(
+        `🏨 *NEW BOOKING — Hotel Jay Palace*\n\n` +
+        `📋 ID: ${bookingCode}\n` +
+        `👤 Guest: ${booking.customerName}\n` +
+        `📞 Phone: ${booking.customerPhone}\n` +
+        `🛏️ Room: ${booking.roomName}\n` +
+        `📅 Check-in: ${formatDate(checkIn)}\n` +
+        `📅 Check-out: ${formatDate(checkOut)}\n` +
+        `🌙 Nights: ${nights}\n` +
+        `👥 Guests: ${booking.guests}\n` +
+        `💰 Total: ₹${total.toLocaleString('en-IN')}\n` +
+        (booking.specialRequests ? `📝 Note: ${booking.specialRequests}\n` : '') +
+        `\nOpen admin panel to approve.`
+      )
+      window.open(`https://wa.me/${HOTEL.whatsapp}?text=${ownerMsg}`, '_blank')
 
-    // Notify owner via WhatsApp
-    const ownerMsg = encodeURIComponent(
-      `🏨 *NEW BOOKING REQUEST*\n\n` +
-      `📋 Booking ID: ${bookingCode}\n` +
-      `👤 Guest: ${booking.customerName}\n` +
-      `📞 Phone: ${booking.customerPhone}\n` +
-      `🛏️ Room: ${booking.roomName}\n` +
-      `📅 Check-in: ${formatDate(checkIn)}\n` +
-      `📅 Check-out: ${formatDate(checkOut)}\n` +
-      `🌙 Nights: ${nights}\n` +
-      `👥 Guests: ${booking.guests}\n` +
-      `💰 Total: ₹${total.toLocaleString('en-IN')}\n` +
-      (booking.specialRequests ? `📝 Requests: ${booking.specialRequests}\n` : '') +
-      `\nPlease open the admin panel to approve or reject.`
-    )
-    window.open(`https://wa.me/${HOTEL.whatsapp}?text=${ownerMsg}`, '_blank')
-
-    // Show success
-    document.getElementById('bookingForm').style.display    = 'none'
-    document.getElementById('bookingSuccess').style.display = 'block'
-    document.getElementById('bookingCodeDisplay').textContent = `Booking ID: ${bookingCode}`
-
-  } catch (err) {
-    console.error('Booking error:', err.code, err.message)
-    const msg = err.code === 'permission-denied'
-      ? 'Booking blocked by server rules. Admin: fix Firestore Security Rules.'
-      : `Error: ${err.message}`
-    showToast(msg, true)
-    btn.disabled = false
-    btn.textContent = 'Confirm Booking Request'
-  }
+      document.getElementById('bookingForm').style.display    = 'none'
+      document.getElementById('bookingSuccess').style.display = 'block'
+      document.getElementById('bookingCodeDisplay').textContent = `Booking ID: ${bookingCode}`
+    })
+    .catch(err => {
+      console.error('Firestore error:', err.code, err.message)
+      const msg = err.code === 'permission-denied'
+        ? '❌ Server rules blocking booking. Please contact admin.'
+        : `❌ ${err.message || 'Network error. Please try again.'}`
+      showToast(msg, true)
+      btn.disabled    = false
+      btn.textContent = 'Confirm Booking Request'
+    })
 }
 
 // ── Helpers ────────────────────────────────────────────────
@@ -274,14 +255,14 @@ function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-function showToast(msg, isError = false) {
+function showToast(msg, isError) {
   const t = document.getElementById('toast')
   t.textContent = msg
   t.className   = 'toast show' + (isError ? ' error' : '')
-  setTimeout(() => { t.className = 'toast' }, 3500)
+  setTimeout(() => { t.className = 'toast' }, 4000)
 }
 
-// Expose to HTML onclick attributes
+// Expose to HTML onclick handlers
 window.openBookingModal  = openBookingModal
 window.closeBookingModal = closeBookingModal
 window.submitBooking     = submitBooking

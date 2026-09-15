@@ -226,82 +226,56 @@
   </div>
 </div>
 
-<!-- Scripts — config MUST load before the module so window.* globals are available -->
+<!-- Scripts -->
 <script src="../js/config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-<!-- Firebase -->
-<script type="module">
-  import { initializeApp }                                       from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js'
-  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
-    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js'
-  import { getFirestore, collection, query, orderBy, onSnapshot, doc, updateDoc }
-    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'
+<script>
+  // Firebase compat SDK — no imports needed, loaded via CDN above
+  firebase.initializeApp(window.FIREBASE_CONFIG)
+  const auth = firebase.auth()
+  const db   = firebase.firestore()
 
-  // ── Load config from parent folder ──────────────────────
-  // Config is loaded via script tag in admin.js below
-  // Wait for FIREBASE_CONFIG global to be available
-
-  let app, auth, db
-  let allBookings   = []
-  let currentFilter = 'all'
+  let allBookings      = []
+  let currentFilter    = 'all'
   let currentPayBooking = null
 
-  // Expose globals for inline onclick handlers
-  window.doLogin      = doLogin
-  window.doLogout     = doLogout
-  window.filterBookings = filterBookings
-  window.approveBooking = approveBooking
-  window.rejectBooking  = rejectBooking
-  window.openPayModal   = openPayModal
-  window.closePayModal  = closePayModal
-  window.launchRazorpay = launchRazorpay
-  window.sendWhatsApp   = sendWhatsApp
-  window.downloadInvoice = downloadInvoice
-
-  // Wait for config to load
-  window.addEventListener('load', () => {
-    app  = initializeApp(FIREBASE_CONFIG)
-    auth = getAuth(app)
-    db   = getFirestore(app)
-
-    onAuthStateChanged(auth, user => {
-      if (user) {
-        document.getElementById('loginScreen').style.display  = 'none'
-        document.getElementById('adminWrap').style.display    = 'block'
-        document.getElementById('adminUser').textContent       = user.email
-        loadBookings()
-      } else {
-        document.getElementById('loginScreen').style.display  = 'flex'
-        document.getElementById('adminWrap').style.display    = 'none'
-      }
-    })
+  firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+      document.getElementById('loginScreen').style.display = 'none'
+      document.getElementById('adminWrap').style.display   = 'block'
+      document.getElementById('adminUser').textContent      = user.email
+      loadBookings()
+    } else {
+      document.getElementById('loginScreen').style.display = 'flex'
+      document.getElementById('adminWrap').style.display   = 'none'
+    }
   })
 
-  async function doLogin() {
+  function doLogin() {
     const email = document.getElementById('loginEmail').value.trim()
     const pass  = document.getElementById('loginPassword').value
     const errEl = document.getElementById('loginError')
     errEl.textContent = ''
-    try {
-      await signInWithEmailAndPassword(auth, email, pass)
-    } catch (e) {
-      errEl.textContent = 'Invalid email or password. Please try again.'
-    }
+    firebase.auth().signInWithEmailAndPassword(email, pass)
+      .catch(() => { errEl.textContent = 'Invalid email or password.' })
   }
 
   function doLogout() {
-    if (confirm('Logout from admin panel?')) signOut(auth)
+    if (confirm('Logout from admin panel?')) firebase.auth().signOut()
   }
 
   // ── Load + listen to bookings (real-time) ───────────────
   function loadBookings() {
-    const q = query(collection(db, 'bookings'), orderBy('createdAt', 'desc'))
-    onSnapshot(q, snapshot => {
-      allBookings = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
-      updateStats()
-      renderBookings()
-    })
+    db.collection('bookings').orderBy('createdAt', 'desc')
+      .onSnapshot(snapshot => {
+        allBookings = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
+        updateStats()
+        renderBookings()
+      })
   }
 
   function updateStats() {
@@ -387,19 +361,18 @@
   }
 
   // ── Approve / Reject ────────────────────────────────────
-  async function approveBooking(id) {
+  function approveBooking(id) {
     const b = allBookings.find(x => x.id === id)
     if (!confirm(`Approve booking for ${b.customerName}?`)) return
-    await updateDoc(doc(db, 'bookings', id), { status: 'approved' })
-    // Automatically open WhatsApp to notify customer
-    sendWhatsAppMsg(b, 'approved')
+    db.collection('bookings').doc(id).update({ status: 'approved' })
+      .then(() => sendWhatsAppMsg(b, 'approved'))
   }
 
-  async function rejectBooking(id) {
+  function rejectBooking(id) {
     const b = allBookings.find(x => x.id === id)
-    if (!confirm(`Reject booking for ${b.customerName}? This will notify the customer.`)) return
-    await updateDoc(doc(db, 'bookings', id), { status: 'rejected' })
-    sendWhatsAppMsg(b, 'rejected')
+    if (!confirm(`Reject booking for ${b.customerName}?`)) return
+    db.collection('bookings').doc(id).update({ status: 'rejected' })
+      .then(() => sendWhatsAppMsg(b, 'rejected'))
   }
 
   // ── WhatsApp Invoice / Notification ─────────────────────
@@ -486,8 +459,8 @@
         email:   b.customerEmail || '',
       },
       theme:  { color: '#C9A84C' },
-      handler: async (response) => {
-        await updateDoc(doc(db, 'bookings', b.id), {
+      handler: function(response) {
+        db.collection('bookings').doc(b.id).update({
           status:    'paid',
           paymentId: response.razorpay_payment_id,
         })
