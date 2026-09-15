@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jay Palace — Saraipali's Finest Hotel</title>
+  <meta name="description" content="Experience comfort and hospitality at Jay Palace, Saraipali's premier hotel. Book your stay online.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────────── -->
+<header class="header">
+  <div class="header-logo">✦ Jay Palace <span>Hotel</span></div>
+  <nav class="header-nav">
+    <a href="#rooms">Rooms</a>
+    <a href="#amenities">Amenities</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <button class="btn-book-header" onclick="openBookingModal()">Book Now</button>
+</header>
+
+<!-- ── HERO ───────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">Premium Hotel · Saraipali, Chhattisgarh</div>
+    <h1>Welcome to<br><em>Jay Palace</em></h1>
+    <p>Experience warm hospitality, comfortable rooms and world-class service in the heart of Saraipali.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="openBookingModal()">Book Your Stay</button>
+      <a href="#rooms" class="btn-outline">View Rooms</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES STRIP ─────────────────────────────────────── -->
+<div class="features-strip">
+  <span class="feature-item">✓ Free WiFi</span>
+  <span class="feature-item">✓ Free Parking</span>
+  <span class="feature-item">✓ Restaurant</span>
+  <span class="feature-item">✓ 24/7 Service</span>
+  <span class="feature-item">✓ AC Rooms</span>
+  <span class="feature-item">✓ Banquet Hall</span>
+</div>
+
+<!-- ── ROOMS ──────────────────────────────────────────────── -->
+<section class="section" id="rooms">
+  <div class="section-label">Accommodation</div>
+  <h2 class="section-title">Our Rooms &amp; Suites</h2>
+  <p class="section-sub">Choose the perfect room for your stay</p>
+  <div class="rooms-grid" id="roomsGrid">
+    <!-- Rooms rendered by JS from config.js -->
+  </div>
+</section>
+
+<!-- ── AMENITIES ──────────────────────────────────────────── -->
+<div class="section-alt" id="amenities">
+  <div class="section-inner">
+    <div class="section-label">Facilities</div>
+    <h2 class="section-title">Hotel Amenities</h2>
+    <p class="section-sub">Everything you need for a comfortable stay</p>
+    <div class="amenities-grid" id="amenitiesGrid">
+      <!-- Amenities rendered by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ── CONTACT ────────────────────────────────────────────── -->
+<section class="section" id="contact">
+  <div class="section-label">Find Us</div>
+  <h2 class="section-title">Contact &amp; Location</h2>
+  <p class="section-sub">We're always happy to help</p>
+  <div class="contact-grid">
+    <div class="contact-info">
+      <h3>Get in Touch</h3>
+      <div class="contact-row">
+        <span class="contact-icon">📞</span>
+        <div class="contact-detail">
+          <strong>Phone</strong>
+          <span id="contactPhone">+91 XXXXX XXXXX</span>
+        </div>
+      </div>
+      <div class="contact-row">
+        <span class="contact-icon">💬</span>
+        <div class="contact-detail">
+          <strong>WhatsApp</strong>
+          <a href="#" id="contactWA">Chat with us</a>
+        </div>
+      </div>
+      <div class="contact-row">
+        <span class="contact-icon">📧</span>
+        <div class="contact-detail">
+          <strong>Email</strong>
+          <span id="contactEmail">jaypalace@gmail.com</span>
+        </div>
+      </div>
+      <div class="contact-row">
+        <span class="contact-icon">📍</span>
+        <div class="contact-detail">
+          <strong>Address</strong>
+          <span id="contactAddress">Main Road, Saraipali, Chhattisgarh 493558</span>
+        </div>
+      </div>
+      <div class="contact-row">
+        <span class="contact-icon">🕐</span>
+        <div class="contact-detail">
+          <strong>Check-in / Check-out</strong>
+          <span id="contactTimes">Check-in: 12:00 PM · Check-out: 11:00 AM</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="map-placeholder" id="mapContainer">
+        <div class="map-icon">📍</div>
+        <strong>Jay Palace</strong>
+        <span style="color:var(--muted);font-size:.8rem">Saraipali, Chhattisgarh</span>
+        <a href="#" id="mapLink" target="_blank"
+           style="margin-top:8px;background:var(--gold);color:#000;padding:8px 20px;border-radius:9999px;font-size:.8rem;font-weight:700;">
+          Open in Google Maps
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ─────────────────────────────────────────────── -->
+<footer class="footer">
+  <div class="footer-logo">✦ Jay Palace Hotel</div>
+  <div class="footer-tagline">Saraipali's Finest Hotel</div>
+  <div class="footer-links">
+    <a href="#rooms">Rooms</a>
+    <a href="#amenities">Amenities</a>
+    <a href="#contact">Contact</a>
+    <a href="#" onclick="openBookingModal()">Book Now</a>
+  </div>
+  <div class="footer-credit">
+    Website designed &amp; developed by <a href="https://omtechnology.online" target="_blank">OM Technology</a>
+  </div>
+</footer>
+
+<!-- ── WHATSAPP FLOAT ──────────────────────────────────────── -->
+<a href="#" id="waFloat" class="wa-float" target="_blank" title="Chat on WhatsApp">💬</a>
+
+<!-- ── BOOKING MODAL ───────────────────────────────────────── -->
+<div class="modal-overlay" id="bookingModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Book Your Stay</div>
+      <button class="modal-close" onclick="closeBookingModal()">✕</button>
+    </div>
+
+    <!-- Room selected display -->
+    <div class="modal-room-selected" id="modalRoomDisplay">
+      <span class="room-emoji" id="modalRoomEmoji">🛏️</span>
+      <div class="room-info">
+        <strong id="modalRoomName">Standard Room</strong>
+        <span id="modalRoomPrice">₹1,500 / night</span>
+      </div>
+    </div>
+
+    <!-- Booking form -->
+    <form id="bookingForm" onsubmit="submitBooking(event)">
+      <input type="hidden" id="selectedRoomId" value="">
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="guestName">Full Name *</label>
+          <input type="text" id="guestName" placeholder="Your full name" required>
+        </div>
+        <div class="form-group">
+          <label for="guestPhone">Phone Number *</label>
+          <input type="tel" id="guestPhone" placeholder="+91 98765 43210" required
+                 pattern="[0-9+\s\-]{10,15}">
+        </div>
+        <div class="form-group">
+          <label for="guestEmail">Email (Optional)</label>
+          <input type="email" id="guestEmail" placeholder="your@email.com">
+        </div>
+        <div class="form-group">
+          <label for="roomType">Room Type *</label>
+          <select id="roomType" required onchange="onRoomTypeChange()">
+            <!-- Populated by JS -->
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="checkIn">Check-in Date *</label>
+          <input type="date" id="checkIn" required onchange="recalcPrice()">
+        </div>
+        <div class="form-group">
+          <label for="checkOut">Check-out Date *</label>
+          <input type="date" id="checkOut" required onchange="recalcPrice()">
+        </div>
+        <div class="form-group">
+          <label for="guests">Number of Guests *</label>
+          <select id="guests" required>
+            <option value="1">1 Guest</option>
+            <option value="2" selected>2 Guests</option>
+            <option value="3">3 Guests</option>
+            <option value="4">4 Guests</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label for="specialRequests">Special Requests (Optional)</label>
+          <textarea id="specialRequests" placeholder="Early check-in, extra pillows, vegetarian meal, anniversary decoration..."></textarea>
+        </div>
+      </div>
+
+      <!-- Price summary -->
+      <div class="price-summary" id="priceSummary" style="display:none">
+        <div class="price-row"><span id="priceLabel">1 night × ₹1,500</span><span id="priceBase">₹1,500</span></div>
+        <div class="price-row" id="gstRow" style="display:none"><span>GST</span><span id="priceGst">₹0</span></div>
+        <div class="price-row total"><span>Total Amount</span><span id="priceTotal">₹1,500</span></div>
+      </div>
+
+      <button type="submit" class="btn-submit" id="submitBtn">Confirm Booking Request</button>
+      <p class="form-note">Your booking request will be sent to the hotel owner. You'll receive confirmation via WhatsApp.</p>
+    </form>
+
+    <!-- Success state -->
+    <div class="booking-success" id="bookingSuccess">
+      <div class="success-icon">✅</div>
+      <h3>Booking Request Sent!</h3>
+      <p>The hotel owner has been notified. They will confirm your booking shortly via WhatsApp.</p>
+      <div class="booking-code" id="bookingCodeDisplay">Booking ID: JP-XXXXXX</div>
+      <p style="margin-top:14px;font-size:.8rem;color:var(--muted)">Please keep this booking ID for reference.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
+
+<!-- ── SCRIPTS ─────────────────────────────────────────────── -->
+<!-- config.js must load first (regular script) so its window.* globals are available to the module -->
+<script src="js/config.js"></script>
+<script type="module" src="js/booking.js"></script>
+
+</body>
+</html>
