@@ -97,3 +97,14 @@ window.RAZORPAY_KEY  = 'rzp_test_XXXXXXXXXXXXXXXX'  // use rzp_live_xxx for prod
 // ─── Admin Config ────────────────────────────────────────────
 // TODO: Create this email/password in Firebase Console → Authentication
 window.ADMIN_EMAIL = 'omnayak27199@gmail.com'
+
+// ─── EmailJS Config ──────────────────────────────────────────
+// Used to send booking confirmation + receipt emails to guests
+// Setup: https://www.emailjs.com → free account → 200 emails/month
+// TODO: Fill after creating EmailJS account (see setup guide)
+window.EMAILJS = {
+  publicKey:            'YOUR_PUBLIC_KEY',        // Account → API Keys
+  serviceId:            'YOUR_SERVICE_ID',        // Email Services → Service ID
+  confirmationTemplate: 'template_confirmation',  // Email Templates → Template ID
+  receiptTemplate:      'template_receipt',       // Email Templates → Template ID
+}

@@ -215,7 +215,7 @@ function payWithRazorpay() {
     prefill:     { name: b.customerName, contact: b.customerPhone, email: b.customerEmail || '' },
     theme:       { color: '#C9A84C' },
     handler: function(response) {
-      saveBooking({ ...b, status: 'paid', paymentMethod: 'razorpay', paymentId: response.razorpay_payment_id })
+      saveBooking({ ...b, status: 'pending', paymentMethod: 'razorpay', paymentId: response.razorpay_payment_id })
     },
   }
   const rzp = new Razorpay(options)

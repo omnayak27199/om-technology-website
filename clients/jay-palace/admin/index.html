@@ -132,6 +132,27 @@
     /* LOADING */
     .loading { text-align: center; padding: 40px; color: var(--muted); }
 
+    /* ADMIN TOAST */
+    .a-toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+      background: #0c1729; border: 1px solid var(--border); border-radius: 12px;
+      padding: 14px 20px; font-size: .875rem; font-weight: 600;
+      transform: translateY(20px); opacity: 0; transition: all .3s; pointer-events: none;
+    }
+    .a-toast.show { transform: translateY(0); opacity: 1; }
+    .a-toast.success { border-color: var(--success); color: var(--success); }
+    .a-toast.error   { border-color: var(--danger);  color: var(--danger); }
+    .a-toast.info    { border-color: var(--info);    color: var(--info); }
+
+    /* PAYMENT METHOD CHIP */
+    .pay-chip { font-size: .7rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px; display: inline-block; margin-bottom: 8px; }
+    .pay-chip.razorpay { background: rgba(59,130,246,.15); color: var(--info); border: 1px solid rgba(59,130,246,.3); }
+    .pay-chip.upi      { background: rgba(16,185,129,.15); color: var(--success); border: 1px solid rgba(16,185,129,.3); }
+    .pay-chip.cash     { background: rgba(245,158,11,.15); color: var(--warning); border: 1px solid rgba(245,158,11,.3); }
+    .btn-email { background: #8b5cf6; color: #fff; border: none; padding: 9px 16px; border-radius: 9999px; font-size: .8125rem; font-weight: 700; }
+    .btn-email:hover { opacity: .9; }
+    .btn-mark-paid { background: var(--success); color: #fff; border: none; padding: 9px 16px; border-radius: 9999px; font-size: .8125rem; font-weight: 700; }
+
     @media (max-width: 900px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
       .booking-card { grid-template-columns: 1fr 1fr; }
@@ -226,6 +247,9 @@
   </div>
 </div>
 
+<!-- Admin toast -->
+<div class="a-toast" id="adminToast"></div>
+
 <!-- Scripts -->
 <script src="../js/config.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -233,16 +257,29 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
 <script>
-  // Firebase compat SDK — no imports needed, loaded via CDN above
   firebase.initializeApp(window.FIREBASE_CONFIG)
   const auth = firebase.auth()
   const db   = firebase.firestore()
 
-  let allBookings      = []
-  let currentFilter    = 'all'
+  // Init EmailJS if configured
+  if (window.EMAILJS && window.EMAILJS.publicKey !== 'YOUR_PUBLIC_KEY') {
+    emailjs.init({ publicKey: window.EMAILJS.publicKey })
+  }
+
+  let allBookings       = []
+  let currentFilter     = 'all'
   let currentPayBooking = null
+
+  // ── Toast ────────────────────────────────────────────────
+  function showAdminToast(msg, type) {
+    const t = document.getElementById('adminToast')
+    t.textContent = msg
+    t.className = 'a-toast show ' + (type || 'success')
+    setTimeout(() => { t.className = 'a-toast' }, 3500)
+  }
 
   firebase.auth().onAuthStateChanged(user => {
     if (user) {
@@ -339,20 +376,37 @@
 
   function buildActions(b) {
     const id = b.id
+
+    // Payment method chip
+    const chipClass = b.paymentMethod || 'cash'
+    const chipLabel = b.paymentMethod === 'razorpay' ? '💳 Razorpay'
+                    : b.paymentMethod === 'upi'      ? '📱 UPI Paid'
+                    : b.paymentMethod === 'cash'     ? '🏨 Pay at Hotel'
+                    : ''
+    const chip = chipLabel
+      ? `<div class="pay-chip ${chipClass}">${chipLabel}</div>`
+      : ''
+
     if (b.status === 'pending') {
-      return `
+      return `${chip}
         <button class="btn-approve" onclick="approveBooking('${id}')">✓ Approve</button>
         <button class="btn-reject"  onclick="rejectBooking('${id}')">✗ Reject</button>`
     }
     if (b.status === 'approved') {
-      return `
-        <button class="btn-wa"      onclick="sendWhatsApp('${id}')">💬 Send Invoice</button>
-        <button class="btn-pay"     onclick="openPayModal('${id}')">💳 Take Payment</button>
+      const markLabel = b.paymentMethod === 'razorpay' ? '✓ Confirm Razorpay'
+                      : b.paymentMethod === 'upi'      ? '✓ Confirm UPI'
+                      : '✓ Mark as Paid'
+      const showCollect = !b.paymentMethod || b.paymentMethod === 'cash'
+      return `${chip}
+        <button class="btn-mark-paid" onclick="markAsPaid('${id}')">${markLabel}</button>
+        ${showCollect ? `<button class="btn-pay" onclick="openPayModal('${id}')">💳 Collect via Razorpay</button>` : ''}
+        <button class="btn-wa"      onclick="sendWhatsApp('${id}')">💬 WhatsApp</button>
         <button class="btn-invoice" onclick="downloadInvoice('${id}')">📄 Download PDF</button>`
     }
     if (b.status === 'paid') {
-      return `
-        <button class="btn-wa"      onclick="sendWhatsApp('${id}')">💬 Resend Receipt</button>
+      return `${chip}
+        <button class="btn-wa"      onclick="sendWhatsApp('${id}')">💬 Receipt WA</button>
+        ${b.customerEmail ? `<button class="btn-email" onclick="sendEmailToGuest('receipt', allBookings.find(x=>x.id==='${id}'))">📧 Email Receipt</button>` : ''}
         <button class="btn-invoice" onclick="downloadInvoice('${id}')">📄 Download PDF</button>`
     }
     if (b.status === 'rejected') {
@@ -366,14 +420,70 @@
     const b = allBookings.find(x => x.id === id)
     if (!confirm(`Approve booking for ${b.customerName}?`)) return
     db.collection('bookings').doc(id).update({ status: 'approved' })
-      .then(() => sendWhatsAppMsg(b, 'approved'))
+      .then(() => {
+        const approved = { ...b, status: 'approved' }
+        sendWhatsAppMsg(approved, 'approved')
+        sendEmailToGuest('confirmation', approved)
+        showAdminToast('Booking approved! WhatsApp + email sent to guest.')
+      })
   }
 
   function rejectBooking(id) {
     const b = allBookings.find(x => x.id === id)
     if (!confirm(`Reject booking for ${b.customerName}?`)) return
     db.collection('bookings').doc(id).update({ status: 'rejected' })
-      .then(() => sendWhatsAppMsg(b, 'rejected'))
+      .then(() => {
+        sendWhatsAppMsg(b, 'rejected')
+        showAdminToast('Booking rejected.', 'error')
+      })
+  }
+
+  // ── Mark as Paid ─────────────────────────────────────────
+  function markAsPaid(id) {
+    const b = allBookings.find(x => x.id === id)
+    const label = b.paymentMethod === 'razorpay' ? 'Confirm this Razorpay payment'
+                : b.paymentMethod === 'upi'      ? 'Confirm this UPI payment'
+                : 'Mark cash payment as received'
+    if (!confirm(`${label} for ${b.customerName}?\n\nThis will send the payment receipt to the guest.`)) return
+    db.collection('bookings').doc(id).update({ status: 'paid' })
+      .then(() => {
+        const paid = { ...b, status: 'paid' }
+        sendWhatsAppMsg(paid, 'paid')
+        sendEmailToGuest('receipt', paid)
+        showAdminToast('Payment confirmed! Receipt sent via WhatsApp + email.')
+      })
+  }
+
+  // ── Email to Guest ───────────────────────────────────────
+  function sendEmailToGuest(type, b) {
+    if (!window.EMAILJS || window.EMAILJS.publicKey === 'YOUR_PUBLIC_KEY') return
+    if (!b.customerEmail) { showAdminToast('No email address for this guest — WhatsApp only.', 'info'); return }
+
+    const code = b.bookingCode || b.id.slice(0,8).toUpperCase()
+    const templateId = type === 'receipt'
+      ? window.EMAILJS.receiptTemplate
+      : window.EMAILJS.confirmationTemplate
+
+    emailjs.send(window.EMAILJS.serviceId, templateId, {
+      to_name:        b.customerName,
+      to_email:       b.customerEmail,
+      booking_id:     code,
+      room_name:      b.roomName,
+      check_in:       fmtDate(b.checkIn) + ' (' + HOTEL.checkIn + ')',
+      check_out:      fmtDate(b.checkOut) + ' (' + HOTEL.checkOut + ')',
+      nights:         b.nights,
+      guests:         b.guests,
+      total_amount:   'Rs.' + (b.totalAmount||0).toLocaleString('en-IN'),
+      payment_method: b.paymentMethod === 'razorpay' ? 'Online (Razorpay)'
+                    : b.paymentMethod === 'upi'      ? 'UPI Transfer'
+                    : 'Pay at Hotel (Cash)',
+      payment_status: type === 'receipt' ? 'PAID' : 'CONFIRMED',
+      hotel_phone:    HOTEL.phone,
+      hotel_email:    HOTEL.email,
+      hotel_address:  HOTEL.address,
+    })
+    .then(() => showAdminToast('Email sent to ' + b.customerEmail))
+    .catch(() => showAdminToast('Email failed — check EmailJS setup in config.js', 'error'))
   }
 
   // ── WhatsApp Invoice / Notification ─────────────────────
