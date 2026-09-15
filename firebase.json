@@ -1,0 +1,10 @@
+{
+  "hosting": {
+    "public": "clients/jay-palace",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}
