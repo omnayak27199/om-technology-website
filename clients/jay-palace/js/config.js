@@ -95,4 +95,4 @@ window.RAZORPAY_KEY  = 'rzp_test_XXXXXXXXXXXXXXXX'  // use rzp_live_xxx for prod
 
 // ─── Admin Config ────────────────────────────────────────────
 // TODO: Create this email/password in Firebase Console → Authentication
-window.ADMIN_EMAIL = 'owner@jaypalace.in'  // TODO: set your admin email
+window.ADMIN_EMAIL = 'omnayak27199@gmail.com'

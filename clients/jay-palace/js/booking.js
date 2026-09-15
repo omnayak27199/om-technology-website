@@ -9,7 +9,10 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getFirestore, collection, addDoc, serverTimestamp }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'
 
-const app = initializeApp(FIREBASE_CONFIG)
+if (!window.FIREBASE_CONFIG) {
+  console.error('FIREBASE_CONFIG not loaded — check config.js is included before booking.js')
+}
+const app = initializeApp(window.FIREBASE_CONFIG)
 const db  = getFirestore(app)
 
 // ── Page Init ──────────────────────────────────────────────
@@ -256,8 +259,11 @@ async function submitBooking(e) {
     document.getElementById('bookingCodeDisplay').textContent = `Booking ID: ${bookingCode}`
 
   } catch (err) {
-    console.error(err)
-    showToast('Something went wrong. Please call us directly.', true)
+    console.error('Booking error:', err.code, err.message)
+    const msg = err.code === 'permission-denied'
+      ? 'Booking blocked by server rules. Admin: fix Firestore Security Rules.'
+      : `Error: ${err.message}`
+    showToast(msg, true)
     btn.disabled = false
     btn.textContent = 'Confirm Booking Request'
   }
