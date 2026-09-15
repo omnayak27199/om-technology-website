@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Booking — Hotel Jay Palace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --gold:   #7B4F2E;
+      --bg:     #FAF8F5;
+      --text:   #1A0F08;
+      --muted:  #7B7168;
+      --border: #E0D5CC;
+      --surface: #FFFFFF;
+      --gold-light: #9D6B42;
+    }
+
+    body {
+      font-family: "Inter", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── HEADER ── */
+    .site-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .header-logo {
+      font-size: 1.0625rem;
+      font-weight: 800;
+      color: var(--gold);
+      letter-spacing: .02em;
+    }
+    .header-back {
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      transition: color .2s, border-color .2s;
+    }
+    .header-back:hover { color: var(--text); border-color: var(--gold); }
+
+    /* ── MAIN ── */
+    .main {
+      flex: 1;
+      padding: 48px 24px 64px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 900;
+      color: var(--text);
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .page-subtitle {
+      font-size: .9rem;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    /* ── SEARCH CARD ── */
+    .search-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 32px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 4px 24px rgba(123,79,46,.06);
+    }
+    .search-label {
+      display: block;
+      font-size: .78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .search-input {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 16px;
+      font-size: 1rem;
+      font-family: inherit;
+      font-weight: 600;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      transition: border-color .2s;
+      margin-bottom: 14px;
+    }
+    .search-input:focus { border-color: var(--gold); }
+    .search-input::placeholder { color: var(--muted); font-weight: 400; }
+    .btn-search {
+      width: 100%;
+      background: var(--gold);
+      color: #fff;
+      border: none;
+      padding: 13px;
+      border-radius: 9999px;
+      font-size: .9375rem;
+      font-family: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+    .btn-search:hover { opacity: .88; }
+    .btn-search:disabled { opacity: .55; cursor: not-allowed; }
+
+    /* ── ERROR / NOT FOUND ── */
+    .error-msg {
+      margin-top: 16px;
+      background: rgba(239,68,68,.07);
+      border: 1px solid rgba(239,68,68,.25);
+      color: #b91c1c;
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-size: .875rem;
+      font-weight: 600;
+      text-align: center;
+      display: none;
+    }
+
+    /* ── RESULT CARD ── */
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 620px;
+      margin-top: 32px;
+      box-shadow: 0 4px 32px rgba(123,79,46,.07);
+      overflow: hidden;
+      display: none;
+    }
+
+    .result-header {
+      background: var(--gold);
+      padding: 22px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .result-booking-id {
+      font-size: .8rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      color: rgba(255,255,255,.75);
+      margin-bottom: 4px;
+    }
+    .result-hotel-name {
+      font-size: 1.125rem;
+      font-weight: 900;
+      color: #fff;
+    }
+    .status-badge {
+      padding: 5px 14px;
+      border-radius: 9999px;
+      font-size: .72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .status-pending      { background: rgba(251,191,36,.2);  color: #92400e; border: 1px solid rgba(251,191,36,.5); }
+    .status-approved     { background: rgba(59,130,246,.2);  color: #1e40af; border: 1px solid rgba(59,130,246,.5); }
+    .status-paid         { background: rgba(16,185,129,.2);  color: #065f46; border: 1px solid rgba(16,185,129,.5); }
+    .status-checked_out  { background: rgba(55,65,81,.2);    color: #1f2937; border: 1px solid rgba(55,65,81,.45); }
+
+    .result-body { padding: 24px 28px; }
+
+    .section-title {
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--muted);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px 24px;
+      margin-bottom: 24px;
+    }
+    .detail-item {}
+    .detail-item .d-label {
+      font-size: .72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+    .detail-item .d-value {
+      font-size: .9375rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .special-req-box {
+      background: #FEF9EF;
+      border: 1px solid #E9D4B3;
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-size: .875rem;
+      color: #78350f;
+      margin-bottom: 24px;
+      display: none;
+    }
+    .special-req-box strong { font-weight: 700; display: block; margin-bottom: 2px; }
+
+    .amount-row {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .amount-label { font-size: .85rem; color: var(--muted); font-weight: 500; }
+    .amount-value { font-size: 1.5rem; font-weight: 900; color: var(--gold); }
+    .pay-method-chip {
+      font-size: .7rem;
+      font-weight: 700;
+      padding: 2px 9px;
+      border-radius: 9999px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      margin-left: 8px;
+    }
+
+    /* ── CHECKOUT MESSAGE ── */
+    .checkout-msg {
+      background: #ECFDF5;
+      border: 1px solid #A7F3D0;
+      border-radius: 12px;
+      padding: 16px 20px;
+      text-align: center;
+      color: #065f46;
+      font-size: .9375rem;
+      font-weight: 700;
+      display: none;
+    }
+
+    /* ── DOWNLOAD BUTTON ── */
+    .btn-pdf {
+      width: 100%;
+      background: var(--text);
+      color: #fff;
+      border: none;
+      padding: 13px;
+      border-radius: 9999px;
+      font-size: .9375rem;
+      font-family: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      transition: opacity .2s;
+      display: none;
+    }
+    .btn-pdf:hover { opacity: .85; }
+
+    /* ── FOOTER ── */
+    .site-footer {
+      background: var(--text);
+      color: rgba(255,255,255,.45);
+      text-align: center;
+      padding: 20px 24px;
+      font-size: .8rem;
+      font-weight: 500;
+    }
+    .site-footer a { color: rgba(255,255,255,.65); font-weight: 700; }
+    .site-footer a:hover { color: #fff; }
+
+    /* ── LOADING SPINNER ── */
+    .spinner {
+      width: 22px; height: 22px;
+      border: 2.5px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      display: inline-block;
+      animation: spin .65s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 520px) {
+      .search-card { padding: 28px 20px; }
+      .result-header { padding: 18px 20px; }
+      .result-body { padding: 20px 20px; }
+      .detail-grid { grid-template-columns: 1fr; gap: 12px; }
+      .page-title { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-logo">✦ Hotel Jay Palace</div>
+  <a class="header-back" href="index.html">← Back to Website</a>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+  <h1 class="page-title">Track Your Booking</h1>
+  <p class="page-subtitle">Enter your Booking ID to view the status and details of your reservation.</p>
+
+  <!-- SEARCH CARD -->
+  <div class="search-card">
+    <label class="search-label" for="bookingIdInput">Booking ID</label>
+    <input
+      class="search-input"
+      type="text"
+      id="bookingIdInput"
+      placeholder="e.g. JP-473849"
+      autocomplete="off"
+      onkeypress="if(event.key==='Enter') searchBooking()"
+    >
+    <button class="btn-search" id="searchBtn" onclick="searchBooking()">Search Booking</button>
+    <div class="error-msg" id="errorMsg">Booking not found. Please check the ID.</div>
+  </div>
+
+  <!-- RESULT CARD -->
+  <div class="result-card" id="resultCard">
+    <!-- Header strip with ID + status -->
+    <div class="result-header">
+      <div>
+        <div class="result-booking-id" id="r-bookingCode">BOOKING ID</div>
+        <div class="result-hotel-name">Hotel Jay Palace</div>
+      </div>
+      <div class="status-badge" id="r-statusBadge">—</div>
+    </div>
+
+    <div class="result-body">
+
+      <!-- GUEST SECTION -->
+      <div class="section-title">Guest Information</div>
+      <div class="detail-grid" style="margin-bottom:20px">
+        <div class="detail-item">
+          <div class="d-label">Name</div>
+          <div class="d-value" id="r-name">—</div>
+        </div>
+        <div class="detail-item">
+          <div class="d-label">Phone</div>
+          <div class="d-value" id="r-phone">—</div>
+        </div>
+        <div class="detail-item" id="emailItem">
+          <div class="d-label">Email</div>
+          <div class="d-value" id="r-email">—</div>
+        </div>
+      </div>
+
+      <!-- ROOM SECTION -->
+      <div class="section-title">Room & Stay Details</div>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <div class="d-label">Room</div>
+          <div class="d-value" id="r-room">—</div>
+        </div>
+        <div class="detail-item">
+          <div class="d-label">Guests</div>
+          <div class="d-value" id="r-guests">—</div>
+        </div>
+        <div class="detail-item">
+          <div class="d-label">Check-in</div>
+          <div class="d-value" id="r-checkin">—</div>
+        </div>
+        <div class="detail-item">
+          <div class="d-label">Check-out</div>
+          <div class="d-value" id="r-checkout">—</div>
+        </div>
+        <div class="detail-item">
+          <div class="d-label">Nights</div>
+          <div class="d-value" id="r-nights">—</div>
+        </div>
+      </div>
+
+      <!-- SPECIAL REQUESTS -->
+      <div class="special-req-box" id="specialReqBox">
+        <strong>Special Requests</strong>
+        <span id="r-special"></span>
+      </div>
+
+      <!-- AMOUNT -->
+      <div class="amount-row">
+        <div>
+          <div class="amount-label">Total Amount <span class="pay-method-chip" id="r-paymethod"></span></div>
+        </div>
+        <div class="amount-value" id="r-amount">—</div>
+      </div>
+
+      <!-- CHECKOUT SUCCESS MESSAGE -->
+      <div class="checkout-msg" id="checkoutMsg">
+        ✅ Thank you for your stay at Hotel Jay Palace!
+      </div>
+
+      <!-- PDF BUTTON (hidden when checked_out) -->
+      <button class="btn-pdf" id="pdfBtn" onclick="window._downloadReceipt()">📄 Download Receipt</button>
+
+    </div><!-- end result-body -->
+  </div><!-- end result-card -->
+
+</main>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  Website by <a href="https://omtechnology.in" target="_blank" rel="noopener">OM Technology</a>
+</footer>
+
+<!-- SCRIPTS — load order is critical -->
+<script src="js/config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+  // Init Firebase
+  firebase.initializeApp(window.FIREBASE_CONFIG)
+  var db = firebase.firestore()
+
+  // Holds the current booking for PDF download
+  var _currentBooking = null
+
+  // ── Format date ─────────────────────────────────────────────
+  function fmtDate(d) {
+    if (!d) return '—'
+    return new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+  }
+
+  // ── Search Booking ───────────────────────────────────────────
+  function searchBooking() {
+    var input  = document.getElementById('bookingIdInput')
+    var btn    = document.getElementById('searchBtn')
+    var errEl  = document.getElementById('errorMsg')
+    var result = document.getElementById('resultCard')
+
+    var id = input.value.trim().toUpperCase()
+    if (!id) {
+      input.focus()
+      return
+    }
+
+    // Reset UI
+    errEl.style.display  = 'none'
+    result.style.display = 'none'
+    _currentBooking      = null
+
+    // Loading state
+    btn.disabled     = true
+    btn.innerHTML    = '<span class="spinner"></span>Searching…'
+
+    db.collection('bookings').where('bookingCode', '==', id).get()
+      .then(function(snapshot) {
+        btn.disabled  = false
+        btn.innerHTML = 'Search Booking'
+
+        if (snapshot.empty) {
+          errEl.style.display = 'block'
+          return
+        }
+
+        var doc     = snapshot.docs[0]
+        var booking = Object.assign({ id: doc.id }, doc.data())
+        _currentBooking = booking
+        showResult(booking)
+      })
+      .catch(function(err) {
+        btn.disabled  = false
+        btn.innerHTML = 'Search Booking'
+        errEl.textContent  = 'Something went wrong. Please try again.'
+        errEl.style.display = 'block'
+        console.error(err)
+      })
+  }
+
+  // ── Render Result ────────────────────────────────────────────
+  function showResult(b) {
+    var code = b.bookingCode || b.id.slice(0, 8).toUpperCase()
+
+    // Booking ID + status badge
+    document.getElementById('r-bookingCode').textContent = code
+    var badge = document.getElementById('r-statusBadge')
+    var statusLabel = b.status === 'checked_out' ? 'Checked Out' : b.status
+    badge.textContent = statusLabel.charAt(0).toUpperCase() + statusLabel.slice(1)
+    badge.className   = 'status-badge status-' + b.status
+
+    // Guest info
+    document.getElementById('r-name').textContent  = b.customerName  || '—'
+    document.getElementById('r-phone').textContent = b.customerPhone || '—'
+
+    var emailItem = document.getElementById('emailItem')
+    if (b.customerEmail) {
+      document.getElementById('r-email').textContent = b.customerEmail
+      emailItem.style.display = 'block'
+    } else {
+      emailItem.style.display = 'none'
+    }
+
+    // Room & stay
+    document.getElementById('r-room').textContent    = b.roomName || '—'
+    document.getElementById('r-guests').textContent  = (b.guests || '—') + (b.guests > 1 ? ' guests' : ' guest')
+    document.getElementById('r-checkin').textContent  = fmtDate(b.checkIn)
+    document.getElementById('r-checkout').textContent = fmtDate(b.checkOut)
+    document.getElementById('r-nights').textContent   = (b.nights || '—') + (b.nights > 1 ? ' nights' : ' night')
+
+    // Special requests
+    var specBox = document.getElementById('specialReqBox')
+    if (b.specialRequests) {
+      document.getElementById('r-special').textContent = b.specialRequests
+      specBox.style.display = 'block'
+    } else {
+      specBox.style.display = 'none'
+    }
+
+    // Amount + payment method
+    document.getElementById('r-amount').textContent = '₹' + (b.totalAmount || 0).toLocaleString('en-IN')
+    var pmLabel = b.paymentMethod === 'razorpay' ? 'Online'
+                : b.paymentMethod === 'upi'      ? 'UPI'
+                : b.paymentMethod === 'cash'     ? 'Pay at Hotel'
+                : ''
+    document.getElementById('r-paymethod').textContent = pmLabel
+
+    // Conditional: checked_out vs active
+    var checkoutMsg = document.getElementById('checkoutMsg')
+    var pdfBtn      = document.getElementById('pdfBtn')
+
+    if (b.status === 'checked_out') {
+      checkoutMsg.style.display = 'block'
+      pdfBtn.style.display      = 'none'
+    } else {
+      checkoutMsg.style.display = 'none'
+      pdfBtn.style.display      = 'block'
+    }
+
+    // Show card
+    document.getElementById('resultCard').style.display = 'block'
+  }
+
+  // ── Download Receipt PDF ─────────────────────────────────────
+  window._downloadReceipt = function() {
+    var b = _currentBooking
+    if (!b) return
+
+    var code   = b.bookingCode || b.id.slice(0, 8).toUpperCase()
+    var HOTEL  = window.HOTEL
+    var { jsPDF } = window.jspdf
+    var doc    = new jsPDF({ unit: 'mm', format: 'a4' })
+    var W      = 210
+
+    // Brand colours
+    var brown  = [123, 79,  46]   // --gold
+    var dark   = [26,  15,  8]    // --text
+    var grey   = [123, 113, 104]  // --muted
+    var white  = [255, 255, 255]
+    var bgFill = [250, 248, 245]  // --bg
+
+    // ── Header ──
+    doc.setFillColor(26, 15, 8)
+    doc.rect(0, 0, W, 38, 'F')
+    doc.setTextColor(255, 255, 255)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(22)
+    doc.text('HOTEL JAY PALACE', W / 2, 16, { align: 'center' })
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(9)
+    doc.setTextColor(196, 156, 108)
+    doc.text(HOTEL.address, W / 2, 24, { align: 'center' })
+    doc.text('Tel: ' + HOTEL.phone + '   |   ' + HOTEL.email, W / 2, 30, { align: 'center' })
+
+    // ── Title strip ──
+    doc.setFillColor(...brown)
+    doc.rect(0, 38, W, 10, 'F')
+    doc.setTextColor(...dark)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(11)
+    doc.text('BOOKING RECEIPT', W / 2, 45, { align: 'center' })
+
+    // ── Booking meta (right) ──
+    var y = 58
+    doc.setTextColor(...grey)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(9)
+    doc.text('Booking ID',   130, y)
+    doc.text('Date Issued',  130, y + 7)
+    doc.text('Status',       130, y + 14)
+    doc.setTextColor(...dark)
+    doc.setFont('helvetica', 'bold')
+    doc.text(code, 175, y, { align: 'right' })
+    doc.text(new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }), 175, y + 7, { align: 'right' })
+    var statusColor = b.status === 'paid'     ? [16, 185, 129]
+                    : b.status === 'approved' ? [59, 130, 246]
+                    : [245, 158, 11]
+    doc.setTextColor(...statusColor)
+    doc.text(b.status.toUpperCase(), 175, y + 14, { align: 'right' })
+
+    // ── Guest box (left) ──
+    doc.setDrawColor(224, 213, 204)
+    doc.setFillColor(250, 248, 245)
+    doc.roundedRect(14, y - 4, 100, 28, 3, 3, 'FD')
+    doc.setTextColor(...grey)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(8)
+    doc.text('GUEST', 20, y + 2)
+    doc.setTextColor(...dark)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(12)
+    doc.text(b.customerName, 20, y + 10)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(9)
+    doc.setTextColor(...grey)
+    doc.text('Phone: ' + b.customerPhone, 20, y + 17)
+    if (b.customerEmail) doc.text('Email: ' + b.customerEmail, 20, y + 23)
+
+    // ── Booking details table ──
+    y = 95
+    doc.setFillColor(...dark)
+    doc.rect(14, y, W - 28, 8, 'F')
+    doc.setTextColor(...white)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(9)
+    doc.text('BOOKING DETAILS', 20, y + 5.5)
+
+    y += 10
+    var rows = [
+      ['Room Type',  b.roomName],
+      ['Check-in',   fmtDate(b.checkIn)  + (HOTEL.checkIn  ? '  (' + HOTEL.checkIn  + ')' : '')],
+      ['Check-out',  fmtDate(b.checkOut) + (HOTEL.checkOut ? '  (' + HOTEL.checkOut + ')' : '')],
+      ['Duration',   b.nights + ' night' + (b.nights > 1 ? 's' : '')],
+      ['Guests',     b.guests + ' guest' + (b.guests > 1 ? 's' : '')],
+    ]
+    if (b.specialRequests) rows.push(['Special Requests', b.specialRequests])
+
+    rows.forEach(function(row, i) {
+      if (i % 2 === 0) {
+        doc.setFillColor(245, 243, 240)
+        doc.rect(14, y - 1, W - 28, 8, 'F')
+      }
+      doc.setTextColor(...grey)
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(9)
+      doc.text(row[0], 20, y + 5)
+      doc.setTextColor(...dark)
+      doc.setFont('helvetica', 'bold')
+      doc.text(row[1], 100, y + 5)
+      y += 8
+    })
+
+    // ── Payment summary ──
+    y += 6
+    doc.setFillColor(...dark)
+    doc.rect(14, y, W - 28, 8, 'F')
+    doc.setTextColor(...white)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(9)
+    doc.text('PAYMENT SUMMARY', 20, y + 5.5)
+
+    y += 10
+    var roomTotal = (b.pricePerNight || 0) * b.nights
+    var payRows = [
+      ['Room (' + b.nights + ' night' + (b.nights > 1 ? 's' : '') + ' x Rs.' + (b.pricePerNight || 0).toLocaleString('en-IN') + ')', 'Rs.' + roomTotal.toLocaleString('en-IN')],
+    ]
+    if (b.gstAmount) payRows.push(['GST', 'Rs.' + b.gstAmount.toLocaleString('en-IN')])
+    payRows.push(['TOTAL AMOUNT', 'Rs.' + (b.totalAmount || 0).toLocaleString('en-IN')])
+    if (b.paymentId) payRows.push(['Payment Reference', b.paymentId])
+
+    payRows.forEach(function(row, i) {
+      var isTotal = row[0] === 'TOTAL AMOUNT'
+      if (isTotal) {
+        doc.setFillColor(...brown)
+        doc.rect(14, y - 1, W - 28, 9, 'F')
+        doc.setTextColor(...dark)
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(10)
+      } else {
+        if (i % 2 === 0) {
+          doc.setFillColor(245, 243, 240)
+          doc.rect(14, y - 1, W - 28, 8, 'F')
+        }
+        doc.setTextColor(...grey)
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(9)
+      }
+      doc.text(row[0], 20, y + 5)
+      doc.setTextColor(...dark)
+      doc.setFont('helvetica', 'bold')
+      doc.text(row[1], W - 18, y + 5, { align: 'right' })
+      y += isTotal ? 10 : 8
+    })
+
+    // ── Footer ──
+    var footerY = 272
+    doc.setDrawColor(...brown)
+    doc.setLineWidth(0.5)
+    doc.line(14, footerY, W - 14, footerY)
+    doc.setTextColor(...grey)
+    doc.setFont('helvetica', 'italic')
+    doc.setFontSize(8.5)
+    doc.text('Thank you for choosing Hotel Jay Palace. We look forward to welcoming you!', W / 2, footerY + 6, { align: 'center' })
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(7.5)
+    doc.text('Website & Booking System by OM Technology', W / 2, footerY + 12, { align: 'center' })
+
+    doc.save('Receipt-' + code + '.pdf')
+  }
+
+  // Expose to window for onclick (already on window since var is global in script tag, but explicit is safer)
+  window.searchBooking = searchBooking
+</script>
+
+</body>
+</html>

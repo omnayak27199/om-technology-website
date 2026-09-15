@@ -113,6 +113,10 @@
     .btn-pay:hover { opacity: .9; }
     .btn-invoice { background: var(--info); color: #fff; border: none; padding: 9px 16px; border-radius: 9999px; font-size: .8125rem; font-weight: 700; }
     .btn-invoice:hover { opacity: .9; }
+    .btn-checkout { background: #374151; color: #fff; border: none; padding: 9px 16px; border-radius: 9999px; font-size: .8125rem; font-weight: 700; }
+    .btn-checkout:hover { opacity: .85; }
+    .booking-card.status-checked_out { border-left: 4px solid #374151; }
+    .badge-checked_out { background: rgba(55,65,81,.15); color: #374151; border: 1px solid rgba(55,65,81,.3); }
 
     .empty-state { text-align: center; padding: 60px 24px; color: var(--muted); }
     .empty-state .empty-icon { font-size: 3rem; margin-bottom: 12px; }
@@ -273,6 +277,7 @@
       <button class="tab" onclick="filterBookings('approved', this)">Approved</button>
       <button class="tab" onclick="filterBookings('paid', this)">Paid</button>
       <button class="tab" onclick="filterBookings('rejected', this)">Rejected</button>
+      <button class="tab" onclick="filterBookings('checked_out', this)">Checked Out</button>
     </div>
 
     <!-- Bookings list -->
@@ -436,7 +441,8 @@
     }
 
     list.innerHTML = filtered.map(b => {
-      const statusBadge = `<div class="badge badge-${b.status}">${b.status}</div>`
+      const statusLabel = b.status === 'checked_out' ? 'Checked Out' : b.status
+      const statusBadge = `<div class="badge badge-${b.status}">${statusLabel}</div>`
       const actions     = buildActions(b)
       return `
         <div class="booking-card status-${b.status}" id="card-${b.id}">
@@ -499,13 +505,19 @@
         <button class="btn-mark-paid" onclick="markAsPaid('${id}')">${markLabel}</button>
         ${showCollect ? `<button class="btn-pay" onclick="openPayModal('${id}')">💳 Collect via Razorpay</button>` : ''}
         <button class="btn-wa"      onclick="sendWhatsApp('${id}')">💬 WhatsApp</button>
-        <button class="btn-invoice" onclick="downloadInvoice('${id}')">📄 Download PDF</button>`
+        <button class="btn-invoice" onclick="downloadInvoice('${id}')">📄 Download PDF</button>
+        <button class="btn-checkout" onclick="checkoutBooking('${id}')">🚪 Checkout</button>`
     }
     if (b.status === 'paid') {
       return `${chip}
         <button class="btn-wa"      onclick="sendWhatsApp('${id}')">💬 Receipt WA</button>
         ${b.customerEmail ? `<button class="btn-email" onclick="sendEmailToGuest('receipt', allBookings.find(x=>x.id==='${id}'))">📧 Email Receipt</button>` : ''}
-        <button class="btn-invoice" onclick="downloadInvoice('${id}')">📄 Download PDF</button>`
+        <button class="btn-invoice" onclick="downloadInvoice('${id}')">📄 Download PDF</button>
+        <button class="btn-checkout" onclick="checkoutBooking('${id}')">🚪 Checkout</button>`
+    }
+    if (b.status === 'checked_out') {
+      return `${chip}<span style="font-size:.8rem;color:var(--muted)">✅ Checked out</span>
+        <button class="btn-invoice" onclick="downloadInvoice('${id}')">📄 Invoice PDF</button>`
     }
     if (b.status === 'rejected') {
       return `<span style="font-size:.8rem;color:var(--muted)">Booking rejected</span>`
@@ -550,6 +562,14 @@
         sendEmailToGuest('receipt', paid)
         showAdminToast('Payment confirmed! Receipt sent via WhatsApp + email.')
       })
+  }
+
+  // ── Checkout Guest ───────────────────────────────────────────
+  function checkoutBooking(id) {
+    const b = allBookings.find(x => x.id === id)
+    if (!confirm(`Mark checkout for ${b.customerName}?\nThis will deactivate their booking tracker.`)) return
+    db.collection('bookings').doc(id).update({ status: 'checked_out', checkedOutAt: firebase.firestore.FieldValue.serverTimestamp() })
+      .then(() => showAdminToast('Guest checked out successfully.'))
   }
 
   // ── Email to Guest ───────────────────────────────────────
