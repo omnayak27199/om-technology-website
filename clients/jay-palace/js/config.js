@@ -7,9 +7,9 @@
 window.HOTEL = {
   name:        'Hotel Jay Palace',
   tagline:     "Saraipali's Finest Hotel",
-  phone:       '+91 XXXXX XXXXX',      // TODO: owner's phone number
-  whatsapp:    '91XXXXXXXXXX',          // TODO: owner's WhatsApp (country code + number, no +)
-  email:       'jaypalace@gmail.com',   // TODO: hotel email
+  phone:       '+91 75877 80043',
+  whatsapp:    '917587780043',
+  email:       'thehoteljaypalace@gmail.com',
   address:     'Main Road, Saraipali, Chhattisgarh 493558',
   mapLink:     'https://maps.app.goo.gl/wbtZpwUweqdRTicHA',
   checkIn:     '12:00 PM',
@@ -66,14 +66,14 @@ window.ROOMS = [
 ]
 
 window.AMENITIES = [
-  { icon: '🍽️', name: 'Restaurant',      desc: 'Multi-cuisine dining' },
-  { icon: '📶', name: 'Free WiFi',        desc: 'High-speed throughout' },
-  { icon: '🅿️', name: 'Free Parking',    desc: 'Secure parking available' },
-  { icon: '🛎️', name: '24/7 Service',    desc: 'Always here for you' },
-  { icon: '❄️', name: 'AC Rooms',        desc: 'All rooms air-conditioned' },
-  { icon: '🚿', name: 'Hot Water',        desc: 'Round-the-clock hot water' },
-  { icon: '📺', name: 'Cable TV',         desc: 'Premium channels' },
-  { icon: '🏢', name: 'Banquet Hall',     desc: 'Events & celebrations' },
+  { icon: '🍽️', name: 'Restaurant',      desc: 'Multi-cuisine family dining' },
+  { icon: '🎉', name: 'Party Hall',       desc: 'Weddings & celebrations' },
+  { icon: '❄️', name: 'AC & Non-AC',     desc: 'Choose your comfort' },
+  { icon: '🕐', name: 'Hotel 24×7',      desc: 'Round-the-clock service' },
+  { icon: '📶', name: 'Free WiFi',        desc: 'High-speed internet' },
+  { icon: '🅿️', name: 'Free Parking',    desc: 'Safe parking on premises' },
+  { icon: '🚿', name: 'Hot Water',        desc: '24-hour hot water supply' },
+  { icon: '📺', name: 'Cable TV',         desc: 'All rooms with TV' },
 ]
 
 // ─── Firebase Config ─────────────────────────────────────────
