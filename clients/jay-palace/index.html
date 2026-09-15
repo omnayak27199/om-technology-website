@@ -224,6 +224,61 @@
       <p class="form-note">Your booking request will be sent to the hotel owner. You'll receive confirmation via WhatsApp.</p>
     </form>
 
+    <!-- Step 2: Payment selection -->
+    <div id="paymentStep" style="display:none">
+      <div class="pay-amount-box">
+        <div class="pay-label">Total Amount to Pay</div>
+        <div class="pay-total" id="payStepTotal">₹0</div>
+        <div class="pay-sub" id="payStepSub"></div>
+      </div>
+      <div class="pay-options">
+        <button class="pay-option razorpay" onclick="payWithRazorpay()">
+          <span class="pay-icon">💳</span>
+          <div class="pay-info">
+            <strong>Pay via Razorpay</strong>
+            <span>Credit/Debit Card · Net Banking · UPI · Wallets</span>
+          </div>
+          <span class="pay-arrow">›</span>
+        </button>
+        <button class="pay-option upi" onclick="showUpiQR()">
+          <span class="pay-icon">📱</span>
+          <div class="pay-info">
+            <strong>Pay via UPI</strong>
+            <span>Scan QR · GPay · PhonePe · Paytm · Any UPI App</span>
+          </div>
+          <span class="pay-arrow">›</span>
+        </button>
+        <button class="pay-option cash" onclick="payAtHotel()">
+          <span class="pay-icon">🏨</span>
+          <div class="pay-info">
+            <strong>Pay at Hotel</strong>
+            <span>Pay cash when you check in — book now, pay later</span>
+          </div>
+          <span class="pay-arrow">›</span>
+        </button>
+      </div>
+      <button class="btn-back" onclick="backToForm()">← Back to form</button>
+    </div>
+
+    <!-- Step 2b: UPI QR -->
+    <div id="upiStep" style="display:none">
+      <div class="upi-box">
+        <h4>Scan &amp; Pay ₹<span id="upiAmountDisplay"></span></h4>
+        <div class="upi-qr-wrap">
+          <img id="upiQRImg" src="" alt="UPI QR Code">
+        </div>
+        <div class="upi-id-chip" id="upiIdDisplay"></div>
+        <div class="upi-apps">
+          <span>📲 GPay</span><span>📲 PhonePe</span><span>📲 Paytm</span><span>📲 Any UPI App</span>
+        </div>
+        <p style="font-size:.82rem;color:var(--muted);margin-bottom:16px">
+          After paying, click <strong>"I've Paid"</strong> to confirm your booking.
+        </p>
+        <button class="btn-paid" onclick="confirmUpiPayment()">✓ I've Paid — Confirm Booking</button>
+        <button class="btn-back" onclick="backToPayment()">← Choose different payment</button>
+      </div>
+    </div>
+
     <!-- Success state -->
     <div class="booking-success" id="bookingSuccess">
       <div class="success-icon">✅</div>
@@ -242,6 +297,7 @@
 <script src="js/config.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="js/booking.js"></script>
 
 </body>

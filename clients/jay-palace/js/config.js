@@ -15,6 +15,7 @@ window.HOTEL = {
   checkIn:     '12:00 PM',
   checkOut:    '11:00 AM',
   gst:         0,                       // GST % to add on total (e.g. 12 for 12%). 0 = no GST
+  upiId:       'jaypalace@upi',         // TODO: replace with real UPI ID (e.g. 9340039411@paytm)
 }
 
 window.ROOMS = [
