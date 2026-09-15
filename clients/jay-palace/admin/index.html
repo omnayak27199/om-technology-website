@@ -232,6 +232,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
   // Firebase compat SDK — no imports needed, loaded via CDN above
@@ -478,54 +479,160 @@
 
   // ── Download Invoice PDF ─────────────────────────────────
   function downloadInvoice(id) {
-    const b   = allBookings.find(x => x.id === id)
+    const b    = allBookings.find(x => x.id === id)
     const code = b.bookingCode || id.slice(0,8).toUpperCase()
-    const lines = [
-      '╔══════════════════════════════════════╗',
-      '║         JAY PALACE HOTEL             ║',
-      `║    ${HOTEL.address.padEnd(36)}║`,
-      `║    📞 ${HOTEL.phone.padEnd(30)}║`,
-      '╚══════════════════════════════════════╝',
-      '',
-      `  INVOICE / BOOKING CONFIRMATION`,
-      `  Booking ID : ${code}`,
-      `  Date       : ${new Date().toLocaleDateString('en-IN')}`,
-      `  Status     : ${b.status.toUpperCase()}`,
-      '',
-      '  ─────────────────────────────────────',
-      '  GUEST DETAILS',
-      `  Name   : ${b.customerName}`,
-      `  Phone  : ${b.customerPhone}`,
-      `  Email  : ${b.customerEmail || 'N/A'}`,
-      '',
-      '  ─────────────────────────────────────',
-      '  BOOKING DETAILS',
-      `  Room       : ${b.roomName}`,
-      `  Check-in   : ${fmtDate(b.checkIn)}  (${HOTEL.checkIn})`,
-      `  Check-out  : ${fmtDate(b.checkOut)} (${HOTEL.checkOut})`,
-      `  Nights     : ${b.nights}`,
-      `  Guests     : ${b.guests}`,
-      `  Rate/Night : ₹${(b.pricePerNight||0).toLocaleString('en-IN')}`,
-      b.specialRequests ? `  Requests   : ${b.specialRequests}` : '',
-      '',
-      '  ─────────────────────────────────────',
-      '  PAYMENT SUMMARY',
-      `  Room charges : ₹${((b.pricePerNight||0) * b.nights).toLocaleString('en-IN')}`,
-      b.gstAmount    ? `  GST          : ₹${b.gstAmount.toLocaleString('en-IN')}` : '',
-      `  TOTAL        : ₹${(b.totalAmount||0).toLocaleString('en-IN')}`,
-      b.paymentId    ? `  Payment Ref  : ${b.paymentId}` : '  Payment      : Pending',
-      '',
-      '  ─────────────────────────────────────',
-      '  Thank you for choosing Jay Palace!',
-      '  Website: Built by OM Technology',
-      '  ─────────────────────────────────────',
-    ].filter(l => l !== '').join('\n')
+    const { jsPDF } = window.jspdf
+    const doc  = new jsPDF({ unit: 'mm', format: 'a4' })
+    const W    = 210  // page width
+    const gold = [180, 140, 60]
+    const dark = [20, 30, 50]
+    const grey = [100, 110, 130]
 
-    const blob = new Blob([lines], { type: 'text/plain' })
-    const url  = URL.createObjectURL(blob)
-    const a    = Object.assign(document.createElement('a'), { href: url, download: `Invoice-${code}.txt` })
-    a.click()
-    URL.revokeObjectURL(url)
+    // Header bar
+    doc.setFillColor(...dark)
+    doc.rect(0, 0, W, 38, 'F')
+    doc.setTextColor(255, 255, 255)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(22)
+    doc.text('HOTEL JAY PALACE', W / 2, 16, { align: 'center' })
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(9)
+    doc.setTextColor(...gold)
+    doc.text(HOTEL.address, W / 2, 23, { align: 'center' })
+    doc.text(`Tel: ${HOTEL.phone}   |   ${HOTEL.email}`, W / 2, 29, { align: 'center' })
+
+    // Invoice title strip
+    doc.setFillColor(...gold)
+    doc.rect(0, 38, W, 10, 'F')
+    doc.setTextColor(20, 30, 50)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(11)
+    doc.text('BOOKING INVOICE', W / 2, 45, { align: 'center' })
+
+    // Booking meta (right side)
+    let y = 58
+    doc.setTextColor(...grey)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(9)
+    doc.text('Booking ID', 130, y)
+    doc.text('Date Issued', 130, y + 7)
+    doc.text('Status', 130, y + 14)
+    doc.setTextColor(...dark)
+    doc.setFont('helvetica', 'bold')
+    doc.text(code, 175, y, { align: 'right' })
+    doc.text(new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }), 175, y + 7, { align: 'right' })
+    const statusColor = b.status === 'paid' ? [16, 185, 129] : b.status === 'approved' ? [59, 130, 246] : [245, 158, 11]
+    doc.setTextColor(...statusColor)
+    doc.text(b.status.toUpperCase(), 175, y + 14, { align: 'right' })
+
+    // Guest details box
+    doc.setDrawColor(220, 220, 230)
+    doc.setFillColor(248, 249, 252)
+    doc.roundedRect(14, y - 4, 100, 28, 3, 3, 'FD')
+    doc.setTextColor(...grey)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(8)
+    doc.text('GUEST', 20, y + 2)
+    doc.setTextColor(...dark)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(12)
+    doc.text(b.customerName, 20, y + 10)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(9)
+    doc.setTextColor(...grey)
+    doc.text(`Phone: ${b.customerPhone}`, 20, y + 17)
+    if (b.customerEmail) doc.text(`Email: ${b.customerEmail}`, 20, y + 23)
+
+    // Section: Booking details table
+    y = 95
+    doc.setFillColor(...dark)
+    doc.rect(14, y, W - 28, 8, 'F')
+    doc.setTextColor(255, 255, 255)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(9)
+    doc.text('BOOKING DETAILS', 20, y + 5.5)
+
+    y += 10
+    const rows = [
+      ['Room Type',   b.roomName],
+      ['Check-in',    `${fmtDate(b.checkIn)}  (${HOTEL.checkIn})`],
+      ['Check-out',   `${fmtDate(b.checkOut)}  (${HOTEL.checkOut})`],
+      ['Duration',    `${b.nights} night${b.nights > 1 ? 's' : ''}`],
+      ['Guests',      `${b.guests} guest${b.guests > 1 ? 's' : ''}`],
+    ]
+    if (b.specialRequests) rows.push(['Special Requests', b.specialRequests])
+
+    rows.forEach((row, i) => {
+      if (i % 2 === 0) {
+        doc.setFillColor(245, 246, 250)
+        doc.rect(14, y - 1, W - 28, 8, 'F')
+      }
+      doc.setTextColor(...grey)
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(9)
+      doc.text(row[0], 20, y + 5)
+      doc.setTextColor(...dark)
+      doc.setFont('helvetica', 'bold')
+      doc.text(row[1], 100, y + 5)
+      y += 8
+    })
+
+    // Section: Payment summary
+    y += 6
+    doc.setFillColor(...dark)
+    doc.rect(14, y, W - 28, 8, 'F')
+    doc.setTextColor(255, 255, 255)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(9)
+    doc.text('PAYMENT SUMMARY', 20, y + 5.5)
+
+    y += 10
+    const roomTotal = (b.pricePerNight || 0) * b.nights
+    const payRows = [
+      [`Room (${b.nights} night${b.nights>1?'s':''} x Rs.${(b.pricePerNight||0).toLocaleString('en-IN')})`, `Rs.${roomTotal.toLocaleString('en-IN')}`],
+    ]
+    if (b.gstAmount) payRows.push([`GST`, `Rs.${b.gstAmount.toLocaleString('en-IN')}`])
+    payRows.push(['TOTAL AMOUNT', `Rs.${(b.totalAmount||0).toLocaleString('en-IN')}`])
+    if (b.paymentId) payRows.push(['Payment Reference', b.paymentId])
+
+    payRows.forEach((row, i) => {
+      const isTotal = row[0] === 'TOTAL AMOUNT'
+      if (isTotal) {
+        doc.setFillColor(...gold)
+        doc.rect(14, y - 1, W - 28, 9, 'F')
+        doc.setTextColor(...dark)
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(10)
+      } else {
+        if (i % 2 === 0) {
+          doc.setFillColor(245, 246, 250)
+          doc.rect(14, y - 1, W - 28, 8, 'F')
+        }
+        doc.setTextColor(...grey)
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(9)
+      }
+      doc.text(row[0], 20, y + 5)
+      doc.setTextColor(isTotal ? dark[0] : dark[0], isTotal ? dark[1] : dark[1], isTotal ? dark[2] : dark[2])
+      doc.setFont('helvetica', 'bold')
+      doc.text(row[1], W - 18, y + 5, { align: 'right' })
+      y += isTotal ? 10 : 8
+    })
+
+    // Footer
+    const footerY = 272
+    doc.setDrawColor(...gold)
+    doc.setLineWidth(0.5)
+    doc.line(14, footerY, W - 14, footerY)
+    doc.setTextColor(...grey)
+    doc.setFont('helvetica', 'italic')
+    doc.setFontSize(8.5)
+    doc.text('Thank you for choosing Hotel Jay Palace. We look forward to welcoming you!', W / 2, footerY + 6, { align: 'center' })
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(7.5)
+    doc.text('Website & Booking System by OM Technology', W / 2, footerY + 12, { align: 'center' })
+
+    doc.save(`Invoice-${code}.pdf`)
   }
 
   // ── Helpers ──────────────────────────────────────────────
