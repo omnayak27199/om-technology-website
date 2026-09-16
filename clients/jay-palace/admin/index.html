@@ -119,6 +119,45 @@
     .booking-card.status-checked_out { border-left: 4px solid #374151; }
     .badge-checked_out { background: rgba(55,65,81,.10); color: #374151; border: 1px solid rgba(55,65,81,.30); }
 
+    /* CHECK-IN */
+    .btn-checkin { background: #0369a1; color: #fff; border: none; padding: 9px 16px; border-radius: 9999px; font-size: .8125rem; font-weight: 700; }
+    .btn-checkin:hover { opacity: .9; }
+    .booking-card.status-checked_in { border-left: 4px solid #0369a1; }
+    .badge-checked_in { background: rgba(3,105,161,.10); color: #0369a1; border: 1px solid rgba(3,105,161,.30); }
+    .stay-timer-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(3,105,161,.08); border: 1px solid rgba(3,105,161,.25);
+      color: #0369a1; border-radius: 9999px; padding: 5px 12px;
+      font-size: .75rem; font-weight: 700; margin-bottom: 8px;
+    }
+    .stay-timer-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: #0369a1; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    .checkin-detail-row { font-size: .75rem; color: var(--muted); margin-bottom: 4px; }
+    .checkin-detail-row strong { color: var(--text); }
+
+    /* CHECK-IN MODAL */
+    .ci-modal-overlay { display: none; position: fixed; inset: 0; z-index: 400; background: rgba(26,15,8,.55); backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 16px; }
+    .ci-modal-overlay.open { display: flex; }
+    .ci-modal { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 28px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(123,79,46,.15); }
+    .ci-modal-header { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+    .ci-modal-header h3 { font-size: 1.1rem; font-weight: 800; flex: 1; }
+    .ci-booking-pill { background: rgba(3,105,161,.10); border: 1px solid rgba(3,105,161,.25); color: #0369a1; border-radius: 9999px; padding: 4px 12px; font-size: .75rem; font-weight: 800; letter-spacing: .06em; }
+    .ci-field { margin-bottom: 16px; }
+    .ci-field label { display: block; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 6px; }
+    .ci-field input, .ci-field select {
+      width: 100%; background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: 10px; padding: 10px 14px; font-size: .9375rem; font-family: inherit;
+      font-weight: 600; color: var(--text); outline: none;
+    }
+    .ci-field input:focus, .ci-field select:focus { border-color: #0369a1; }
+    .ci-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .ci-guest-info { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 18px; font-size: .875rem; }
+    .ci-guest-info strong { font-size: 1rem; font-weight: 800; display: block; margin-bottom: 2px; }
+    .ci-guest-info span { color: var(--muted); font-size: .8rem; }
+    .ci-actions { display: flex; gap: 10px; margin-top: 22px; }
+    .btn-ci-submit { flex: 1; background: #0369a1; color: #fff; border: none; padding: 13px; border-radius: 9999px; font-size: .9375rem; font-weight: 800; cursor: pointer; }
+    .btn-ci-cancel { flex: 1; background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 11px; border-radius: 9999px; font-size: .875rem; cursor: pointer; }
+
     .empty-state { text-align: center; padding: 60px 24px; color: var(--muted); }
     .empty-state .empty-icon { font-size: 3rem; margin-bottom: 12px; }
 
@@ -284,6 +323,7 @@
       <button class="tab" onclick="filterBookings('pending', this)">Pending</button>
       <button class="tab" onclick="filterBookings('approved', this)">Approved</button>
       <button class="tab" onclick="filterBookings('paid', this)">Paid</button>
+      <button class="tab" onclick="filterBookings('checked_in', this)">Checked In</button>
       <button class="tab" onclick="filterBookings('rejected', this)">Rejected</button>
       <button class="tab" onclick="filterBookings('checked_out', this)">Checked Out</button>
     </div>
@@ -309,6 +349,53 @@
 
   </div><!-- end admin-body -->
 </div><!-- end adminWrap -->
+
+<!-- CHECK-IN MODAL -->
+<div class="ci-modal-overlay" id="ciModal">
+  <div class="ci-modal">
+    <div class="ci-modal-header">
+      <h3>🏨 Guest Check-In</h3>
+      <div class="ci-booking-pill" id="ciBookingPill">JP-XXXXXX</div>
+    </div>
+    <!-- Guest summary (read-only) -->
+    <div class="ci-guest-info">
+      <strong id="ciGuestName">Guest Name</strong>
+      <span id="ciRoomInfo">Room · Dates</span>
+    </div>
+    <!-- Aadhar Card -->
+    <div class="ci-field">
+      <label>Aadhar Card Number *</label>
+      <input type="text" id="ciAadhar" placeholder="XXXX XXXX XXXX" maxlength="14" inputmode="numeric"
+             oninput="this.value=this.value.replace(/[^0-9]/g,'').replace(/(.{4})(?=.)/g,'$1 ').trim()">
+    </div>
+    <!-- Guests + Gender -->
+    <div class="ci-field-row">
+      <div class="ci-field">
+        <label>Number of Guests *</label>
+        <input type="number" id="ciGuests" min="1" max="10" value="1">
+      </div>
+      <div class="ci-field">
+        <label>Gender *</label>
+        <select id="ciGender">
+          <option value="">Select…</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Mixed">Mixed / Group</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+    </div>
+    <!-- Mobile -->
+    <div class="ci-field">
+      <label>Mobile Number *</label>
+      <input type="tel" id="ciMobile" placeholder="+91 98765 43210" inputmode="tel">
+    </div>
+    <div class="ci-actions">
+      <button class="btn-ci-submit" onclick="submitCheckin()">✓ Complete Check-In</button>
+      <button class="btn-ci-cancel" onclick="closeCheckinModal()">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <!-- EDIT / ADD ROOM MODAL -->
 <div class="edit-modal-overlay" id="editRoomModal">
@@ -431,13 +518,14 @@
   }
 
   function updateStats() {
-    const pending  = allBookings.filter(b => b.status === 'pending').length
-    const approved = allBookings.filter(b => b.status === 'approved').length
-    const paid     = allBookings.filter(b => b.status === 'paid').length
-    const revenue  = allBookings.filter(b => b.status === 'paid').reduce((s, b) => s + (b.totalAmount || 0), 0)
+    const pending   = allBookings.filter(b => b.status === 'pending').length
+    const approved  = allBookings.filter(b => b.status === 'approved').length
+    const paid      = allBookings.filter(b => b.status === 'paid').length
+    const checkedIn = allBookings.filter(b => b.status === 'checked_in').length
+    const revenue   = allBookings.filter(b => ['paid','checked_in','checked_out'].includes(b.status)).reduce((s, b) => s + (b.totalAmount || 0), 0)
 
     document.getElementById('statPending').textContent  = pending
-    document.getElementById('statApproved').textContent = approved
+    document.getElementById('statApproved').textContent = approved + (checkedIn ? ' · ' + checkedIn + ' in' : '')
     document.getElementById('statPaid').textContent     = paid
     document.getElementById('statRevenue').textContent  = '₹' + revenue.toLocaleString('en-IN')
   }
@@ -461,7 +549,9 @@
     }
 
     list.innerHTML = filtered.map(b => {
-      const statusLabel = b.status === 'checked_out' ? 'Checked Out' : b.status
+      const statusLabel = b.status === 'checked_out' ? 'Checked Out'
+                        : b.status === 'checked_in'  ? 'Checked In'
+                        : b.status
       const statusBadge = `<div class="badge badge-${b.status}">${statusLabel}</div>`
       const actions     = buildActions(b)
       return `
@@ -487,6 +577,7 @@
           <div class="booking-actions">${actions}</div>
         </div>`
     }).join('')
+    refreshStayTimers()
   }
 
   function buildActions(b) {
@@ -524,16 +615,26 @@
       return `${chip}
         <button class="btn-mark-paid" onclick="markAsPaid('${id}')">${markLabel}</button>
         ${showCollect ? `<button class="btn-pay" onclick="openPayModal('${id}')">💳 Collect via Razorpay</button>` : ''}
-        <button class="btn-wa"      onclick="sendWhatsApp('${id}')">💬 WhatsApp</button>
-        <button class="btn-invoice" onclick="downloadInvoice('${id}')">📄 Download PDF</button>
-        <button class="btn-checkout" onclick="checkoutBooking('${id}')">🚪 Checkout</button>`
+        <button class="btn-checkin"  onclick="openCheckinModal('${id}')">🏨 Check In</button>
+        <button class="btn-wa"       onclick="sendWhatsApp('${id}')">💬 WhatsApp</button>
+        <button class="btn-invoice"  onclick="downloadInvoice('${id}')">📄 Download PDF</button>`
     }
     if (b.status === 'paid') {
       return `${chip}
-        <button class="btn-wa"      onclick="sendWhatsApp('${id}')">💬 Receipt WA</button>
+        <button class="btn-checkin"  onclick="openCheckinModal('${id}')">🏨 Check In</button>
+        <button class="btn-wa"       onclick="sendWhatsApp('${id}')">💬 Receipt WA</button>
         ${b.customerEmail ? `<button class="btn-email" onclick="sendEmailToGuest('receipt', allBookings.find(x=>x.id==='${id}'))">📧 Email Receipt</button>` : ''}
-        <button class="btn-invoice" onclick="downloadInvoice('${id}')">📄 Download PDF</button>
-        <button class="btn-checkout" onclick="checkoutBooking('${id}')">🚪 Checkout</button>`
+        <button class="btn-invoice"  onclick="downloadInvoice('${id}')">📄 Download PDF</button>`
+    }
+    if (b.status === 'checked_in') {
+      const ciAt = b.checkedInAt && b.checkedInAt.toDate ? b.checkedInAt.toDate().getTime() : null
+      return `${chip}
+        <div class="stay-timer-badge"><span class="dot"></span><span class="stay-timer" data-since="${ciAt || ''}">Calculating…</span></div>
+        ${b.aadharNumber ? `<div class="checkin-detail-row">🪪 Aadhar: <strong>${b.aadharNumber}</strong></div>` : ''}
+        ${b.genderAtCheckin ? `<div class="checkin-detail-row">👤 Gender: <strong>${b.genderAtCheckin}</strong></div>` : ''}
+        <button class="btn-checkout" onclick="checkoutBooking('${id}')">🚪 Checkout</button>
+        <button class="btn-wa"       onclick="sendWhatsApp('${id}')">💬 WhatsApp</button>
+        <button class="btn-invoice"  onclick="downloadInvoice('${id}')">📄 Invoice PDF</button>`
     }
     if (b.status === 'checked_out') {
       return `${chip}<span style="font-size:.8rem;color:var(--muted)">✅ Checked out</span>
@@ -582,6 +683,118 @@
         sendEmailToGuest('receipt', paid)
         showAdminToast('Payment confirmed! Receipt sent via WhatsApp + email.')
       })
+  }
+
+  // ── Check-In ─────────────────────────────────────────────────
+  let _ciBookingId = null
+
+  function openCheckinModal(id) {
+    const b = allBookings.find(x => x.id === id)
+    if (!b) return
+    _ciBookingId = id
+    const code = b.bookingCode || id.slice(0,8).toUpperCase()
+    document.getElementById('ciBookingPill').textContent = code
+    document.getElementById('ciGuestName').textContent   = b.customerName
+    document.getElementById('ciRoomInfo').textContent    = `${b.roomName} · ${fmtDate(b.checkIn)} → ${fmtDate(b.checkOut)}`
+    document.getElementById('ciAadhar').value    = ''
+    document.getElementById('ciGuests').value    = b.guests || 1
+    document.getElementById('ciGender').value    = ''
+    document.getElementById('ciMobile').value    = b.customerPhone || ''
+    document.getElementById('ciModal').classList.add('open')
+  }
+
+  function closeCheckinModal() {
+    document.getElementById('ciModal').classList.remove('open')
+    _ciBookingId = null
+  }
+
+  function submitCheckin() {
+    const id      = _ciBookingId
+    const b       = allBookings.find(x => x.id === id)
+    const aadhar  = document.getElementById('ciAadhar').value.trim().replace(/\s/g,'')
+    const guests  = parseInt(document.getElementById('ciGuests').value) || 1
+    const gender  = document.getElementById('ciGender').value
+    const mobile  = document.getElementById('ciMobile').value.trim()
+
+    if (aadhar.length !== 12) { showAdminToast('Enter valid 12-digit Aadhar number', 'error'); return }
+    if (!gender)              { showAdminToast('Please select gender', 'error'); return }
+    if (!mobile)              { showAdminToast('Enter mobile number', 'error'); return }
+
+    db.collection('bookings').doc(id).update({
+      status:         'checked_in',
+      checkedInAt:    firebase.firestore.FieldValue.serverTimestamp(),
+      aadharNumber:   aadhar,
+      guestsAtCheckin: guests,
+      genderAtCheckin: gender,
+      mobileAtCheckin: mobile,
+    }).then(() => {
+      closeCheckinModal()
+      const checkedIn = { ...b, status: 'checked_in', aadharNumber: aadhar, guestsAtCheckin: guests, genderAtCheckin: gender }
+      sendCheckinMessages(checkedIn, mobile)
+      showAdminToast(`${b.customerName} checked in! Messages sent.`, 'success')
+    }).catch(err => showAdminToast('Check-in failed: ' + err.message, 'error'))
+  }
+
+  function sendCheckinMessages(b, mobile) {
+    const code = b.bookingCode || b.id.slice(0,8).toUpperCase()
+    const msg  = `🏨 *CHECK-IN CONFIRMED — Jay Palace*\n\n` +
+      `Dear ${b.customerName},\n\n` +
+      `You have successfully checked in! Here are your stay details:\n\n` +
+      `🆔 Booking ID: *${code}*\n` +
+      `🛏️ Room: ${b.roomName}\n` +
+      `📅 Check-in: ${fmtDate(b.checkIn)} (${HOTEL.checkIn})\n` +
+      `📅 Check-out: ${fmtDate(b.checkOut)} (${HOTEL.checkOut})\n` +
+      `🌙 Nights: ${b.nights}\n` +
+      `👥 Guests: ${b.guestsAtCheckin || b.guests}\n\n` +
+      `We wish you a wonderful stay!\n` +
+      `For any assistance: 📞 ${HOTEL.phone}\n\n` +
+      `*Hotel Jay Palace, Saraipali* ✦`
+
+    const phone = mobile.replace(/[\s\-+]/g, '')
+    const waNum = phone.startsWith('0') ? '91' + phone.slice(1)
+                : phone.startsWith('91') ? phone : '91' + phone
+    window.open(`https://wa.me/${waNum}?text=${encodeURIComponent(msg)}`, '_blank')
+
+    // Email (if configured and guest has email)
+    if (window.EMAILJS && window.EMAILJS.publicKey !== 'YOUR_PUBLIC_KEY' && b.customerEmail) {
+      emailjs.send(window.EMAILJS.serviceId, window.EMAILJS.confirmationTemplate, {
+        to_name:        b.customerName,
+        to_email:       b.customerEmail,
+        booking_id:     code,
+        room_name:      b.roomName,
+        check_in:       fmtDate(b.checkIn) + ' (' + HOTEL.checkIn + ')',
+        check_out:      fmtDate(b.checkOut) + ' (' + HOTEL.checkOut + ')',
+        nights:         b.nights,
+        guests:         b.guestsAtCheckin || b.guests,
+        total_amount:   'Rs.' + (b.totalAmount || 0).toLocaleString('en-IN'),
+        payment_status: 'CHECKED IN',
+        hotel_phone:    HOTEL.phone,
+        hotel_email:    HOTEL.email,
+        hotel_address:  HOTEL.address,
+      }).catch(() => {})
+    }
+  }
+
+  // ── Stay Timer ────────────────────────────────────────────────
+  let _stayTimerInterval = null
+
+  function refreshStayTimers() {
+    clearInterval(_stayTimerInterval)
+    function tick() {
+      document.querySelectorAll('.stay-timer[data-since]').forEach(el => {
+        const since = parseInt(el.dataset.since)
+        if (!since) { el.textContent = 'Staying'; return }
+        const diff = Date.now() - since
+        const h    = Math.floor(diff / 3600000)
+        const m    = Math.floor((diff % 3600000) / 60000)
+        const d    = Math.floor(h / 24)
+        el.textContent = d > 0
+          ? `${d}d ${h % 24}h ${m}m — In-House`
+          : `${h}h ${m}m — In-House`
+      })
+    }
+    tick()
+    _stayTimerInterval = setInterval(tick, 60000)
   }
 
   // ── Checkout Guest ───────────────────────────────────────────
