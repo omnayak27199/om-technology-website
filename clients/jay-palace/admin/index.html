@@ -820,11 +820,15 @@
     }
     if (b.status === 'checked_in') {
       const ciAt = b.checkedInAt && b.checkedInAt.toDate ? b.checkedInAt.toDate().getTime() : null
+      const markLabel = b.paymentMethod === 'razorpay' ? '✓ Confirm Razorpay'
+                      : b.paymentMethod === 'upi'      ? '✓ Confirm UPI'
+                      : '✓ Mark as Paid'
       return `${chip}
         <div class="stay-timer-badge"><span class="dot"></span><span class="stay-timer" data-since="${ciAt || ''}">Calculating…</span></div>
         ${b.roomNumber ? `<div class="checkin-detail-row">🚪 Room No: <strong>${b.roomNumber}</strong></div>` : ''}
         ${b.aadharNumber ? `<div class="checkin-detail-row">🪪 Aadhar: <strong>${b.aadharNumber}</strong></div>` : ''}
         ${b.genderAtCheckin ? `<div class="checkin-detail-row">👤 Gender: <strong>${b.genderAtCheckin}</strong></div>` : ''}
+        ${!b.paymentId ? `<button class="btn-mark-paid" onclick="markAsPaid('${id}')">${markLabel}</button>` : `<div style="font-size:.75rem;color:var(--success);font-weight:700">✓ Payment confirmed</div>`}
         <button class="btn-checkout" onclick="checkoutBooking('${id}')">🚪 Checkout</button>
         <button class="btn-wa"       onclick="sendWhatsApp('${id}')">💬 WhatsApp</button>
         <button class="btn-invoice"  onclick="downloadInvoice('${id}')">📄 Invoice PDF</button>`
@@ -872,9 +876,17 @@
                 : b.paymentMethod === 'upi'      ? 'Confirm this UPI payment'
                 : 'Mark cash payment as received'
     if (!confirm(`${label} for ${b.customerName}?\n\nThis will send the payment receipt to the guest.`)) return
-    db.collection('bookings').doc(id).update({ status: 'paid' })
-      .then(() => {
-        const paid = { ...b, status: 'paid' }
+
+    // If guest is already checked in, keep that status — just record the payment
+    const newStatus = b.status === 'checked_in' ? 'checked_in' : 'paid'
+    const paidRef   = 'CASH-' + Date.now()
+
+    db.collection('bookings').doc(id).update({
+      status:    newStatus,
+      paymentId: b.paymentId || paidRef,
+      paidAt:    firebase.firestore.FieldValue.serverTimestamp(),
+    }).then(() => {
+        const paid = { ...b, status: newStatus }
         sendWhatsAppMsg(paid, 'paid')
         sendEmailToGuest('receipt', paid)
         showAdminToast('Payment confirmed! Receipt sent via WhatsApp + email.')
