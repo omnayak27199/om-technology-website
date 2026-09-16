@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG)
     db = firebase.firestore()
     loadRoomsFromDB()
+    loadBlockedDatesPublic()
   } catch (e) {
     console.error('Firebase init failed:', e)
     renderRooms()
@@ -39,6 +40,21 @@ function loadRoomsFromDB() {
       renderRooms()
       populateRoomSelect()
     })
+}
+
+let _publicBlockedDates = []
+
+function loadBlockedDatesPublic() {
+  if (!db) return
+  db.collection('config').doc('blockedDates').get()
+    .then(doc => {
+      _publicBlockedDates = (doc.exists && doc.data().dates) ? doc.data().dates : []
+    })
+    .catch(() => {})
+}
+
+function isDateBlocked(dateStr) {
+  return _publicBlockedDates.some(entry => dateStr >= entry.from && dateStr <= entry.to)
 }
 
 // ── Render ─────────────────────────────────────────────────
@@ -119,6 +135,11 @@ function recalcPrice() {
   if (!room || !checkIn || !checkOut) return
   const nights = Math.ceil((new Date(checkOut) - new Date(checkIn)) / 86400000)
   if (nights < 1) { document.getElementById('checkOut').value = ''; showToast('Check-out must be after check-in', true); return }
+  if (isDateBlocked(checkIn)) {
+    document.getElementById('checkIn').value = ''
+    showToast('Selected check-in date is not available (blocked). Please choose another date.', true)
+    return
+  }
   const base = nights * room.price
   const gst  = HOTEL.gst ? Math.round(base * HOTEL.gst / 100) : 0
   document.getElementById('priceLabel').textContent = `${nights} night${nights>1?'s':''} × ₹${room.price.toLocaleString('en-IN')}`

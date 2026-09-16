@@ -307,6 +307,26 @@
     .btn-email:hover { opacity: .9; }
     .btn-mark-paid { background: var(--success); color: #fff; border: none; padding: 9px 16px; border-radius: 9999px; font-size: .8125rem; font-weight: 700; }
 
+    /* PAYMENT STATUS CHIP */
+    .pay-status-chip { font-size: .68rem; font-weight: 800; padding: 2px 8px; border-radius: 9999px; display: inline-block; margin-bottom: 6px; }
+    .pay-status-chip.paid   { background: rgba(21,128,61,.12); color: var(--success); border: 1px solid rgba(21,128,61,.3); }
+    .pay-status-chip.unpaid { background: rgba(180,83,9,.10);  color: var(--warning); border: 1px solid rgba(180,83,9,.25); }
+
+    /* SEARCH */
+    .search-wrap { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+    .booking-search-input {
+      flex: 1; max-width: 320px; background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 9999px; padding: 8px 18px; font-size: .875rem; font-family: inherit;
+      color: var(--text); outline: none;
+    }
+    .booking-search-input:focus { border-color: var(--gold); }
+    .search-clear-btn {
+      background: transparent; border: 1px solid var(--border); color: var(--muted);
+      border-radius: 9999px; padding: 7px 14px; font-size: .8rem; font-weight: 700; cursor: pointer;
+    }
+    .search-clear-btn:hover { border-color: var(--gold); color: var(--text); }
+    .search-count { font-size: .8rem; color: var(--muted); white-space: nowrap; }
+
     @media (max-width: 900px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
       .booking-card { grid-template-columns: 1fr 1fr; }
@@ -378,6 +398,19 @@
         <div class="stat-label">Total Revenue</div>
         <div class="stat-value" id="statRevenue">—</div>
       </div>
+    </div>
+
+    <!-- Revenue chart -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:20px;box-shadow:0 1px 4px rgba(123,79,46,.05)">
+      <div style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Revenue — Last 6 Months</div>
+      <canvas id="revenueChart" style="max-height:200px"></canvas>
+    </div>
+
+    <!-- Search bar -->
+    <div class="search-wrap">
+      <input type="text" class="booking-search-input" id="bookingSearch" placeholder="Search by name, phone or booking code…" oninput="searchBookings(this.value)">
+      <button class="search-clear-btn" onclick="clearSearch()">✕ Clear</button>
+      <span class="search-count" id="searchCount"></span>
     </div>
 
     <!-- Record bar -->
@@ -505,6 +538,27 @@
       </div>
       <div class="rooms-admin-grid" id="roomsAdminGrid">
         <div class="loading">Loading rooms...</div>
+      </div>
+
+      <div style="margin-top:32px">
+        <h2 style="font-size:1.1rem;font-weight:800;margin-bottom:4px">🚫 Blocked Dates</h2>
+        <p style="font-size:.8rem;color:var(--muted);margin-bottom:16px">Block specific dates so guests cannot book them.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:flex-end">
+          <div>
+            <label style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">From</label>
+            <input type="date" id="blockFrom" style="background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-family:inherit;font-size:.875rem;color:var(--text);outline:none">
+          </div>
+          <div>
+            <label style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">To</label>
+            <input type="date" id="blockTo" style="background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-family:inherit;font-size:.875rem;color:var(--text);outline:none">
+          </div>
+          <div>
+            <label style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Reason (optional)</label>
+            <input type="text" id="blockReason" placeholder="e.g. Renovation, Event..." style="background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-family:inherit;font-size:.875rem;color:var(--text);outline:none;width:220px">
+          </div>
+          <button onclick="addBlockedDate()" style="background:var(--danger);color:#fff;border:none;padding:9px 20px;border-radius:9999px;font-size:.85rem;font-weight:800;cursor:pointer">🚫 Block Dates</button>
+        </div>
+        <div id="blockedDatesList"></div>
       </div>
     </div>
 
@@ -644,6 +698,7 @@
 <div class="a-toast" id="adminToast"></div>
 
 <!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="../js/config.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -706,6 +761,7 @@
         allBookings = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
         updateStats()
         renderBookings()
+        renderRevenueChart()
       })
   }
 
@@ -722,6 +778,67 @@
     document.getElementById('statRevenue').textContent  = '₹' + revenue.toLocaleString('en-IN')
   }
 
+  function getPaymentStatus(b) {
+    if (b.paymentStatus === 'paid') return 'paid'
+    if (b.status === 'paid') return 'paid'
+    if (b.paymentMethod === 'razorpay' && b.paymentId && !b.paymentId.startsWith('UTR:')) return 'paid'
+    return 'unpaid'
+  }
+
+  let _revenueChart = null
+
+  function renderRevenueChart() {
+    const canvas = document.getElementById('revenueChart')
+    if (!canvas || typeof Chart === 'undefined') return
+
+    // Build last 6 months
+    const now    = new Date()
+    const labels = []
+    const totals = []
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+      labels.push(d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' }))
+      const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0')
+      const sum = allBookings
+        .filter(b => {
+          const ps = getPaymentStatus(b)
+          const st = b.status
+          return (ps === 'paid' || st === 'checked_in' || st === 'checked_out') && b.checkIn && b.checkIn.slice(0, 7) === key
+        })
+        .reduce((s, b) => s + (b.totalAmount || 0), 0)
+      totals.push(sum)
+    }
+
+    if (_revenueChart) _revenueChart.destroy()
+    _revenueChart = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Revenue (₹)',
+          data: totals,
+          backgroundColor: 'rgba(123,79,46,0.75)',
+          borderColor: '#7B4F2E',
+          borderWidth: 1.5,
+          borderRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false } },
+          y: {
+            grid: { color: 'rgba(0,0,0,0.06)' },
+            ticks: {
+              callback: v => '₹' + (v >= 1000 ? (v/1000).toFixed(0) + 'k' : v)
+            }
+          }
+        }
+      }
+    })
+  }
+
   function filterBookings(status, btn) {
     currentFilter = status
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
@@ -729,11 +846,37 @@
     renderBookings()
   }
 
+  let _searchQuery = ''
+
+  function searchBookings(q) {
+    _searchQuery = q.trim().toLowerCase()
+    renderBookings()
+  }
+
+  function clearSearch() {
+    document.getElementById('bookingSearch').value = ''
+    _searchQuery = ''
+    document.getElementById('searchCount').textContent = ''
+    renderBookings()
+  }
+
   function renderBookings() {
-    const list     = document.getElementById('bookingsList')
-    const filtered = currentFilter === 'all'
+    const list = document.getElementById('bookingsList')
+    let filtered = currentFilter === 'all'
       ? allBookings
       : allBookings.filter(b => b.status === currentFilter)
+
+    if (_searchQuery) {
+      filtered = filtered.filter(b => {
+        const name  = (b.customerName  || '').toLowerCase()
+        const phone = (b.customerPhone || '').toLowerCase()
+        const code  = (b.bookingCode   || b.id || '').toLowerCase()
+        return name.includes(_searchQuery) || phone.includes(_searchQuery) || code.includes(_searchQuery)
+      })
+      document.getElementById('searchCount').textContent = `${filtered.length} result${filtered.length !== 1 ? 's' : ''}`
+    } else {
+      document.getElementById('searchCount').textContent = ''
+    }
 
     if (!filtered.length) {
       list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>No bookings found.</p></div>`
@@ -762,6 +905,7 @@
           </div>
           <div>
             ${statusBadge}
+            ${(b.status !== 'pending' && b.status !== 'rejected') ? `<div class="pay-status-chip ${getPaymentStatus(b) === 'paid' ? 'paid' : 'unpaid'}">${getPaymentStatus(b) === 'paid' ? '💳 Paid' : '💰 Unpaid'}</div>` : ''}
             <div class="booking-amount">₹${(b.totalAmount||0).toLocaleString('en-IN')}</div>
             <div class="booking-nights">₹${b.pricePerNight}/night × ${b.nights}</div>
             ${b.paymentId ? `<div style="font-size:.7rem;color:var(--success);margin-top:4px">✓ Paid · ${b.paymentId}</div>` : ''}
@@ -828,7 +972,7 @@
         ${b.roomNumber ? `<div class="checkin-detail-row">🚪 Room No: <strong>${b.roomNumber}</strong></div>` : ''}
         ${b.aadharNumber ? `<div class="checkin-detail-row">🪪 Aadhar: <strong>${b.aadharNumber}</strong></div>` : ''}
         ${b.genderAtCheckin ? `<div class="checkin-detail-row">👤 Gender: <strong>${b.genderAtCheckin}</strong></div>` : ''}
-        ${!b.paymentId ? `<button class="btn-mark-paid" onclick="markAsPaid('${id}')">${markLabel}</button>` : `<div style="font-size:.75rem;color:var(--success);font-weight:700">✓ Payment confirmed</div>`}
+        ${getPaymentStatus(b) === 'unpaid' ? `<button class="btn-mark-paid" onclick="markAsPaid('${id}')">${markLabel}</button>` : `<div style="font-size:.75rem;color:var(--success);font-weight:700">✓ Paid</div>`}
         <button class="btn-checkout" onclick="checkoutBooking('${id}')">🚪 Checkout</button>
         <button class="btn-wa"       onclick="sendWhatsApp('${id}')">💬 WhatsApp</button>
         <button class="btn-invoice"  onclick="downloadInvoice('${id}')">📄 Invoice PDF</button>`
@@ -882,9 +1026,10 @@
     const paidRef   = 'CASH-' + Date.now()
 
     db.collection('bookings').doc(id).update({
-      status:    newStatus,
-      paymentId: b.paymentId || paidRef,
-      paidAt:    firebase.firestore.FieldValue.serverTimestamp(),
+      status:        newStatus,
+      paymentStatus: 'paid',
+      paymentId:     b.paymentId || paidRef,
+      paidAt:        firebase.firestore.FieldValue.serverTimestamp(),
     }).then(() => {
         const paid = { ...b, status: newStatus }
         sendWhatsAppMsg(paid, 'paid')
@@ -1014,7 +1159,14 @@
     const b = allBookings.find(x => x.id === id)
     if (!confirm(`Mark checkout for ${b.customerName}?\nThis will deactivate their booking tracker.`)) return
     db.collection('bookings').doc(id).update({ status: 'checked_out', checkedOutAt: firebase.firestore.FieldValue.serverTimestamp() })
-      .then(() => showAdminToast('Guest checked out successfully.'))
+      .then(() => {
+        showAdminToast('Guest checked out successfully.')
+        const phone = b.customerPhone.replace(/[\s\-+]/g, '')
+        const waNum = phone.startsWith('0') ? '91' + phone.slice(1)
+                    : phone.startsWith('91') ? phone : '91' + phone
+        const reviewMsg = `🌟 *Thank you for staying at Hotel Jay Palace!*\n\nDear ${b.customerName},\n\nWe hope you had a wonderful stay with us. Your feedback means the world to us!\n\n⭐ Would you take 2 minutes to leave us a Google review? It helps other travelers find us:\n👉 https://maps.app.goo.gl/wbtZpwUweqdRTicHA\n\nWe look forward to welcoming you again!\n*Hotel Jay Palace, Saraipali* ✦\n📞 +91 75877 80043`
+        window.open('https://wa.me/' + waNum + '?text=' + encodeURIComponent(reviewMsg), '_blank')
+      })
   }
 
   // ── Email to Guest ───────────────────────────────────────
@@ -1609,7 +1761,7 @@
     document.getElementById('bookingsView').style.display = view === 'bookings' ? 'block' : 'none'
     document.getElementById('reportsView').style.display  = view === 'reports'  ? 'block' : 'none'
     document.getElementById('roomsView').style.display    = view === 'rooms'    ? 'block' : 'none'
-    if (view === 'rooms')   renderAdminRooms()
+    if (view === 'rooms')   { renderAdminRooms(); loadBlockedDates() }
     if (view === 'reports') initReports()
   }
 
@@ -1952,6 +2104,66 @@
         showAdminToast(`"${room.name}" deleted.`, 'error')
       })
       .catch(err => showAdminToast('Delete failed: ' + err.message, 'error'))
+  }
+
+  // ── Blocked Dates ─────────────────────────────────────────
+  let _blockedDates = []
+
+  function loadBlockedDates() {
+    db.collection('config').doc('blockedDates').get()
+      .then(doc => {
+        _blockedDates = (doc.exists && doc.data().dates) ? doc.data().dates : []
+        paintBlockedDates(_blockedDates)
+      })
+      .catch(() => paintBlockedDates([]))
+  }
+
+  function paintBlockedDates(list) {
+    const el = document.getElementById('blockedDatesList')
+    if (!el) return
+    if (!list.length) {
+      el.innerHTML = `<p style="font-size:.85rem;color:var(--muted)">No dates blocked.</p>`
+      return
+    }
+    el.innerHTML = list.map((entry, i) => `
+      <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:8px;flex-wrap:wrap">
+        <span style="font-size:.85rem;font-weight:700;color:var(--danger)">🚫</span>
+        <span style="font-size:.875rem;font-weight:600">${fmtDate(entry.from)} → ${fmtDate(entry.to)}</span>
+        ${entry.reason ? `<span style="font-size:.8rem;color:var(--muted)">${entry.reason}</span>` : ''}
+        <button onclick="removeBlockedDate(${i})" style="margin-left:auto;background:transparent;color:var(--danger);border:1px solid rgba(220,38,38,.35);padding:5px 12px;border-radius:9999px;font-size:.78rem;font-weight:700;cursor:pointer">Remove</button>
+      </div>
+    `).join('')
+  }
+
+  function addBlockedDate() {
+    const from   = document.getElementById('blockFrom').value
+    const to     = document.getElementById('blockTo').value
+    const reason = document.getElementById('blockReason').value.trim()
+    if (!from || !to) { showAdminToast('Please select both From and To dates', 'error'); return }
+    if (from > to)    { showAdminToast('From date must be before To date', 'error'); return }
+    const updated = [..._blockedDates, { from, to, reason }]
+    db.collection('config').doc('blockedDates').set({ dates: updated })
+      .then(() => {
+        _blockedDates = updated
+        paintBlockedDates(_blockedDates)
+        document.getElementById('blockFrom').value   = ''
+        document.getElementById('blockTo').value     = ''
+        document.getElementById('blockReason').value = ''
+        showAdminToast('Dates blocked successfully.')
+      })
+      .catch(err => showAdminToast('Failed: ' + err.message, 'error'))
+  }
+
+  function removeBlockedDate(index) {
+    if (!confirm('Remove this blocked date range?')) return
+    const updated = _blockedDates.filter((_, i) => i !== index)
+    db.collection('config').doc('blockedDates').set({ dates: updated })
+      .then(() => {
+        _blockedDates = updated
+        paintBlockedDates(_blockedDates)
+        showAdminToast('Blocked date removed.')
+      })
+      .catch(err => showAdminToast('Failed: ' + err.message, 'error'))
   }
 </script>
 
