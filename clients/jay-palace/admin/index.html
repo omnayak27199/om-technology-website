@@ -1312,160 +1312,277 @@
 
   // ── Download Invoice PDF ─────────────────────────────────
   function downloadInvoice(id) {
-    const b    = allBookings.find(x => x.id === id)
-    const code = b.bookingCode || id.slice(0,8).toUpperCase()
+    const b = allBookings.find(x => x.id === id)
+    if (!b) return
+    const code = b.bookingCode || id.slice(0, 8).toUpperCase()
     const { jsPDF } = window.jspdf
-    const doc  = new jsPDF({ unit: 'mm', format: 'a4' })
-    const W    = 210  // page width
-    const gold = [180, 140, 60]
-    const dark = [20, 30, 50]
-    const grey = [100, 110, 130]
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' })
 
-    // Header bar
-    doc.setFillColor(...dark)
-    doc.rect(0, 0, W, 38, 'F')
-    doc.setTextColor(255, 255, 255)
+    const W = 210, M = 14
+    const DBROWN = [80, 45, 20]
+    const BROWN  = [123, 79, 46]
+    const CREAM  = [250, 248, 245]
+    const CREAM2 = [240, 232, 220]
+    const BORDER = [210, 195, 180]
+    const DARK   = [26, 15, 8]
+    const GREY   = [130, 120, 110]
+    const WHITE  = [255, 255, 255]
+    const GREEN  = [22, 163, 74]
+    const AMBER  = [180, 120, 0]
+    const BLUE   = [59, 130, 246]
+    const RED    = [220, 38, 38]
+    const STRIPE = [244, 240, 236]
+
+    const isPaid = getPaymentStatus(b) === 'paid'
+
+    function fmtAadhar(a) {
+      if (!a) return '—'
+      const s = String(a).replace(/\D/g, '')
+      return s.length === 12 ? s.replace(/(\d{4})(\d{4})(\d{4})/, '$1 $2 $3') : s
+    }
+
+    function sectionBar(label, y) {
+      doc.setFillColor(...BROWN)
+      doc.rect(M, y, W - M * 2, 8, 'F')
+      doc.setTextColor(...WHITE)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(8)
+      doc.text(label, M + 4, y + 5.5)
+      return y + 8
+    }
+
+    // ── HEADER ─────────────────────────────────────────────
+    doc.setFillColor(...DBROWN)
+    doc.rect(0, 0, W, 44, 'F')
+    doc.setFillColor(...BROWN)
+    doc.rect(0, 0, W, 2, 'F')
+    doc.setTextColor(...WHITE)
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(22)
-    doc.text('HOTEL JAY PALACE', W / 2, 16, { align: 'center' })
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(9)
-    doc.setTextColor(...gold)
-    doc.text(HOTEL.address, W / 2, 23, { align: 'center' })
-    doc.text(`Tel: ${HOTEL.phone}   |   ${HOTEL.email}`, W / 2, 29, { align: 'center' })
-
-    // Invoice title strip
-    doc.setFillColor(...gold)
-    doc.rect(0, 38, W, 10, 'F')
-    doc.setTextColor(20, 30, 50)
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(11)
-    doc.text('BOOKING INVOICE', W / 2, 45, { align: 'center' })
-
-    // Booking meta (right side)
-    let y = 58
-    doc.setTextColor(...grey)
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(9)
-    doc.text('Booking ID', 130, y)
-    doc.text('Date Issued', 130, y + 7)
-    doc.text('Status', 130, y + 14)
-    doc.setTextColor(...dark)
-    doc.setFont('helvetica', 'bold')
-    doc.text(code, 175, y, { align: 'right' })
-    doc.text(new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }), 175, y + 7, { align: 'right' })
-    const statusColor = b.status === 'paid' ? [16, 185, 129] : b.status === 'approved' ? [59, 130, 246] : [245, 158, 11]
-    doc.setTextColor(...statusColor)
-    doc.text(b.status.toUpperCase(), 175, y + 14, { align: 'right' })
-
-    // Guest details box
-    doc.setDrawColor(220, 220, 230)
-    doc.setFillColor(248, 249, 252)
-    doc.roundedRect(14, y - 4, 100, 28, 3, 3, 'FD')
-    doc.setTextColor(...grey)
+    doc.text('HOTEL JAY PALACE', W / 2, 15, { align: 'center' })
+    doc.setFontSize(8)
+    doc.setTextColor(232, 215, 188)
+    doc.text('★  ★  ★  ★  ★', W / 2, 21, { align: 'center' })
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(8)
-    doc.text('GUEST', 20, y + 2)
-    doc.setTextColor(...dark)
+    doc.text(HOTEL.address, W / 2, 28, { align: 'center' })
+    doc.text('Tel: ' + HOTEL.phone + '   |   Email: ' + HOTEL.email, W / 2, 34, { align: 'center' })
+    doc.text('Web: jaypalace.online', W / 2, 40, { align: 'center' })
+
+    // ── TITLE STRIP ─────────────────────────────────────────
+    doc.setFillColor(...CREAM2)
+    doc.rect(0, 44, W, 11, 'F')
+    doc.setTextColor(...DBROWN)
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(12)
-    doc.text(b.customerName, 20, y + 10)
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(9)
-    doc.setTextColor(...grey)
-    doc.text(`Phone: ${b.customerPhone}`, 20, y + 17)
-    if (b.customerEmail) doc.text(`Email: ${b.customerEmail}`, 20, y + 23)
+    const isStayed = b.status === 'checked_in' || b.status === 'checked_out'
+    doc.text(isStayed ? 'GUEST INVOICE' : 'BOOKING CONFIRMATION', W / 2, 52, { align: 'center' })
 
-    // Section: Booking details table
-    y = 95
-    doc.setFillColor(...dark)
-    doc.rect(14, y, W - 28, 8, 'F')
-    doc.setTextColor(255, 255, 255)
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(9)
-    doc.text('BOOKING DETAILS', 20, y + 5.5)
+    // ── INVOICE META ─────────────────────────────────────────
+    let y = 60
+    doc.setFillColor(...CREAM)
+    doc.setDrawColor(...BORDER)
+    doc.setLineWidth(0.3)
+    doc.rect(M, y, W - M * 2, 16, 'FD')
 
-    y += 10
-    const rows = [
-      ['Room Type',   b.roomName],
-      ['Check-in',    `${fmtDate(b.checkIn)}  (${HOTEL.checkIn})`],
-      ['Check-out',   `${fmtDate(b.checkOut)}  (${HOTEL.checkOut})`],
-      ['Duration',    `${b.nights} night${b.nights > 1 ? 's' : ''}`],
-      ['Guests',      `${b.guests} guest${b.guests > 1 ? 's' : ''}`],
-    ]
-    if (b.specialRequests) rows.push(['Special Requests', b.specialRequests])
-
-    rows.forEach((row, i) => {
-      if (i % 2 === 0) {
-        doc.setFillColor(245, 246, 250)
-        doc.rect(14, y - 1, W - 28, 8, 'F')
-      }
-      doc.setTextColor(...grey)
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(9)
-      doc.text(row[0], 20, y + 5)
-      doc.setTextColor(...dark)
-      doc.setFont('helvetica', 'bold')
-      doc.text(row[1], 100, y + 5)
-      y += 8
-    })
-
-    // Section: Payment summary
-    y += 6
-    doc.setFillColor(...dark)
-    doc.rect(14, y, W - 28, 8, 'F')
-    doc.setTextColor(255, 255, 255)
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(9)
-    doc.text('PAYMENT SUMMARY', 20, y + 5.5)
-
-    y += 10
-    const roomTotal = (b.pricePerNight || 0) * b.nights
-    const payRows = [
-      [`Room (${b.nights} night${b.nights>1?'s':''} x Rs.${(b.pricePerNight||0).toLocaleString('en-IN')})`, `Rs.${roomTotal.toLocaleString('en-IN')}`],
-    ]
-    if (b.gstAmount) payRows.push([`GST`, `Rs.${b.gstAmount.toLocaleString('en-IN')}`])
-    payRows.push(['TOTAL AMOUNT', `Rs.${(b.totalAmount||0).toLocaleString('en-IN')}`])
-    if (b.paymentId) payRows.push(['Payment Reference', b.paymentId])
-
-    payRows.forEach((row, i) => {
-      const isTotal = row[0] === 'TOTAL AMOUNT'
-      if (isTotal) {
-        doc.setFillColor(...gold)
-        doc.rect(14, y - 1, W - 28, 9, 'F')
-        doc.setTextColor(...dark)
-        doc.setFont('helvetica', 'bold')
-        doc.setFontSize(10)
-      } else {
-        if (i % 2 === 0) {
-          doc.setFillColor(245, 246, 250)
-          doc.rect(14, y - 1, W - 28, 8, 'F')
-        }
-        doc.setTextColor(...grey)
-        doc.setFont('helvetica', 'normal')
-        doc.setFontSize(9)
-      }
-      doc.text(row[0], 20, y + 5)
-      doc.setTextColor(isTotal ? dark[0] : dark[0], isTotal ? dark[1] : dark[1], isTotal ? dark[2] : dark[2])
-      doc.setFont('helvetica', 'bold')
-      doc.text(row[1], W - 18, y + 5, { align: 'right' })
-      y += isTotal ? 10 : 8
-    })
-
-    // Footer
-    const footerY = 272
-    doc.setDrawColor(...gold)
-    doc.setLineWidth(0.5)
-    doc.line(14, footerY, W - 14, footerY)
-    doc.setTextColor(...grey)
-    doc.setFont('helvetica', 'italic')
-    doc.setFontSize(8.5)
-    doc.text('Thank you for choosing Hotel Jay Palace. We look forward to welcoming you!', W / 2, footerY + 6, { align: 'center' })
+    doc.setTextColor(...GREY)
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(7.5)
-    doc.text('Website & Booking System by OM Technology', W / 2, footerY + 12, { align: 'center' })
+    doc.text('Invoice No.', M + 4, y + 5.5)
+    doc.text('Date Issued', M + 4, y + 11.5)
+    doc.setTextColor(...DARK)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(8)
+    doc.text('INV-JP-' + code, M + 30, y + 5.5)
+    doc.text(new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }), M + 30, y + 11.5)
 
-    doc.save(`Invoice-${code}.pdf`)
+    doc.setDrawColor(...BORDER)
+    doc.line(W / 2 + 5, y + 3, W / 2 + 5, y + 13)
+
+    doc.setTextColor(...GREY)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(7.5)
+    doc.text('Booking ID', W / 2 + 9, y + 5.5)
+    doc.text('Status', W / 2 + 9, y + 11.5)
+    doc.setTextColor(...DARK)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(8)
+    doc.text(code, W - M - 4, y + 5.5, { align: 'right' })
+    const sLbl = { pending: 'PENDING', approved: 'CONFIRMED', paid: 'PAID', checked_in: 'CHECKED IN', checked_out: 'CHECKED OUT', rejected: 'REJECTED' }
+    const sClr = { pending: AMBER, approved: BLUE, paid: GREEN, checked_in: BLUE, checked_out: GREEN, rejected: RED }
+    doc.setTextColor(...(sClr[b.status] || GREY))
+    doc.text(sLbl[b.status] || b.status.toUpperCase(), W - M - 4, y + 11.5, { align: 'right' })
+    y += 20
+
+    // ── TWO COLUMNS ──────────────────────────────────────────
+    const colW = (W - M * 2 - 5) / 2
+    const col1 = M, col2 = M + colW + 5
+    const boxH = 52
+
+    // Guest Details box
+    doc.setFillColor(...CREAM)
+    doc.rect(col1, y, colW, boxH, 'F')
+    doc.setFillColor(...BROWN)
+    doc.rect(col1, y, colW, 8, 'F')
+    doc.setDrawColor(...BORDER)
+    doc.setLineWidth(0.3)
+    doc.rect(col1, y, colW, boxH, 'D')
+    doc.setTextColor(...WHITE)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(7.5)
+    doc.text('GUEST DETAILS', col1 + 4, y + 5.5)
+
+    const guestRows = [
+      ['Name',    b.customerName  || '—'],
+      ['Phone',   b.customerPhone || '—'],
+      ['Email',   b.customerEmail || '—'],
+      ['Aadhaar', fmtAadhar(b.aadhar)],
+      ['Gender',  b.gender ? (b.gender.charAt(0).toUpperCase() + b.gender.slice(1)) : '—'],
+      ['Guests',  b.guests ? b.guests + (b.guests > 1 ? ' Guests' : ' Guest') : '—'],
+    ]
+    let gy = y + 11
+    guestRows.forEach(([lbl, val], i) => {
+      if (i % 2 === 0) { doc.setFillColor(...STRIPE); doc.rect(col1 + 1, gy - 1, colW - 2, 7, 'F') }
+      doc.setTextColor(...GREY); doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5)
+      doc.text(lbl, col1 + 4, gy + 4)
+      doc.setTextColor(...DARK); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5)
+      doc.text(doc.splitTextToSize(String(val), colW - 28)[0], col1 + 26, gy + 4)
+      gy += 7
+    })
+
+    // Booking Summary box
+    doc.setFillColor(...CREAM)
+    doc.rect(col2, y, colW, boxH, 'F')
+    doc.setFillColor(...BROWN)
+    doc.rect(col2, y, colW, 8, 'F')
+    doc.setDrawColor(...BORDER)
+    doc.setLineWidth(0.3)
+    doc.rect(col2, y, colW, boxH, 'D')
+    doc.setTextColor(...WHITE)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(7.5)
+    doc.text('BOOKING SUMMARY', col2 + 4, y + 5.5)
+
+    const ciTs = b.checkedInAt
+      ? new Date(b.checkedInAt.seconds ? b.checkedInAt.seconds * 1000 : b.checkedInAt)
+      : null
+    const bookingRows = [
+      ['Room Type', b.roomName    || '—'],
+      ['Room No.',  b.roomNumber  || '(at check-in)'],
+      ['Check-in',  fmtDate(b.checkIn)  + (HOTEL.checkIn  ? ' (' + HOTEL.checkIn  + ')' : '')],
+      ['Check-out', fmtDate(b.checkOut) + (HOTEL.checkOut ? ' (' + HOTEL.checkOut + ')' : '')],
+      ['Duration',  (b.nights || '—') + (b.nights > 1 ? ' Nights' : ' Night')],
+      ['Arr. Time', ciTs ? ciTs.toLocaleString('en-IN', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '—'],
+    ]
+    let ry2 = y + 11
+    bookingRows.forEach(([lbl, val], i) => {
+      if (i % 2 === 0) { doc.setFillColor(...STRIPE); doc.rect(col2 + 1, ry2 - 1, colW - 2, 7, 'F') }
+      doc.setTextColor(...GREY); doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5)
+      doc.text(lbl, col2 + 4, ry2 + 4)
+      doc.setTextColor(...DARK); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5)
+      doc.text(doc.splitTextToSize(String(val), colW - 28)[0], col2 + 28, ry2 + 4)
+      ry2 += 7
+    })
+    y += boxH + 6
+
+    if (b.specialRequests) {
+      doc.setFillColor(255, 252, 245); doc.setDrawColor(...BORDER); doc.setLineWidth(0.3)
+      doc.rect(M, y, W - M * 2, 12, 'FD')
+      doc.setTextColor(...GREY); doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5)
+      doc.text('Special Requests:', M + 4, y + 5.5)
+      doc.setTextColor(...DARK); doc.setFont('helvetica', 'bold')
+      doc.text(doc.splitTextToSize(b.specialRequests, W - M * 2 - 46)[0], M + 46, y + 5.5)
+      y += 14
+    }
+
+    // ── CHARGES ──────────────────────────────────────────────
+    y = sectionBar('CHARGES', y)
+    doc.setFillColor(50, 30, 15); doc.rect(M, y, W - M * 2, 8, 'F')
+    doc.setTextColor(...WHITE); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5)
+    doc.text('Description', M + 4, y + 5.5)
+    doc.text('Nights', M + 108, y + 5.5, { align: 'center' })
+    doc.text('Rate / Night', M + 136, y + 5.5, { align: 'center' })
+    doc.text('Amount', W - M - 4, y + 5.5, { align: 'right' })
+    y += 8
+
+    const roomTotal = (b.pricePerNight || 0) * b.nights
+    doc.setFillColor(...CREAM); doc.rect(M, y, W - M * 2, 10, 'F')
+    doc.setDrawColor(...BORDER); doc.setLineWidth(0.2); doc.line(M, y + 10, W - M, y + 10)
+    doc.setTextColor(...DARK); doc.setFont('helvetica', 'normal'); doc.setFontSize(9)
+    doc.text(b.roomName || 'Accommodation', M + 4, y + 6.5)
+    doc.text(String(b.nights || 1), M + 108, y + 6.5, { align: 'center' })
+    doc.text('Rs.' + (b.pricePerNight || 0).toLocaleString('en-IN'), M + 136, y + 6.5, { align: 'center' })
+    doc.setFont('helvetica', 'bold')
+    doc.text('Rs.' + roomTotal.toLocaleString('en-IN'), W - M - 4, y + 6.5, { align: 'right' })
+    y += 10
+
+    if (b.gstAmount) {
+      doc.setDrawColor(...BORDER); doc.setLineWidth(0.2); doc.line(M, y + 10, W - M, y + 10)
+      doc.setTextColor(...GREY); doc.setFont('helvetica', 'normal'); doc.setFontSize(9)
+      doc.text('GST', M + 4, y + 6.5)
+      doc.setTextColor(...DARK); doc.setFont('helvetica', 'bold')
+      doc.text('Rs.' + b.gstAmount.toLocaleString('en-IN'), W - M - 4, y + 6.5, { align: 'right' })
+      y += 10
+    }
+
+    doc.setFillColor(...BROWN); doc.rect(M, y, W - M * 2, 12, 'F')
+    doc.setTextColor(...WHITE); doc.setFont('helvetica', 'bold'); doc.setFontSize(11)
+    doc.text('TOTAL AMOUNT', M + 4, y + 8.5)
+    doc.text('Rs.' + (b.totalAmount || roomTotal).toLocaleString('en-IN'), W - M - 4, y + 8.5, { align: 'right' })
+    y += 15
+
+    // ── PAYMENT INFORMATION ──────────────────────────────────
+    y = sectionBar('PAYMENT INFORMATION', y)
+    const pmLabel = { razorpay: 'Online — Razorpay', upi: 'UPI Transfer', cash: 'Cash at Hotel' }
+    const payRef = b.paymentId ? b.paymentId.replace('UTR:', 'UTR ') : '—'
+    const payRows = [
+      ['Payment Method',    pmLabel[b.paymentMethod] || (b.paymentMethod || '—'), true],
+      ['Transaction / UTR', payRef, false],
+      ['Payment Status',    isPaid ? 'PAID ✓' : 'PENDING', true],
+    ]
+    payRows.forEach(([lbl, val, shade]) => {
+      if (shade) { doc.setFillColor(...CREAM); doc.rect(M, y, W - M * 2, 8, 'F') }
+      doc.setDrawColor(...BORDER); doc.setLineWidth(0.2); doc.line(M, y + 8, W - M, y + 8)
+      doc.setTextColor(...GREY); doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5)
+      doc.text(lbl, M + 4, y + 5.5)
+      doc.setTextColor(lbl === 'Payment Status' ? (isPaid ? GREEN[0] : AMBER[0]) : DARK[0],
+                       lbl === 'Payment Status' ? (isPaid ? GREEN[1] : AMBER[1]) : DARK[1],
+                       lbl === 'Payment Status' ? (isPaid ? GREEN[2] : AMBER[2]) : DARK[2])
+      doc.setFont('helvetica', 'bold')
+      doc.text(val, W - M - 4, y + 5.5, { align: 'right' })
+      y += 8
+    })
+    y += 6
+
+    // ── TERMS & CONDITIONS ───────────────────────────────────
+    doc.setFillColor(248, 245, 240); doc.setDrawColor(...BORDER); doc.setLineWidth(0.3)
+    doc.rect(M, y, W - M * 2, 30, 'FD')
+    doc.setTextColor(...BROWN); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5)
+    doc.text('TERMS & CONDITIONS', M + 4, y + 6)
+    doc.setTextColor(...GREY); doc.setFont('helvetica', 'normal'); doc.setFontSize(6.8)
+    doc.text('1.  Check-in: 12:00 PM  |  Check-out: 11:00 AM  |  Early check-in subject to availability.', M + 4, y + 12)
+    doc.text('2.  Valid government photo ID (Aadhaar / PAN / Passport) is mandatory at check-in.', M + 4, y + 17)
+    doc.text('3.  This invoice is computer-generated and legally valid without a physical signature.', M + 4, y + 22)
+    doc.text('4.  For queries: ' + HOTEL.phone + '  |  ' + HOTEL.email, M + 4, y + 27)
+    y += 34
+
+    // ── FOOTER ───────────────────────────────────────────────
+    const fy = Math.max(y + 4, 266)
+    doc.setDrawColor(...BORDER); doc.setLineWidth(0.4)
+    const sx1 = W - M - 54, sx2 = W - M
+    doc.line(sx1, fy - 10, sx2, fy - 10)
+    doc.setTextColor(...GREY); doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5)
+    doc.text('Authorized Signatory', (sx1 + sx2) / 2, fy - 5, { align: 'center' })
+    doc.text('Hotel Jay Palace', (sx1 + sx2) / 2, fy - 1, { align: 'center' })
+
+    doc.setDrawColor(...BROWN); doc.setLineWidth(0.8)
+    doc.line(M, fy + 2, W - M, fy + 2)
+    doc.setTextColor(...BROWN); doc.setFont('helvetica', 'bold'); doc.setFontSize(9)
+    doc.text('Thank you for choosing Hotel Jay Palace. We hope to see you again!', W / 2, fy + 8, { align: 'center' })
+    doc.setTextColor(170, 155, 135); doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5)
+    doc.text('Booking system powered by OM Technology  ·  omtechnology.online', W / 2, fy + 14, { align: 'center' })
+
+    doc.save('Invoice-JP-' + code + '.pdf')
   }
 
   // ── Helpers ──────────────────────────────────────────────

@@ -343,6 +343,74 @@ input, select, textarea { font-family: inherit; }
 .btn-paid:disabled { opacity: .4; cursor: not-allowed; }
 .btn-back { width: 100%; background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 10px; border-radius: 9999px; font-size: .875rem; }
 
+/* ── UPI STEP REDESIGN ───────────────────────────────────── */
+.upi-toprow {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 16px; padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.upi-topamt { text-align: left; }
+.upi-topamt-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 2px; }
+.upi-topamt-val { font-size: 1.7rem; font-weight: 900; color: var(--gold); line-height: 1; }
+.upi-topamt-sub { font-size: .7rem; color: var(--muted); margin-top: 2px; }
+
+/* Bank-style payment slip */
+.upi-slip {
+  display: grid; grid-template-columns: 10px 1fr 10px;
+  border: 2px solid #e8760a;
+  border-radius: 12px; overflow: hidden;
+  margin-bottom: 16px; background: #fff;
+  box-shadow: 0 4px 18px rgba(232,118,10,.15);
+}
+.slip-bar { }
+.slip-bar-left  { background: linear-gradient(to bottom, #138808 50%, #138808 50%); }
+.slip-bar-right { background: linear-gradient(to bottom, #FF9933 50%, #FF9933 50%); }
+
+.slip-body {
+  padding: 14px 12px; text-align: center;
+}
+.slip-bank-name {
+  font-size: .75rem; font-weight: 700; color: #1565C0;
+  margin-bottom: 6px; letter-spacing: .01em;
+}
+.slip-hotel {
+  font-size: 1.05rem; font-weight: 900; color: #1A0F08;
+  letter-spacing: .04em; margin-bottom: 2px;
+}
+.slip-scanpay {
+  font-size: .8rem; font-weight: 800; color: #e8760a;
+  letter-spacing: .1em; margin-bottom: 12px;
+}
+.slip-qr-zone { margin-bottom: 10px; }
+.slip-qr-img {
+  width: 190px; height: 190px; display: block; margin: 0 auto;
+  border: 3px solid #e8760a; border-radius: 8px;
+  outline: 2px solid #138808; outline-offset: 3px;
+}
+.slip-upiid-row {
+  font-size: .82rem; color: #1A0F08; margin-bottom: 8px;
+  word-break: break-all;
+}
+.slip-upiid-row strong { color: #1565C0; }
+.slip-divider {
+  height: 1px; background: #e0d5cc; margin: 8px 0;
+}
+.slip-accepted {
+  display: flex; align-items: center; justify-content: center;
+  gap: 5px; flex-wrap: wrap; padding-top: 2px;
+}
+.slip-bhim {
+  font-size: .7rem; font-weight: 900; color: #FF9933;
+  letter-spacing: .04em;
+}
+.slip-app-dot { color: var(--muted); font-size: .65rem; }
+.slip-app-link {
+  background: none; border: none; padding: 0;
+  font-size: .7rem; font-weight: 700; color: #1565C0;
+  cursor: pointer; text-decoration: underline; font-family: inherit;
+}
+.slip-app-link:hover { color: #e8760a; }
+
 /* ── WHATSAPP FLOAT ──────────────────────────────────────── */
 .wa-float {
   position: fixed; bottom: 24px; right: 24px; z-index: 200;
@@ -379,6 +447,82 @@ input, select, textarea { font-family: inherit; }
 }
 .toast.show { opacity: 1; transform: translateY(0); }
 .toast.error { border-color: rgba(220,38,38,.4); color: var(--danger); }
+
+/* ── HERO TRUST STRIP ────────────────────────────────────── */
+.hero-trust {
+  display: flex; align-items: center; gap: 14px;
+  margin-top: 18px; flex-wrap: wrap; justify-content: center;
+}
+.hero-trust-item { font-size: .8rem; color: rgba(255,255,255,.75); font-weight: 500; }
+.hero-trust-sep { width: 4px; height: 4px; background: rgba(255,255,255,.35); border-radius: 50%; flex-shrink: 0; }
+
+/* ── BOOKING STEP INDICATOR ──────────────────────────────── */
+.booking-steps {
+  display: flex; align-items: center; margin-bottom: 20px;
+  padding-bottom: 18px; border-bottom: 1px solid var(--border);
+}
+.bstep { display: flex; align-items: center; gap: 8px; }
+.bstep-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .72rem; font-weight: 800;
+  background: var(--border); color: var(--muted);
+  flex-shrink: 0; transition: background .3s, color .3s;
+}
+.bstep.active .bstep-num { background: var(--gold); color: #fff; }
+.bstep.done .bstep-num { background: var(--success); color: #fff; }
+.bstep-label { font-size: .78rem; font-weight: 600; color: var(--muted); transition: color .3s; }
+.bstep.active .bstep-label { color: var(--gold); }
+.bstep.done .bstep-label { color: var(--success); }
+.bstep-line { flex: 1; height: 2px; background: var(--border); margin: 0 10px; }
+
+/* ── MODAL TRUST BADGES ──────────────────────────────────── */
+.modal-trust-row {
+  display: flex; gap: 7px; margin-bottom: 18px; flex-wrap: wrap;
+}
+.mtrust-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: .68rem; font-weight: 700; color: var(--muted);
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 4px 10px; border-radius: 9999px;
+}
+
+/* ── PAYMENT SECURITY NOTE ───────────────────────────────── */
+.pay-security-note {
+  display: flex; align-items: center; gap: 6px; justify-content: center;
+  font-size: .74rem; color: var(--muted); margin-bottom: 12px;
+  padding: 9px 12px; background: rgba(22,163,74,.04); border-radius: 8px;
+  border: 1px solid rgba(22,163,74,.14);
+}
+
+/* ── WHAT'S NEXT TIMELINE ────────────────────────────────── */
+.whats-next {
+  margin-top: 18px; text-align: left;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px;
+}
+.wn-title {
+  font-size: .7rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted); margin-bottom: 12px;
+}
+.wn-step { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+.wn-step:last-child { margin-bottom: 0; }
+.wn-icon {
+  width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+  background: var(--gold-bg); border: 1px solid var(--gold-border);
+  display: flex; align-items: center; justify-content: center; font-size: .9rem;
+}
+.wn-step div { padding-top: 2px; }
+.wn-step strong { display: block; font-size: .83rem; font-weight: 700; color: var(--text); }
+.wn-step span { font-size: .76rem; color: var(--muted); }
+
+/* ── DIRECT BOOKING BADGE ────────────────────────────────── */
+.direct-booking-badge {
+  display: inline-flex; align-items: center;
+  font-size: .77rem; font-weight: 700; color: var(--gold);
+  background: var(--gold-bg); border: 1px solid var(--gold-border);
+  padding: 5px 14px; border-radius: 9999px; margin-bottom: 28px;
+}
 
 /* ── RESPONSIVE ──────────────────────────────────────────── */
 @media (max-width: 900px) {

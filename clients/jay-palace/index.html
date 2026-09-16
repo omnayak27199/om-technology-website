@@ -34,6 +34,13 @@
       <button class="btn-primary" onclick="openBookingModal()">Book Your Stay</button>
       <a href="#rooms" class="btn-outline">View Rooms</a>
     </div>
+    <div class="hero-trust">
+      <span class="hero-trust-item">⭐ 4.8 / 5 Guest Rating</span>
+      <span class="hero-trust-sep"></span>
+      <span class="hero-trust-item">500+ Guests Served</span>
+      <span class="hero-trust-sep"></span>
+      <span class="hero-trust-item">🔒 Secure Online Booking</span>
+    </div>
   </div>
 </section>
 
@@ -52,6 +59,9 @@
   <div class="section-label">Accommodation</div>
   <h2 class="section-title">Our Rooms &amp; Suites</h2>
   <p class="section-sub">Choose the perfect room for your stay</p>
+  <div style="text-align:center">
+    <span class="direct-booking-badge">✓ Best Price Guaranteed — Book Direct &amp; Save</span>
+  </div>
   <div class="rooms-grid" id="roomsGrid">
     <!-- Rooms rendered by JS from config.js -->
   </div>
@@ -159,6 +169,27 @@
       <button class="modal-close" onclick="closeBookingModal()">✕</button>
     </div>
 
+    <!-- Step indicator -->
+    <div class="booking-steps" id="bookingSteps">
+      <div class="bstep active" id="bstep1">
+        <div class="bstep-num">1</div>
+        <div class="bstep-label">Your Details</div>
+      </div>
+      <div class="bstep-line"></div>
+      <div class="bstep" id="bstep2">
+        <div class="bstep-num">2</div>
+        <div class="bstep-label">Payment</div>
+      </div>
+    </div>
+
+    <!-- Trust badges -->
+    <div class="modal-trust-row" id="modalTrustRow">
+      <span class="mtrust-badge">🔒 Secure</span>
+      <span class="mtrust-badge">✓ Instant Confirmation</span>
+      <span class="mtrust-badge">📱 WhatsApp Updates</span>
+      <span class="mtrust-badge">↩ Free Cancellation</span>
+    </div>
+
     <!-- Room selected display -->
     <div class="modal-room-selected" id="modalRoomDisplay">
       <span class="room-emoji" id="modalRoomEmoji">🛏️</span>
@@ -222,8 +253,8 @@
         <div class="price-row total"><span>Total Amount</span><span id="priceTotal">₹1,500</span></div>
       </div>
 
-      <button type="submit" class="btn-submit" id="submitBtn">Confirm Booking Request</button>
-      <p class="form-note">Your booking request will be sent to the hotel owner. You'll receive confirmation via WhatsApp.</p>
+      <button type="submit" class="btn-submit" id="submitBtn">Continue to Payment →</button>
+      <p class="form-note">🔒 Your data is safe &nbsp;·&nbsp; Free cancellation up to 24 hrs before check-in &nbsp;·&nbsp; Confirmation via WhatsApp within 2 hours</p>
     </form>
 
     <!-- Step 2: Payment selection -->
@@ -259,6 +290,9 @@
           <span class="pay-arrow">›</span>
         </button>
       </div>
+      <div class="pay-security-note">
+        <span>🔒</span> All payments secured with 256-bit SSL encryption
+      </div>
       <button class="btn-back" onclick="backToForm()">← Back to form</button>
     </div>
 
@@ -266,8 +300,8 @@
     <div id="upiStep" style="display:none">
       <div class="upi-box">
 
-        <!-- Countdown timer -->
-        <div class="upi-timer-wrap">
+        <!-- Timer + Amount row -->
+        <div class="upi-toprow">
           <div class="upi-timer" id="upiTimerEl">
             <svg viewBox="0 0 68 68">
               <circle cx="34" cy="34" r="29" fill="none" stroke="#e0d5cc" stroke-width="5"/>
@@ -277,43 +311,43 @@
             </svg>
             <span class="timer-text" id="timerDisplay">7:00</span>
           </div>
-          <div class="timer-label">Complete payment within 7 minutes</div>
+          <div class="upi-topamt">
+            <div class="upi-topamt-label">Amount to Pay</div>
+            <div class="upi-topamt-val">₹<span id="upiAmountDisplay"></span></div>
+            <div class="upi-topamt-sub">Complete within 7 minutes</div>
+          </div>
         </div>
 
-        <!-- Amount + UPI ID -->
-        <div class="upi-amount-row">
-          <span class="upi-amt">₹<span id="upiAmountDisplay"></span></span>
-          <span class="upi-to">→</span>
-          <span class="upi-id" id="upiIdDisplay"></span>
+        <!-- Bank-style payment slip -->
+        <div class="upi-slip">
+          <div class="slip-bar slip-bar-left"></div>
+          <div class="slip-body">
+            <div class="slip-bank-name">🏦 Indian Overseas Bank</div>
+            <div class="slip-hotel">HOTEL JAY PALACE</div>
+            <div class="slip-scanpay">SCAN &amp; PAY</div>
+            <div class="slip-qr-zone">
+              <img id="upiQRImg" src="" alt="UPI QR Code" class="slip-qr-img">
+            </div>
+            <div class="slip-upiid-row">
+              UPI ID: <strong id="upiIdDisplay">HOTELJAYPALACE309@iob</strong>
+            </div>
+            <div class="slip-divider"></div>
+            <div class="slip-accepted">
+              <span class="slip-bhim">BHIM UPI</span>
+              <span class="slip-app-dot">·</span>
+              <button class="slip-app-link" onclick="openUpiApp('gpay')">Google Pay</button>
+              <span class="slip-app-dot">·</span>
+              <button class="slip-app-link" onclick="openUpiApp('phonepe')">PhonePe</button>
+              <span class="slip-app-dot">·</span>
+              <button class="slip-app-link" onclick="openUpiApp('paytm')">Paytm</button>
+              <span class="slip-app-dot">·</span>
+              <button class="slip-app-link" onclick="openUpiApp('bhim')">Any UPI</button>
+            </div>
+          </div>
+          <div class="slip-bar slip-bar-right"></div>
         </div>
 
-        <!-- App buttons -->
-        <div class="upi-apps-grid">
-          <button class="upi-app-btn gpay" onclick="openUpiApp('gpay')">
-            <div class="app-logo">G</div>
-            <span class="app-name">Google Pay</span>
-          </button>
-          <button class="upi-app-btn phonepe" onclick="openUpiApp('phonepe')">
-            <div class="app-logo">Pe</div>
-            <span class="app-name">PhonePe</span>
-          </button>
-          <button class="upi-app-btn paytm" onclick="openUpiApp('paytm')">
-            <div class="app-logo">P</div>
-            <span class="app-name">Paytm</span>
-          </button>
-          <button class="upi-app-btn bhim" onclick="openUpiApp('bhim')">
-            <div class="app-logo">B</div>
-            <span class="app-name">BHIM / Any</span>
-          </button>
-        </div>
-
-        <!-- QR code (for desktop or scan) -->
-        <div class="upi-or">or scan QR code</div>
-        <div class="upi-qr-wrap">
-          <img id="upiQRImg" src="" alt="UPI QR Code">
-        </div>
-
-        <!-- UTR input -->
+        <!-- UTR confirmation -->
         <div class="utr-input-section" id="utrSection">
           <p class="utr-hint">
             After paying → open your UPI app → <strong>Transaction History</strong> → copy the <strong>UTR / Reference number</strong>
@@ -342,6 +376,21 @@
       <div class="booking-code" id="bookingCodeDisplay">Booking ID: JP-XXXXXX</div>
       <p style="margin-top:14px;font-size:.8rem;color:var(--muted)">Keep this booking ID to track your booking status.</p>
       <a href="track.html" style="display:inline-block;margin-top:14px;padding:10px 24px;background:var(--gold);color:#fff;border-radius:9999px;font-weight:600;font-size:.85rem;text-decoration:none;">📦 Track My Booking</a>
+      <div class="whats-next">
+        <div class="wn-title">What happens next?</div>
+        <div class="wn-step">
+          <div class="wn-icon">📱</div>
+          <div><strong>Hotel confirms via WhatsApp</strong><span>Within 1–2 hours of your booking</span></div>
+        </div>
+        <div class="wn-step">
+          <div class="wn-icon">🏨</div>
+          <div><strong>Arrive &amp; check in at reception</strong><span>Show your Booking ID — no printout needed</span></div>
+        </div>
+        <div class="wn-step">
+          <div class="wn-icon">⭐</div>
+          <div><strong>Enjoy your stay</strong><span>24×7 hotel team ready to assist you</span></div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
