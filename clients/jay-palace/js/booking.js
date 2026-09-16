@@ -11,11 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderContact()
   setMinDates()
 
-  // Init EmailJS for guest confirmation emails
-  if (window.EMAILJS && window.EMAILJS.publicKey !== 'YOUR_PUBLIC_KEY') {
-    if (typeof emailjs !== 'undefined') emailjs.init({ publicKey: window.EMAILJS.publicKey })
-  }
-
   document.getElementById('bookingModal').addEventListener('click', function(e) {
     if (e.target === this) closeBookingModal()
   })
@@ -410,28 +405,8 @@ function saveBooking(booking) {
         setTimeout(() => generateReceiptPDF(booking), 800)
       }
 
-      // Send booking confirmation email to guest automatically (if configured + email provided)
-      if (booking.customerEmail && window.EMAILJS && window.EMAILJS.publicKey !== 'YOUR_PUBLIC_KEY' && typeof emailjs !== 'undefined') {
-        emailjs.send(window.EMAILJS.serviceId, window.EMAILJS.confirmationTemplate, {
-          to_name:        booking.customerName,
-          to_email:       booking.customerEmail,
-          booking_id:     booking.bookingCode,
-          room_name:      booking.roomName,
-          check_in:       fmtDate(booking.checkIn) + ' (' + HOTEL.checkIn + ')',
-          check_out:      fmtDate(booking.checkOut) + ' (' + HOTEL.checkOut + ')',
-          nights:         booking.nights,
-          guests:         booking.guests,
-          total_amount:   '₹' + booking.totalAmount.toLocaleString('en-IN'),
-          payment_method: booking.paymentMethod === 'razorpay' ? 'Online — Razorpay'
-                        : booking.paymentMethod === 'upi'      ? 'UPI Transfer'
-                        : 'Pay at Hotel (Cash)',
-          payment_status: 'Pending Hotel Approval',
-          special_req:    booking.specialRequests || 'None',
-          hotel_phone:    HOTEL.phone,
-          hotel_email:    HOTEL.email,
-          hotel_address:  HOTEL.address,
-        }).catch(() => {})
-      }
+      // Confirmation email is sent by the admin panel when the booking is approved
+      // (no email sent from the guest's browser — see admin/index.html sendEmailToGuest)
 
       // Success screen with Track Booking button
       const payMsg = booking.paymentMethod === 'razorpay'
@@ -441,7 +416,7 @@ function saveBooking(booking) {
         : 'Booking received! Pay when you arrive at the hotel on check-in.'
 
       const emailNote = booking.customerEmail
-        ? `A confirmation email has been sent to <strong>${booking.customerEmail}</strong><br>`
+        ? `An email confirmation will be sent to <strong>${booking.customerEmail}</strong> once the hotel approves.<br>`
         : ''
 
       const successEl = document.getElementById('bookingSuccess')

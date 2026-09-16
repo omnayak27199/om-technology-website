@@ -102,14 +102,15 @@ window.ADMIN_EMAIL = 'omnayak27199@gmail.com'
 // Used to send booking confirmation + receipt emails to guests
 // Setup: https://www.emailjs.com → free account → 200 emails/month
 // TODO: Fill after creating EmailJS account (see setup guide)
-window.EMAILJS = {
-  publicKey:            'YOUR_PUBLIC_KEY',        // Account → API Keys
-  serviceId:            'YOUR_SERVICE_ID',        // Email Services → Service ID
-  confirmationTemplate: 'template_confirmation',  // sent when guest books (booking.js)
-  receiptTemplate:      'template_receipt',       // sent when admin marks paid
-  checkinTemplate:      'template_checkin',       // sent on check-in (falls back to confirmationTemplate)
-  checkoutTemplate:     'template_checkout',      // sent on checkout with invoice (falls back to receiptTemplate)
-}
+// ─── Gmail API Config ─────────────────────────────────────────
+// Enables sending emails directly from thehoteljaypalace@gmail.com — no third-party service.
+// Setup (5 min): https://console.cloud.google.com
+//   1. Select project hotel-jay-palace
+//   2. APIs & Services → Library → search "Gmail API" → Enable
+//   3. APIs & Services → Credentials → Create → OAuth 2.0 Client ID
+//      Type: Web application · Authorised origin: https://jaypalace.online
+//   4. Copy the Client ID and paste it below
+window.GMAIL_CLIENT_ID = 'YOUR_OAUTH_CLIENT_ID.apps.googleusercontent.com'
 
 // ─── WhatsApp Business Cloud API Config ──────────────────────
 // Optional: enables fully automatic (zero-click) WhatsApp messages from admin panel.
