@@ -199,6 +199,45 @@
     .btn-add-room-card { border: 2px dashed var(--border); border-radius: 14px; padding: 40px 20px; text-align: center; cursor: pointer; color: var(--muted); font-size: .9rem; font-weight: 600; background: transparent; width: 100%; }
     .btn-add-room-card:hover { border-color: var(--gold); color: var(--gold); background: rgba(123,79,46,.04); }
 
+    /* REPORTS VIEW */
+    .rpt-filter-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .rpt-quick-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+    .rpt-qbtn { background: var(--bg); border: 1.5px solid var(--border); color: var(--muted); padding: 6px 14px; border-radius: 9999px; font-size: .78rem; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; }
+    .rpt-qbtn.active { background: var(--gold); border-color: var(--gold); color: #fff; }
+    .rpt-divider { width: 1px; height: 28px; background: var(--border); flex-shrink: 0; }
+    .rpt-range { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .rpt-range label { font-size: .75rem; font-weight: 700; color: var(--muted); white-space: nowrap; }
+    .rpt-range input[type=date] { background: var(--bg); border: 1.5px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: .8rem; font-family: inherit; font-weight: 600; color: var(--text); outline: none; cursor: pointer; }
+    .rpt-range input[type=date]:focus { border-color: var(--gold); }
+    .btn-rpt-apply { background: var(--gold); color: #fff; border: none; padding: 7px 16px; border-radius: 9999px; font-size: .8rem; font-weight: 800; cursor: pointer; white-space: nowrap; }
+    .rpt-export-btn { margin-left: auto; background: var(--success); color: #fff; border: none; padding: 8px 18px; border-radius: 9999px; font-size: .8rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+    .rpt-export-btn:hover { opacity: .88; }
+
+    .rpt-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .rpt-sum-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+    .rpt-sum-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 4px; }
+    .rpt-sum-value { font-size: 1.4rem; font-weight: 900; }
+
+    .rpt-table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: auto; }
+    .rpt-table { width: 100%; border-collapse: collapse; font-size: .8rem; min-width: 900px; }
+    .rpt-table thead th { background: var(--text); color: #fff; padding: 10px 12px; text-align: left; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; white-space: nowrap; position: sticky; top: 0; z-index: 2; }
+    .rpt-table thead th:first-child { border-radius: 0; }
+    .rpt-table tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+    .rpt-table tbody tr:hover { background: rgba(123,79,46,.04); }
+    .rpt-table tbody tr:nth-child(even) { background: rgba(250,248,245,.7); }
+    .rpt-table tbody tr:nth-child(even):hover { background: rgba(123,79,46,.06); }
+    .rpt-table td { padding: 9px 12px; color: var(--text); vertical-align: middle; white-space: nowrap; }
+    .rpt-table td.wrap { white-space: normal; max-width: 160px; }
+    .rpt-table tfoot td { background: var(--bg); font-weight: 800; padding: 10px 12px; border-top: 2px solid var(--border); font-size: .82rem; }
+    .rpt-badge { display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+    .rpt-badge.pending   { background: rgba(180,83,9,.10);  color: var(--warning); }
+    .rpt-badge.approved  { background: rgba(21,128,61,.10); color: var(--success); }
+    .rpt-badge.paid      { background: rgba(123,79,46,.10); color: var(--gold); }
+    .rpt-badge.checked_in  { background: rgba(3,105,161,.10); color: #0369a1; }
+    .rpt-badge.checked_out { background: rgba(55,65,81,.10);  color: #374151; }
+    .rpt-badge.rejected  { background: rgba(220,38,38,.10); color: var(--danger); }
+    .rpt-empty { text-align: center; padding: 48px 24px; color: var(--muted); font-size: .9rem; }
+
     /* DAILY RECORD */
     .record-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
     .btn-daily-record { background: var(--text); color: #fff; border: none; padding: 9px 20px; border-radius: 9999px; font-size: .8125rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; }
@@ -315,6 +354,7 @@
     <!-- Main view tabs -->
     <div class="main-tabs">
       <button class="main-tab active" onclick="showView('bookings', this)">📋 Bookings</button>
+      <button class="main-tab" onclick="showView('reports', this)">📊 Reports</button>
       <button class="main-tab" onclick="showView('rooms', this)">🏨 Manage Rooms</button>
     </div>
 
@@ -359,6 +399,101 @@
       <div class="loading">Loading bookings...</div>
     </div>
     </div><!-- end bookingsView -->
+
+    <!-- REPORTS VIEW -->
+    <div id="reportsView" style="display:none">
+
+      <!-- Filter bar -->
+      <div class="rpt-filter-bar">
+        <div class="rpt-quick-btns">
+          <button class="rpt-qbtn active" id="rqAll"       onclick="setRptQuick('all',this)">All Time</button>
+          <button class="rpt-qbtn"        id="rqToday"     onclick="setRptQuick('today',this)">Today</button>
+          <button class="rpt-qbtn"        id="rqWeek"      onclick="setRptQuick('week',this)">This Week</button>
+          <button class="rpt-qbtn"        id="rqMonth"     onclick="setRptQuick('month',this)">This Month</button>
+          <button class="rpt-qbtn"        id="rqYear"      onclick="setRptQuick('year',this)">This Year</button>
+        </div>
+        <div class="rpt-divider"></div>
+        <div class="rpt-range">
+          <label>From</label>
+          <input type="date" id="rptFrom">
+          <label>To</label>
+          <input type="date" id="rptTo">
+          <button class="btn-rpt-apply" onclick="applyRptRange()">Apply</button>
+        </div>
+        <button class="rpt-export-btn" onclick="downloadReportExcel()">⬇ Export Excel</button>
+      </div>
+
+      <!-- Summary cards -->
+      <div class="rpt-summary">
+        <div class="rpt-sum-card">
+          <div class="rpt-sum-label">Total Bookings</div>
+          <div class="rpt-sum-value" id="rsSumTotal" style="color:var(--text)">—</div>
+        </div>
+        <div class="rpt-sum-card">
+          <div class="rpt-sum-label">Revenue</div>
+          <div class="rpt-sum-value" id="rsSumRevenue" style="color:var(--gold)">—</div>
+        </div>
+        <div class="rpt-sum-card">
+          <div class="rpt-sum-label">Pending</div>
+          <div class="rpt-sum-value" id="rsSumPending" style="color:var(--warning)">—</div>
+        </div>
+        <div class="rpt-sum-card">
+          <div class="rpt-sum-label">Confirmed</div>
+          <div class="rpt-sum-value" id="rsSumApproved" style="color:var(--success)">—</div>
+        </div>
+        <div class="rpt-sum-card">
+          <div class="rpt-sum-label">Paid</div>
+          <div class="rpt-sum-value" id="rsSumPaid" style="color:var(--gold)">—</div>
+        </div>
+        <div class="rpt-sum-card">
+          <div class="rpt-sum-label">In-House</div>
+          <div class="rpt-sum-value" id="rsSumIn" style="color:#0369a1">—</div>
+        </div>
+        <div class="rpt-sum-card">
+          <div class="rpt-sum-label">Checked Out</div>
+          <div class="rpt-sum-value" id="rsSumOut" style="color:#374151">—</div>
+        </div>
+        <div class="rpt-sum-card">
+          <div class="rpt-sum-label">Cancelled</div>
+          <div class="rpt-sum-value" id="rsSumRejected" style="color:var(--danger)">—</div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="rpt-table-wrap">
+        <table class="rpt-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Booking ID</th>
+              <th>Booked On</th>
+              <th>Guest Name</th>
+              <th>Mobile</th>
+              <th>Room Type</th>
+              <th>Room No.</th>
+              <th>Check-in</th>
+              <th>Check-out</th>
+              <th>Nights</th>
+              <th>Guests</th>
+              <th>Aadhar</th>
+              <th>Gender</th>
+              <th>Amount (₹)</th>
+              <th>Payment</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="rptTableBody">
+            <tr><td colspan="16" class="rpt-empty">Loading…</td></tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="13" id="rptFooterLabel">—</td>
+              <td id="rptFooterTotal" colspan="3">—</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div><!-- end reportsView -->
 
     <!-- ROOMS VIEW -->
     <div id="roomsView" style="display:none">
@@ -1457,8 +1592,207 @@
     document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'))
     btn.classList.add('active')
     document.getElementById('bookingsView').style.display = view === 'bookings' ? 'block' : 'none'
+    document.getElementById('reportsView').style.display  = view === 'reports'  ? 'block' : 'none'
     document.getElementById('roomsView').style.display    = view === 'rooms'    ? 'block' : 'none'
-    if (view === 'rooms') renderAdminRooms()
+    if (view === 'rooms')   renderAdminRooms()
+    if (view === 'reports') initReports()
+  }
+
+  // ── Reports ───────────────────────────────────────────────────
+  let _rptFrom = null
+  let _rptTo   = null
+  let _rptActive = 'all'
+
+  function initReports() {
+    if (_rptActive === 'all') {
+      _rptFrom = null; _rptTo = null
+    }
+    renderReportTable()
+  }
+
+  function setRptQuick(type, btn) {
+    document.querySelectorAll('.rpt-qbtn').forEach(b => b.classList.remove('active'))
+    btn.classList.add('active')
+    _rptActive = type
+
+    const now   = new Date()
+    const y     = now.getFullYear()
+    const m     = now.getMonth()
+    const d     = now.getDate()
+
+    if (type === 'all') {
+      _rptFrom = null; _rptTo = null
+    } else if (type === 'today') {
+      _rptFrom = new Date(y, m, d, 0, 0, 0)
+      _rptTo   = new Date(y, m, d, 23, 59, 59)
+    } else if (type === 'week') {
+      const day  = now.getDay() || 7
+      _rptFrom   = new Date(y, m, d - day + 1, 0, 0, 0)
+      _rptTo     = new Date(y, m, d + (7 - day), 23, 59, 59)
+    } else if (type === 'month') {
+      _rptFrom = new Date(y, m, 1, 0, 0, 0)
+      _rptTo   = new Date(y, m + 1, 0, 23, 59, 59)
+    } else if (type === 'year') {
+      _rptFrom = new Date(y, 0, 1, 0, 0, 0)
+      _rptTo   = new Date(y, 11, 31, 23, 59, 59)
+    }
+
+    // Sync date inputs
+    if (_rptFrom) document.getElementById('rptFrom').value = _rptFrom.toISOString().slice(0,10)
+    if (_rptTo)   document.getElementById('rptTo').value   = _rptTo.toISOString().slice(0,10)
+
+    renderReportTable()
+  }
+
+  function applyRptRange() {
+    const f = document.getElementById('rptFrom').value
+    const t = document.getElementById('rptTo').value
+    if (!f && !t) { _rptFrom = null; _rptTo = null; _rptActive = 'all' }
+    else {
+      _rptFrom = f ? new Date(f + 'T00:00:00') : null
+      _rptTo   = t ? new Date(t + 'T23:59:59') : null
+      _rptActive = 'custom'
+    }
+    document.querySelectorAll('.rpt-qbtn').forEach(b => b.classList.remove('active'))
+    renderReportTable()
+  }
+
+  function getRptRows() {
+    return allBookings.filter(b => {
+      if (!_rptFrom && !_rptTo) return true
+      const ci = b.checkIn ? new Date(b.checkIn) : null
+      if (!ci) return false
+      if (_rptFrom && ci < _rptFrom) return false
+      if (_rptTo   && ci > _rptTo)   return false
+      return true
+    }).slice().sort((a, b) => {
+      const da = a.checkIn ? new Date(a.checkIn) : new Date(0)
+      const db = b.checkIn ? new Date(b.checkIn) : new Date(0)
+      return db - da
+    })
+  }
+
+  function renderReportTable() {
+    const rows  = getRptRows()
+    const tbody = document.getElementById('rptTableBody')
+
+    // Summary
+    const revenue  = rows.filter(b => ['paid','checked_in','checked_out'].includes(b.status)).reduce((s,b) => s+(b.totalAmount||0), 0)
+    document.getElementById('rsSumTotal').textContent    = rows.length
+    document.getElementById('rsSumRevenue').textContent  = '₹' + revenue.toLocaleString('en-IN')
+    document.getElementById('rsSumPending').textContent  = rows.filter(b=>b.status==='pending').length
+    document.getElementById('rsSumApproved').textContent = rows.filter(b=>b.status==='approved').length
+    document.getElementById('rsSumPaid').textContent     = rows.filter(b=>b.status==='paid').length
+    document.getElementById('rsSumIn').textContent       = rows.filter(b=>b.status==='checked_in').length
+    document.getElementById('rsSumOut').textContent      = rows.filter(b=>b.status==='checked_out').length
+    document.getElementById('rsSumRejected').textContent = rows.filter(b=>b.status==='rejected').length
+
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="16" class="rpt-empty">No bookings found for selected period.</td></tr>`
+      document.getElementById('rptFooterLabel').textContent = 'No records'
+      document.getElementById('rptFooterTotal').textContent = ''
+      return
+    }
+
+    const statusLabel = s => s === 'checked_in' ? 'In-House' : s === 'checked_out' ? 'Checked Out' : s.charAt(0).toUpperCase() + s.slice(1)
+    const pmLabel     = m => m === 'razorpay' ? 'Online' : m === 'upi' ? 'UPI' : m === 'cash' ? 'Cash' : '—'
+
+    tbody.innerHTML = rows.map((b, i) => {
+      const code = b.bookingCode || b.id.slice(0,8).toUpperCase()
+      const bookedOn = b.createdAt && b.createdAt.toDate
+        ? b.createdAt.toDate().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })
+        : '—'
+      const aadhar = b.aadharNumber
+        ? b.aadharNumber.replace(/(\d{4})(\d{4})(\d{4})/, '$1 $2 $3')
+        : '—'
+      const isPaid = ['paid','checked_in','checked_out'].includes(b.status)
+      return `<tr>
+        <td style="color:var(--muted);font-size:.72rem">${i+1}</td>
+        <td style="font-weight:700;color:var(--gold);font-size:.75rem">${code}</td>
+        <td style="color:var(--muted)">${bookedOn}</td>
+        <td style="font-weight:600">${b.customerName || '—'}</td>
+        <td>${b.mobileAtCheckin || b.customerPhone || '—'}</td>
+        <td>${b.roomName || '—'}</td>
+        <td style="font-weight:700">${b.roomNumber || '—'}</td>
+        <td>${fmtDate(b.checkIn)}</td>
+        <td>${fmtDate(b.checkOut)}</td>
+        <td style="text-align:center">${b.nights || '—'}</td>
+        <td style="text-align:center">${b.guestsAtCheckin || b.guests || '—'}</td>
+        <td style="font-size:.75rem;color:var(--muted)">${aadhar}</td>
+        <td>${b.genderAtCheckin || '—'}</td>
+        <td style="font-weight:800;color:${isPaid ? 'var(--gold)' : 'var(--text)'}">${isPaid ? '₹' + (b.totalAmount||0).toLocaleString('en-IN') : '₹' + (b.totalAmount||0).toLocaleString('en-IN')}</td>
+        <td>${pmLabel(b.paymentMethod)}</td>
+        <td><span class="rpt-badge ${b.status}">${statusLabel(b.status)}</span></td>
+      </tr>`
+    }).join('')
+
+    const totalRevenue = rows.filter(b => ['paid','checked_in','checked_out'].includes(b.status)).reduce((s,b) => s+(b.totalAmount||0), 0)
+    document.getElementById('rptFooterLabel').textContent  = `${rows.length} booking${rows.length!==1?'s':''} shown`
+    document.getElementById('rptFooterTotal').textContent  = `Revenue: ₹${totalRevenue.toLocaleString('en-IN')}`
+  }
+
+  function downloadReportExcel() {
+    const rows = getRptRows()
+    if (!rows.length) { showAdminToast('No records to export', 'info'); return }
+
+    const headers = ['#','Booking ID','Booked On','Guest Name','Mobile','Room Type','Room No.','Check-in','Check-out','Nights','Guests','Aadhar','Gender','Amount (Rs.)','Payment','Status']
+
+    const escape = v => {
+      const s = String(v === null || v === undefined ? '' : v)
+      return s.includes(',') || s.includes('"') || s.includes('\n')
+        ? '"' + s.replace(/"/g, '""') + '"'
+        : s
+    }
+
+    const statusLabel = s => s === 'checked_in' ? 'In-House' : s === 'checked_out' ? 'Checked Out' : s.charAt(0).toUpperCase() + s.slice(1)
+    const pmLabel     = m => m === 'razorpay' ? 'Online (Razorpay)' : m === 'upi' ? 'UPI' : m === 'cash' ? 'Cash / Pay at Hotel' : ''
+
+    const csvRows = [headers.join(',')]
+    rows.forEach((b, i) => {
+      const code = b.bookingCode || b.id.slice(0,8).toUpperCase()
+      const bookedOn = b.createdAt && b.createdAt.toDate
+        ? b.createdAt.toDate().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })
+        : ''
+      const row = [
+        i+1, code, bookedOn,
+        b.customerName || '',
+        b.mobileAtCheckin || b.customerPhone || '',
+        b.roomName || '',
+        b.roomNumber || '',
+        fmtDate(b.checkIn),
+        fmtDate(b.checkOut),
+        b.nights || '',
+        b.guestsAtCheckin || b.guests || '',
+        b.aadharNumber ? b.aadharNumber.replace(/(\d{4})(\d{4})(\d{4})/, '$1 $2 $3') : '',
+        b.genderAtCheckin || '',
+        b.totalAmount || 0,
+        pmLabel(b.paymentMethod),
+        statusLabel(b.status),
+      ]
+      csvRows.push(row.map(escape).join(','))
+    })
+
+    // Add summary rows at bottom
+    csvRows.push('')
+    csvRows.push(['SUMMARY'].join(','))
+    csvRows.push(['Total Bookings', rows.length].join(','))
+    const rev = rows.filter(b=>['paid','checked_in','checked_out'].includes(b.status)).reduce((s,b)=>s+(b.totalAmount||0),0)
+    csvRows.push(['Total Revenue (paid+in-house+checkout)', 'Rs.' + rev.toLocaleString('en-IN')].join(','))
+
+    const range = _rptFrom && _rptTo
+      ? `${_rptFrom.toLocaleDateString('en-IN')}_to_${_rptTo.toLocaleDateString('en-IN')}`
+      : _rptActive === 'all' ? 'all-time' : _rptActive
+    const fileName = `Jay-Palace-Bookings-${range}.csv`.replace(/[\/\\:]/g, '-')
+
+    const BOM  = '﻿'
+    const blob = new Blob([BOM + csvRows.join('\r\n')], { type: 'text/csv;charset=utf-8;' })
+    const url  = URL.createObjectURL(blob)
+    const a    = document.createElement('a')
+    a.href = url; a.download = fileName
+    document.body.appendChild(a); a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    showAdminToast(`Exported ${rows.length} records`, 'success')
   }
 
   // ── Room Management ───────────────────────────────────────
