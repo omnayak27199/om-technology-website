@@ -199,6 +199,29 @@
     .btn-add-room-card { border: 2px dashed var(--border); border-radius: 14px; padding: 40px 20px; text-align: center; cursor: pointer; color: var(--muted); font-size: .9rem; font-weight: 600; background: transparent; width: 100%; }
     .btn-add-room-card:hover { border-color: var(--gold); color: var(--gold); background: rgba(123,79,46,.04); }
 
+    /* DAILY RECORD */
+    .record-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+    .btn-daily-record { background: var(--text); color: #fff; border: none; padding: 9px 20px; border-radius: 9999px; font-size: .8125rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .btn-daily-record:hover { opacity: .85; }
+    .dr-modal-overlay { display: none; position: fixed; inset: 0; z-index: 400; background: rgba(26,15,8,.55); backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 16px; }
+    .dr-modal-overlay.open { display: flex; }
+    .dr-modal { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 28px; width: 100%; max-width: 440px; box-shadow: 0 20px 60px rgba(123,79,46,.15); }
+    .dr-modal h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 6px; }
+    .dr-modal p { font-size: .85rem; color: var(--muted); margin-bottom: 22px; }
+    .dr-field { margin-bottom: 18px; }
+    .dr-field label { display: block; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 7px; }
+    .dr-field input[type=date] { width: 100%; background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: .9375rem; font-family: inherit; font-weight: 600; color: var(--text); outline: none; cursor: pointer; }
+    .dr-field input[type=date]:focus { border-color: var(--gold); }
+    .dr-filter-row { display: flex; gap: 8px; margin-bottom: 20px; }
+    .dr-filter-btn { flex: 1; background: var(--bg); border: 1.5px solid var(--border); border-radius: 9999px; padding: 8px; font-size: .8rem; font-weight: 700; font-family: inherit; color: var(--muted); cursor: pointer; text-align: center; }
+    .dr-filter-btn.active { background: var(--gold); border-color: var(--gold); color: #fff; }
+    .dr-preview { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 20px; font-size: .85rem; color: var(--muted); text-align: center; }
+    .dr-preview strong { color: var(--text); font-size: 1.1rem; display: block; }
+    .dr-download-btns { display: flex; gap: 10px; }
+    .btn-dr-pdf { flex: 1; background: var(--text); color: #fff; border: none; padding: 12px; border-radius: 9999px; font-size: .9rem; font-weight: 800; cursor: pointer; }
+    .btn-dr-csv { flex: 1; background: var(--success); color: #fff; border: none; padding: 12px; border-radius: 9999px; font-size: .9rem; font-weight: 800; cursor: pointer; }
+    .btn-dr-cancel { width: 100%; margin-top: 10px; background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 10px; border-radius: 9999px; font-size: .875rem; cursor: pointer; }
+
     /* EDIT ROOM MODAL */
     .edit-modal-overlay { display: none; position: fixed; inset: 0; z-index: 300; background: rgba(26,15,8,.55); backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 16px; }
     .edit-modal-overlay.open { display: flex; }
@@ -317,15 +340,18 @@
       </div>
     </div>
 
-    <!-- Filters -->
-    <div class="filter-tabs">
-      <button class="tab active" onclick="filterBookings('all', this)">All</button>
+    <!-- Record bar -->
+    <div class="record-bar">
+      <div class="filter-tabs" style="margin-bottom:0;flex-wrap:wrap">
+        <button class="tab active" onclick="filterBookings('all', this)">All</button>
       <button class="tab" onclick="filterBookings('pending', this)">Pending</button>
       <button class="tab" onclick="filterBookings('approved', this)">Approved</button>
       <button class="tab" onclick="filterBookings('paid', this)">Paid</button>
       <button class="tab" onclick="filterBookings('checked_in', this)">Checked In</button>
       <button class="tab" onclick="filterBookings('rejected', this)">Rejected</button>
       <button class="tab" onclick="filterBookings('checked_out', this)">Checked Out</button>
+      </div>
+      <button class="btn-daily-record" onclick="openDailyRecordModal()">📊 Daily Record</button>
     </div>
 
     <!-- Bookings list -->
@@ -349,6 +375,31 @@
 
   </div><!-- end admin-body -->
 </div><!-- end adminWrap -->
+
+<!-- DAILY RECORD MODAL -->
+<div class="dr-modal-overlay" id="drModal">
+  <div class="dr-modal">
+    <h3>📊 Daily Guest Register</h3>
+    <p>Download a register of all guests for a selected date — PDF for printing, CSV for Excel.</p>
+    <div class="dr-field">
+      <label>Select Date</label>
+      <input type="date" id="drDate" onchange="updateDrPreview()">
+    </div>
+    <div class="dr-filter-row">
+      <button class="dr-filter-btn active" id="drFilterCheckin" onclick="setDrFilter('checkin', this)">Check-in Date</button>
+      <button class="dr-filter-btn" id="drFilterActive" onclick="setDrFilter('active', this)">Staying on Date</button>
+    </div>
+    <div class="dr-preview" id="drPreview">
+      <strong id="drCount">—</strong>
+      guests found for selected date
+    </div>
+    <div class="dr-download-btns">
+      <button class="btn-dr-pdf" onclick="downloadDailyPDF()">📄 Download PDF</button>
+      <button class="btn-dr-csv" onclick="downloadDailyCSV()">📊 Download CSV</button>
+    </div>
+    <button class="btn-dr-cancel" onclick="closeDailyRecordModal()">Cancel</button>
+  </div>
+</div>
 
 <!-- CHECK-IN MODAL -->
 <div class="ci-modal-overlay" id="ciModal">
@@ -1099,6 +1150,292 @@
   // ── Helpers ──────────────────────────────────────────────
   function fmtDate(d) {
     return d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'
+  }
+
+  // ── Daily Record ─────────────────────────────────────────────
+  let _drFilter = 'checkin'
+
+  function openDailyRecordModal() {
+    const today = new Date()
+    const yyyy  = today.getFullYear()
+    const mm    = String(today.getMonth() + 1).padStart(2, '0')
+    const dd    = String(today.getDate()).padStart(2, '0')
+    document.getElementById('drDate').value = `${yyyy}-${mm}-${dd}`
+    setDrFilter('checkin', document.getElementById('drFilterCheckin'))
+    updateDrPreview()
+    document.getElementById('drModal').classList.add('open')
+  }
+
+  function closeDailyRecordModal() {
+    document.getElementById('drModal').classList.remove('open')
+  }
+
+  function setDrFilter(type, btn) {
+    _drFilter = type
+    document.querySelectorAll('.dr-filter-btn').forEach(b => b.classList.remove('active'))
+    btn.classList.add('active')
+    updateDrPreview()
+  }
+
+  function getDrBookings() {
+    const dateStr = document.getElementById('drDate').value
+    if (!dateStr) return []
+    const sel = new Date(dateStr)
+    sel.setHours(0,0,0,0)
+    const selEnd = new Date(dateStr)
+    selEnd.setHours(23,59,59,999)
+
+    return allBookings.filter(b => {
+      if (b.status === 'rejected') return false
+      if (_drFilter === 'checkin') {
+        // Bookings whose check-in date matches selected date
+        const ci = new Date(b.checkIn)
+        return ci.toDateString() === sel.toDateString()
+      } else {
+        // Bookings that were staying on the selected date
+        const ci  = new Date(b.checkIn)
+        const co  = new Date(b.checkOut)
+        ci.setHours(0,0,0,0)
+        co.setHours(23,59,59,999)
+        return ci <= selEnd && co >= sel
+      }
+    })
+  }
+
+  function updateDrPreview() {
+    document.getElementById('drCount').textContent = getDrBookings().length
+  }
+
+  function fmtDateTime(ts) {
+    if (!ts) return '—'
+    const d = ts.toDate ? ts.toDate() : new Date(ts)
+    return d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) +
+           ' ' + d.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', hour12: true })
+  }
+
+  function downloadDailyPDF() {
+    const rows    = getDrBookings()
+    const dateStr = document.getElementById('drDate').value
+    if (!rows.length) { showAdminToast('No guests found for selected date', 'info'); return }
+
+    const { jsPDF } = window.jspdf
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
+    const W   = 297  // landscape A4 width
+    const LM  = 8    // left margin
+
+    const brown = [123, 79,  46]
+    const dark  = [26,  15,  8]
+    const grey  = [123, 113, 104]
+    const white = [255, 255, 255]
+    const cream = [250, 248, 245]
+
+    // ── Header ──────────────────────────────────────────────────
+    doc.setFillColor(...dark)
+    doc.rect(0, 0, W, 22, 'F')
+    doc.setTextColor(...white)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(16)
+    doc.text('HOTEL JAY PALACE', W / 2, 9, { align: 'center' })
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(8)
+    doc.setTextColor(196, 156, 108)
+    doc.text(HOTEL.address + '   |   ' + HOTEL.phone, W / 2, 15, { align: 'center' })
+
+    // ── Title strip ──────────────────────────────────────────────
+    doc.setFillColor(...brown)
+    doc.rect(0, 22, W, 9, 'F')
+    doc.setTextColor(...dark)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(10)
+    const selDate = new Date(dateStr).toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
+    doc.text('DAILY GUEST REGISTER — ' + selDate.toUpperCase(), W / 2, 28.5, { align: 'center' })
+
+    // ── Meta ─────────────────────────────────────────────────────
+    doc.setTextColor(...grey)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(7.5)
+    const genTime = new Date().toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:true })
+    doc.text(`Generated: ${genTime}   |   Total Guests: ${rows.length}`, LM, 35)
+    doc.text(`Filter: ${_drFilter === 'checkin' ? 'Check-in Date' : 'Staying on Date'}`, W - LM, 35, { align: 'right' })
+
+    // ── Column definitions ───────────────────────────────────────
+    const cols = [
+      { label: 'S.No',        w: 10  },
+      { label: 'Booking ID',  w: 24  },
+      { label: 'Guest Name',  w: 38  },
+      { label: 'Mobile',      w: 28  },
+      { label: 'Aadhar No.',  w: 34  },
+      { label: 'Gender',      w: 18  },
+      { label: 'Guests',      w: 14  },
+      { label: 'Room',        w: 34  },
+      { label: 'Check-in',    w: 36  },
+      { label: 'Check-out',   w: 24  },
+      { label: 'Status',      w: 22  },
+    ]
+    const ROW_H = 9
+    const HDR_H = 10
+    let y = 39
+
+    // Draw header row
+    let x = LM
+    doc.setFillColor(...dark)
+    doc.rect(LM, y, W - LM * 2, HDR_H, 'F')
+    doc.setTextColor(...white)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(7.5)
+    cols.forEach(col => {
+      doc.text(col.label, x + 2, y + 7)
+      x += col.w
+    })
+
+    y += HDR_H
+
+    // Draw data rows
+    rows.forEach((b, i) => {
+      // Zebra stripe
+      if (i % 2 === 0) {
+        doc.setFillColor(...cream)
+        doc.rect(LM, y, W - LM * 2, ROW_H, 'F')
+      }
+
+      const code   = b.bookingCode || b.id.slice(0,8).toUpperCase()
+      const status = b.status === 'checked_in'  ? 'In-House'
+                   : b.status === 'checked_out' ? 'Checked Out'
+                   : b.status === 'paid'        ? 'Paid'
+                   : b.status === 'approved'    ? 'Confirmed'
+                   : b.status
+
+      const statusColor = b.status === 'checked_in'  ? [3, 105, 161]
+                        : b.status === 'checked_out' ? [55, 65, 81]
+                        : b.status === 'paid'        ? [...brown]
+                        : [21, 128, 61]
+
+      const cells = [
+        String(i + 1),
+        code,
+        b.customerName || '—',
+        b.mobileAtCheckin || b.customerPhone || '—',
+        b.aadharNumber ? b.aadharNumber.replace(/(\d{4})(\d{4})(\d{4})/, '$1 $2 $3') : '—',
+        b.genderAtCheckin || '—',
+        String(b.guestsAtCheckin || b.guests || '—'),
+        b.roomName || '—',
+        b.checkedInAt ? fmtDateTime(b.checkedInAt) : fmtDate(b.checkIn),
+        fmtDate(b.checkOut),
+        status,
+      ]
+
+      x = LM
+      cells.forEach((cell, ci) => {
+        const isStatus = ci === cells.length - 1
+        doc.setTextColor(...(isStatus ? statusColor : (i % 2 === 0 ? dark : grey)))
+        doc.setFont('helvetica', isStatus ? 'bold' : 'normal')
+        doc.setFontSize(7.5)
+        // Clip text if too long
+        const maxW  = cols[ci].w - 3
+        let txt = cell
+        while (doc.getTextWidth(txt) > maxW && txt.length > 3) txt = txt.slice(0, -1)
+        if (txt !== cell) txt = txt.slice(0, -1) + '…'
+        doc.text(txt, x + 2, y + 6)
+        x += cols[ci].w
+      })
+
+      // Bottom border line
+      doc.setDrawColor(224, 213, 204)
+      doc.setLineWidth(0.2)
+      doc.line(LM, y + ROW_H, W - LM, y + ROW_H)
+
+      y += ROW_H
+
+      // New page if needed
+      if (y > 195 && i < rows.length - 1) {
+        doc.addPage()
+        y = 10
+        // Repeat column headers on new page
+        x = LM
+        doc.setFillColor(...dark)
+        doc.rect(LM, y, W - LM * 2, HDR_H, 'F')
+        doc.setTextColor(...white)
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(7.5)
+        cols.forEach(col => {
+          doc.text(col.label, x + 2, y + 7)
+          x += col.w
+        })
+        y += HDR_H
+      }
+    })
+
+    // ── Footer line ──────────────────────────────────────────────
+    y += 6
+    doc.setDrawColor(...brown)
+    doc.setLineWidth(0.5)
+    doc.line(LM, y, W - LM, y)
+    doc.setTextColor(...grey)
+    doc.setFont('helvetica', 'italic')
+    doc.setFontSize(7.5)
+    doc.text('This is an official guest register of Hotel Jay Palace, Saraipali — for internal record keeping only.', W / 2, y + 5, { align: 'center' })
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(7)
+    doc.text('Website & System by OM Technology', W / 2, y + 10, { align: 'center' })
+
+    doc.save('Jay-Palace-Guest-Register-' + dateStr + '.pdf')
+    showAdminToast('PDF downloaded!', 'success')
+  }
+
+  function downloadDailyCSV() {
+    const rows    = getDrBookings()
+    const dateStr = document.getElementById('drDate').value
+    if (!rows.length) { showAdminToast('No guests found for selected date', 'info'); return }
+
+    const headers = ['S.No','Booking ID','Guest Name','Mobile','Aadhar Number','Gender','No. of Guests','Room','Check-in Date/Time','Check-out Date','Amount (Rs.)','Payment Method','Status']
+
+    const escape = v => {
+      const s = String(v === null || v === undefined ? '' : v)
+      return s.includes(',') || s.includes('"') || s.includes('\n')
+        ? '"' + s.replace(/"/g, '""') + '"'
+        : s
+    }
+
+    const csvRows = [headers.join(',')]
+    rows.forEach((b, i) => {
+      const code   = b.bookingCode || b.id.slice(0,8).toUpperCase()
+      const status = b.status === 'checked_in'  ? 'In-House'
+                   : b.status === 'checked_out' ? 'Checked Out'
+                   : b.status === 'paid'        ? 'Paid'
+                   : b.status === 'approved'    ? 'Confirmed'
+                   : b.status
+      const pmLabel = b.paymentMethod === 'razorpay' ? 'Online (Razorpay)'
+                    : b.paymentMethod === 'upi'      ? 'UPI'
+                    : 'Cash / Pay at Hotel'
+      const row = [
+        i + 1,
+        code,
+        b.customerName || '',
+        b.mobileAtCheckin || b.customerPhone || '',
+        b.aadharNumber ? b.aadharNumber.replace(/(\d{4})(\d{4})(\d{4})/, '$1 $2 $3') : '',
+        b.genderAtCheckin || '',
+        b.guestsAtCheckin || b.guests || '',
+        b.roomName || '',
+        b.checkedInAt ? fmtDateTime(b.checkedInAt) : fmtDate(b.checkIn),
+        fmtDate(b.checkOut),
+        b.totalAmount || 0,
+        pmLabel,
+        status,
+      ]
+      csvRows.push(row.map(escape).join(','))
+    })
+
+    const BOM   = '﻿'  // UTF-8 BOM for Excel to open correctly with Indian characters
+    const blob  = new Blob([BOM + csvRows.join('\r\n')], { type: 'text/csv;charset=utf-8;' })
+    const url   = URL.createObjectURL(blob)
+    const link  = document.createElement('a')
+    link.href   = url
+    link.download = 'Jay-Palace-Guest-Register-' + dateStr + '.csv'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+    showAdminToast('CSV downloaded! Open in Excel.', 'success')
   }
 
   // ── View switcher ─────────────────────────────────────────
