@@ -756,9 +756,17 @@
 
   // ── Load + listen to bookings (real-time) ───────────────
   function loadBookings() {
-    db.collection('bookings').orderBy('createdAt', 'desc')
+    db.collection('bookings')
       .onSnapshot(snapshot => {
-        allBookings = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
+        allBookings = snapshot.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => {
+            const ta = a.createdAt && a.createdAt.toDate ? a.createdAt.toDate().getTime()
+                     : a.checkIn ? new Date(a.checkIn).getTime() : 0
+            const tb = b.createdAt && b.createdAt.toDate ? b.createdAt.toDate().getTime()
+                     : b.checkIn ? new Date(b.checkIn).getTime() : 0
+            return tb - ta
+          })
         updateStats()
         renderBookings()
         renderRevenueChart()
