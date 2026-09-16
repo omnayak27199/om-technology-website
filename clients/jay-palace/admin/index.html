@@ -831,6 +831,9 @@
     }
     if (b.status === 'checked_out') {
       return `${chip}<span style="font-size:.8rem;color:var(--muted)">✅ Checked out</span>
+        ${b.roomNumber    ? `<div class="checkin-detail-row">🚪 Room No: <strong>${b.roomNumber}</strong></div>` : ''}
+        ${b.aadharNumber  ? `<div class="checkin-detail-row">🪪 Aadhar: <strong>${b.aadharNumber}</strong></div>` : ''}
+        ${b.genderAtCheckin ? `<div class="checkin-detail-row">👤 Gender: <strong>${b.genderAtCheckin}</strong></div>` : ''}
         <button class="btn-invoice" onclick="downloadInvoice('${id}')">📄 Invoice PDF</button>`
     }
     if (b.status === 'rejected') {
