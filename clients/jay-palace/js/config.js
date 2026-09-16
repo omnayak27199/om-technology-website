@@ -110,7 +110,7 @@ window.ADMIN_EMAIL = 'omnayak27199@gmail.com'
 //   3. APIs & Services → Credentials → Create → OAuth 2.0 Client ID
 //      Type: Web application · Authorised origin: https://jaypalace.online
 //   4. Copy the Client ID and paste it below
-window.GMAIL_CLIENT_ID = 'YOUR_OAUTH_CLIENT_ID.apps.googleusercontent.com'
+window.GMAIL_CLIENT_ID = '612198957262-6t06s6dipmkvqbsbb32jepldddupdfhs.apps.googleusercontent.com'
 
 // ─── WhatsApp Business Cloud API Config ──────────────────────
 // Optional: enables fully automatic (zero-click) WhatsApp messages from admin panel.
