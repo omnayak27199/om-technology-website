@@ -676,8 +676,8 @@
       ['Name',    b.customerName  || '—'],
       ['Phone',   b.customerPhone || '—'],
       ['Email',   b.customerEmail || '—'],
-      ['Aadhaar', fmtAadhar(b.aadhar)],
-      ['Gender',  b.gender ? b.gender.charAt(0).toUpperCase() + b.gender.slice(1) : '—'],
+      ['Aadhaar', fmtAadhar(b.aadharNumber)],
+      ['Gender',  b.genderAtCheckin ? b.genderAtCheckin.charAt(0).toUpperCase() + b.genderAtCheckin.slice(1) : '—'],
       ['Guests',  b.guests ? b.guests + (b.guests > 1 ? ' Guests' : ' Guest') : '—'],
     ]
     var gy = y + 11
