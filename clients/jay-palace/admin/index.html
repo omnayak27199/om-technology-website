@@ -413,11 +413,17 @@
       <strong id="ciGuestName">Guest Name</strong>
       <span id="ciRoomInfo">Room · Dates</span>
     </div>
-    <!-- Aadhar Card -->
-    <div class="ci-field">
-      <label>Aadhar Card Number *</label>
-      <input type="text" id="ciAadhar" placeholder="XXXX XXXX XXXX" maxlength="14" inputmode="numeric"
-             oninput="this.value=this.value.replace(/[^0-9]/g,'').replace(/(.{4})(?=.)/g,'$1 ').trim()">
+    <!-- Room Number + Aadhar -->
+    <div class="ci-field-row">
+      <div class="ci-field">
+        <label>Room Number *</label>
+        <input type="text" id="ciRoomNumber" placeholder="e.g. 101, 202" inputmode="numeric">
+      </div>
+      <div class="ci-field">
+        <label>Aadhar Card No. *</label>
+        <input type="text" id="ciAadhar" placeholder="XXXX XXXX XXXX" maxlength="14" inputmode="numeric"
+               oninput="this.value=this.value.replace(/[^0-9]/g,'').replace(/(.{4})(?=.)/g,'$1 ').trim()">
+      </div>
     </div>
     <!-- Guests + Gender -->
     <div class="ci-field-row">
@@ -681,6 +687,7 @@
       const ciAt = b.checkedInAt && b.checkedInAt.toDate ? b.checkedInAt.toDate().getTime() : null
       return `${chip}
         <div class="stay-timer-badge"><span class="dot"></span><span class="stay-timer" data-since="${ciAt || ''}">Calculating…</span></div>
+        ${b.roomNumber ? `<div class="checkin-detail-row">🚪 Room No: <strong>${b.roomNumber}</strong></div>` : ''}
         ${b.aadharNumber ? `<div class="checkin-detail-row">🪪 Aadhar: <strong>${b.aadharNumber}</strong></div>` : ''}
         ${b.genderAtCheckin ? `<div class="checkin-detail-row">👤 Gender: <strong>${b.genderAtCheckin}</strong></div>` : ''}
         <button class="btn-checkout" onclick="checkoutBooking('${id}')">🚪 Checkout</button>
@@ -747,6 +754,7 @@
     document.getElementById('ciBookingPill').textContent = code
     document.getElementById('ciGuestName').textContent   = b.customerName
     document.getElementById('ciRoomInfo').textContent    = `${b.roomName} · ${fmtDate(b.checkIn)} → ${fmtDate(b.checkOut)}`
+    document.getElementById('ciRoomNumber').value = ''
     document.getElementById('ciAadhar').value    = ''
     document.getElementById('ciGuests').value    = b.guests || 1
     document.getElementById('ciGender').value    = ''
@@ -760,29 +768,32 @@
   }
 
   function submitCheckin() {
-    const id      = _ciBookingId
-    const b       = allBookings.find(x => x.id === id)
-    const aadhar  = document.getElementById('ciAadhar').value.trim().replace(/\s/g,'')
-    const guests  = parseInt(document.getElementById('ciGuests').value) || 1
-    const gender  = document.getElementById('ciGender').value
-    const mobile  = document.getElementById('ciMobile').value.trim()
+    const id         = _ciBookingId
+    const b          = allBookings.find(x => x.id === id)
+    const roomNumber = document.getElementById('ciRoomNumber').value.trim()
+    const aadhar     = document.getElementById('ciAadhar').value.trim().replace(/\s/g,'')
+    const guests     = parseInt(document.getElementById('ciGuests').value) || 1
+    const gender     = document.getElementById('ciGender').value
+    const mobile     = document.getElementById('ciMobile').value.trim()
 
-    if (aadhar.length !== 12) { showAdminToast('Enter valid 12-digit Aadhar number', 'error'); return }
-    if (!gender)              { showAdminToast('Please select gender', 'error'); return }
-    if (!mobile)              { showAdminToast('Enter mobile number', 'error'); return }
+    if (!roomNumber)            { showAdminToast('Enter room number', 'error'); return }
+    if (aadhar.length !== 12)   { showAdminToast('Enter valid 12-digit Aadhar number', 'error'); return }
+    if (!gender)                { showAdminToast('Please select gender', 'error'); return }
+    if (!mobile)                { showAdminToast('Enter mobile number', 'error'); return }
 
     db.collection('bookings').doc(id).update({
-      status:         'checked_in',
-      checkedInAt:    firebase.firestore.FieldValue.serverTimestamp(),
-      aadharNumber:   aadhar,
+      status:          'checked_in',
+      checkedInAt:     firebase.firestore.FieldValue.serverTimestamp(),
+      roomNumber:      roomNumber,
+      aadharNumber:    aadhar,
       guestsAtCheckin: guests,
       genderAtCheckin: gender,
       mobileAtCheckin: mobile,
     }).then(() => {
       closeCheckinModal()
-      const checkedIn = { ...b, status: 'checked_in', aadharNumber: aadhar, guestsAtCheckin: guests, genderAtCheckin: gender }
+      const checkedIn = { ...b, status: 'checked_in', roomNumber, aadharNumber: aadhar, guestsAtCheckin: guests, genderAtCheckin: gender }
       sendCheckinMessages(checkedIn, mobile)
-      showAdminToast(`${b.customerName} checked in! Messages sent.`, 'success')
+      showAdminToast(`${b.customerName} checked in to Room ${roomNumber}! Messages sent.`, 'success')
     }).catch(err => showAdminToast('Check-in failed: ' + err.message, 'error'))
   }
 
@@ -1260,16 +1271,17 @@
 
     // ── Column definitions ───────────────────────────────────────
     const cols = [
-      { label: 'S.No',        w: 10  },
-      { label: 'Booking ID',  w: 24  },
-      { label: 'Guest Name',  w: 38  },
-      { label: 'Mobile',      w: 28  },
-      { label: 'Aadhar No.',  w: 34  },
-      { label: 'Gender',      w: 18  },
-      { label: 'Guests',      w: 14  },
-      { label: 'Room',        w: 34  },
-      { label: 'Check-in',    w: 36  },
-      { label: 'Check-out',   w: 24  },
+      { label: 'S.No',        w: 9   },
+      { label: 'Booking ID',  w: 22  },
+      { label: 'Guest Name',  w: 34  },
+      { label: 'Mobile',      w: 26  },
+      { label: 'Aadhar No.',  w: 32  },
+      { label: 'Gender',      w: 17  },
+      { label: 'Guests',      w: 13  },
+      { label: 'Room Type',   w: 28  },
+      { label: 'Room No.',    w: 18  },
+      { label: 'Check-in',    w: 34  },
+      { label: 'Check-out',   w: 22  },
       { label: 'Status',      w: 22  },
     ]
     const ROW_H = 9
@@ -1319,6 +1331,7 @@
         b.genderAtCheckin || '—',
         String(b.guestsAtCheckin || b.guests || '—'),
         b.roomName || '—',
+        b.roomNumber || '—',
         b.checkedInAt ? fmtDateTime(b.checkedInAt) : fmtDate(b.checkIn),
         fmtDate(b.checkOut),
         status,
@@ -1387,7 +1400,7 @@
     const dateStr = document.getElementById('drDate').value
     if (!rows.length) { showAdminToast('No guests found for selected date', 'info'); return }
 
-    const headers = ['S.No','Booking ID','Guest Name','Mobile','Aadhar Number','Gender','No. of Guests','Room','Check-in Date/Time','Check-out Date','Amount (Rs.)','Payment Method','Status']
+    const headers = ['S.No','Booking ID','Guest Name','Mobile','Aadhar Number','Gender','No. of Guests','Room Type','Room No.','Check-in Date/Time','Check-out Date','Amount (Rs.)','Payment Method','Status']
 
     const escape = v => {
       const s = String(v === null || v === undefined ? '' : v)
@@ -1416,6 +1429,7 @@
         b.genderAtCheckin || '',
         b.guestsAtCheckin || b.guests || '',
         b.roomName || '',
+        b.roomNumber || '',
         b.checkedInAt ? fmtDateTime(b.checkedInAt) : fmtDate(b.checkIn),
         fmtDate(b.checkOut),
         b.totalAmount || 0,
