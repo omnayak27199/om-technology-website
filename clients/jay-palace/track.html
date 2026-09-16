@@ -9,21 +9,22 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --gold:        #166534;
-      --gold-light:  #16a34a;
-      --gold-bg:     rgba(22,101,52,.07);
-      --gold-border: rgba(22,101,52,.22);
-      --accent:      #C49030;
-      --accent-bg:   rgba(196,144,48,.10);
-      --bg:          #FFFFFF;
-      --bg2:         #FFFFFF;
-      --surface:     #FFFFFF;
-      --border:      #D0E8D5;
-      --text:        #071A0B;
-      --muted:       #4A7055;
-      --muted2:      #8AAF92;
-      --success:     #16a34a;
-      --danger:      #dc2626;
+      --gold:          #1C1510;
+      --gold-light:    #2E251A;
+      --gold-bg:       rgba(28,21,16,.05);
+      --gold-border:   rgba(28,21,16,.14);
+      --accent:        #B8891A;
+      --accent-bg:     rgba(184,137,26,.10);
+      --accent-border: rgba(184,137,26,.28);
+      --bg:            #FAFAF7;
+      --bg2:           #FFFFFF;
+      --surface:       #FFFFFF;
+      --border:        #E5E0D5;
+      --text:          #1C1510;
+      --muted:         #6E6458;
+      --muted2:        #A89E94;
+      --success:       #16a34a;
+      --danger:        #dc2626;
     }
 
     body {
@@ -98,7 +99,7 @@
       padding: 36px 32px;
       width: 100%;
       max-width: 480px;
-      box-shadow: 0 4px 24px rgba(22,101,52,.06);
+      box-shadow: 0 4px 24px rgba(28,21,16,.06);
     }
     .search-label {
       display: block;
@@ -163,7 +164,7 @@
       width: 100%;
       max-width: 620px;
       margin-top: 32px;
-      box-shadow: 0 4px 32px rgba(22,101,52,.07);
+      box-shadow: 0 4px 32px rgba(28,21,16,.07);
       overflow: hidden;
       display: none;
     }
@@ -238,12 +239,12 @@
     }
 
     .special-req-box {
-      background: #F0FBF4;
-      border: 1px solid #D0E8D5;
+      background: var(--accent-bg);
+      border: 1px solid var(--accent-border);
       border-radius: 10px;
       padding: 11px 14px;
       font-size: .875rem;
-      color: #166534;
+      color: var(--text);
       margin-bottom: 24px;
       display: none;
     }
