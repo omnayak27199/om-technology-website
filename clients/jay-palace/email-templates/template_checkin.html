@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#F4F1EB;font-family:Georgia,'Times New Roman',serif;">
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#F4F1EB;padding:32px 16px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#FFFFFF;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(28,21,16,.12);">
+
+  <!-- Header -->
+  <tr>
+    <td style="background:#1C1510;padding:36px 40px 28px;text-align:center;">
+      <div style="display:inline-block;width:52px;height:52px;border:2px solid #B8891A;border-radius:50%;line-height:52px;color:#B8891A;font-size:18px;font-weight:900;letter-spacing:1px;margin-bottom:14px;">JP</div>
+      <h1 style="margin:0;color:#B8891A;font-size:22px;font-weight:700;letter-spacing:1px;">HOTEL JAY PALACE</h1>
+      <p style="margin:6px 0 0;color:#A89E94;font-size:12px;letter-spacing:2px;text-transform:uppercase;">Saraipali, Chhattisgarh</p>
+    </td>
+  </tr>
+
+  <!-- Status Banner -->
+  <tr>
+    <td style="background:#0369a1;padding:14px 40px;text-align:center;">
+      <p style="margin:0;color:#FFFFFF;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">&#127968; &nbsp;Welcome — You Are Now Checked In!</p>
+    </td>
+  </tr>
+
+  <!-- Greeting -->
+  <tr>
+    <td style="padding:36px 40px 0;">
+      <p style="margin:0;color:#1C1510;font-size:18px;">Welcome, <strong>{{to_name}}</strong>!</p>
+      <p style="margin:14px 0 0;color:#6E6458;font-size:15px;line-height:1.7;">
+        We are delighted to have you with us at Hotel Jay Palace. Your room is ready and our team is at your service throughout your stay. We hope you have a wonderful and comfortable experience!
+      </p>
+    </td>
+  </tr>
+
+  <!-- Stay Details Box -->
+  <tr>
+    <td style="padding:24px 40px 0;">
+      <div style="background:#FAFAF7;border:2px solid #0369a1;border-radius:10px;padding:20px 24px;">
+        <p style="margin:0 0 14px;color:#0369a1;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">Your Stay at a Glance</p>
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="color:#6E6458;font-size:13px;padding:6px 0;width:45%;">Booking ID</td>
+            <td style="color:#1C1510;font-size:13px;font-weight:700;font-family:monospace;padding:6px 0;letter-spacing:1px;">{{booking_id}}</td>
+          </tr>
+          <tr style="background:#f0f9ff;">
+            <td style="color:#6E6458;font-size:13px;padding:6px 8px;">Room</td>
+            <td style="color:#1C1510;font-size:13px;font-weight:600;padding:6px 8px;">{{room_name}}</td>
+          </tr>
+          <tr>
+            <td style="color:#6E6458;font-size:13px;padding:6px 0;">Check-in</td>
+            <td style="color:#1C1510;font-size:13px;font-weight:600;padding:6px 0;">{{check_in}}</td>
+          </tr>
+          <tr style="background:#f0f9ff;">
+            <td style="color:#6E6458;font-size:13px;padding:6px 8px;">Check-out</td>
+            <td style="color:#1C1510;font-size:13px;font-weight:600;padding:6px 8px;">{{check_out}}</td>
+          </tr>
+          <tr>
+            <td style="color:#6E6458;font-size:13px;padding:6px 0;">Nights / Guests</td>
+            <td style="color:#1C1510;font-size:13px;font-weight:600;padding:6px 0;">{{nights}} nights &nbsp;·&nbsp; {{guests}} guests</td>
+          </tr>
+          <tr style="background:#f0f9ff;">
+            <td style="color:#6E6458;font-size:13px;padding:6px 8px;">Total Amount</td>
+            <td style="color:#1C1510;font-size:14px;font-weight:700;padding:6px 8px;">{{total_amount}}</td>
+          </tr>
+          <tr>
+            <td style="color:#6E6458;font-size:13px;padding:6px 0;">Status</td>
+            <td style="padding:6px 0;">
+              <span style="display:inline-block;background:#e0f2fe;color:#0369a1;font-size:11px;font-weight:700;letter-spacing:1px;padding:3px 10px;border-radius:9999px;text-transform:uppercase;">{{payment_status}}</span>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </td>
+  </tr>
+
+  <!-- During Your Stay -->
+  <tr>
+    <td style="padding:28px 40px 0;">
+      <p style="margin:0 0 14px;color:#1C1510;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-bottom:1px solid #E5E0D5;padding-bottom:10px;">During Your Stay</p>
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr valign="top">
+          <td style="width:28px;padding:7px 0;font-size:16px;">&#127829;</td>
+          <td style="padding:7px 0 7px 10px;color:#6E6458;font-size:14px;line-height:1.5;"><strong style="color:#1C1510;">Restaurant</strong> — Multi-cuisine dining available on premises. Breakfast, lunch and dinner served daily.</td>
+        </tr>
+        <tr valign="top">
+          <td style="width:28px;padding:7px 0;font-size:16px;">&#128222;</td>
+          <td style="padding:7px 0 7px 10px;color:#6E6458;font-size:14px;line-height:1.5;"><strong style="color:#1C1510;">Room Service</strong> — Call our front desk any time: <a href="tel:{{hotel_phone}}" style="color:#B8891A;text-decoration:none;font-weight:600;">{{hotel_phone}}</a></td>
+        </tr>
+        <tr valign="top">
+          <td style="width:28px;padding:7px 0;font-size:16px;">&#128197;</td>
+          <td style="padding:7px 0 7px 10px;color:#6E6458;font-size:14px;line-height:1.5;"><strong style="color:#1C1510;">Check-out</strong> — Please check out by <strong>{{check_out}}</strong>. Late check-out subject to availability.</td>
+        </tr>
+        <tr valign="top">
+          <td style="width:28px;padding:7px 0;font-size:16px;">&#128241;</td>
+          <td style="padding:7px 0 7px 10px;color:#6E6458;font-size:14px;line-height:1.5;"><strong style="color:#1C1510;">Free WiFi</strong> — Ask our front desk for the current WiFi password.</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- Warm Closing -->
+  <tr>
+    <td style="padding:24px 40px;">
+      <div style="border-left:3px solid #B8891A;padding:14px 20px;background:#FAFAF7;border-radius:0 8px 8px 0;">
+        <p style="margin:0;color:#1C1510;font-size:15px;font-style:italic;line-height:1.7;">
+          "Your comfort is our priority. Please do not hesitate to reach out to any member of our team — we are here to ensure your stay is exceptional."
+        </p>
+        <p style="margin:10px 0 0;color:#B8891A;font-size:13px;font-weight:700;">— The Jay Palace Team</p>
+      </div>
+    </td>
+  </tr>
+
+  <!-- Footer -->
+  <tr>
+    <td style="background:#1C1510;padding:22px 40px;text-align:center;">
+      <p style="margin:0 0 6px;color:#A89E94;font-size:13px;">
+        📞 <a href="tel:{{hotel_phone}}" style="color:#B8891A;text-decoration:none;">{{hotel_phone}}</a>
+        &nbsp;&nbsp;·&nbsp;&nbsp;
+        📧 <a href="mailto:{{hotel_email}}" style="color:#B8891A;text-decoration:none;">{{hotel_email}}</a>
+      </p>
+      <p style="margin:0;color:#6E6458;font-size:11px;">
+        &copy; Hotel Jay Palace, Saraipali &nbsp;·&nbsp; Automated message — please do not reply.
+      </p>
+    </td>
+  </tr>
+
+</table>
+</td></tr>
+</table>
+
+</body>
+</html>

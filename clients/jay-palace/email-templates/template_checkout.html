@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#F4F1EB;font-family:Georgia,'Times New Roman',serif;">
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#F4F1EB;padding:32px 16px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#FFFFFF;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(28,21,16,.12);">
+
+  <!-- Header -->
+  <tr>
+    <td style="background:#1C1510;padding:36px 40px 28px;text-align:center;">
+      <div style="display:inline-block;width:52px;height:52px;border:2px solid #B8891A;border-radius:50%;line-height:52px;color:#B8891A;font-size:18px;font-weight:900;letter-spacing:1px;margin-bottom:14px;">JP</div>
+      <h1 style="margin:0;color:#B8891A;font-size:22px;font-weight:700;letter-spacing:1px;">HOTEL JAY PALACE</h1>
+      <p style="margin:6px 0 0;color:#A89E94;font-size:12px;letter-spacing:2px;text-transform:uppercase;">Saraipali, Chhattisgarh</p>
+    </td>
+  </tr>
+
+  <!-- Status Banner -->
+  <tr>
+    <td style="background:linear-gradient(90deg,#B8891A,#8a6514);padding:14px 40px;text-align:center;">
+      <p style="margin:0;color:#FFFFFF;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">&#11088; &nbsp;Thank You for Staying With Us!</p>
+    </td>
+  </tr>
+
+  <!-- Farewell Greeting -->
+  <tr>
+    <td style="padding:36px 40px 0;">
+      <p style="margin:0;color:#1C1510;font-size:18px;">Dear <strong>{{to_name}}</strong>,</p>
+      <p style="margin:14px 0 0;color:#6E6458;font-size:15px;line-height:1.7;">
+        We are truly grateful for choosing Hotel Jay Palace for your stay. It was our honour to host you, and we hope your experience was memorable. Please find your final invoice summary below.
+      </p>
+    </td>
+  </tr>
+
+  <!-- Final Invoice Box -->
+  <tr>
+    <td style="padding:24px 40px 0;">
+      <div style="border:2px solid #B8891A;border-radius:10px;overflow:hidden;">
+        <!-- Invoice Header -->
+        <div style="background:#1C1510;padding:14px 20px;">
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="color:#B8891A;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Final Invoice</td>
+              <td style="color:#A89E94;font-size:12px;text-align:right;">Booking ID: <span style="color:#FFFFFF;font-family:monospace;font-weight:700;">{{booking_id}}</span></td>
+            </tr>
+          </table>
+        </div>
+        <!-- Invoice Lines -->
+        <div style="background:#FAFAF7;padding:18px 20px;">
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="color:#6E6458;font-size:13px;padding:6px 0;width:45%;">Guest Name</td>
+              <td style="color:#1C1510;font-size:13px;font-weight:600;padding:6px 0;">{{to_name}}</td>
+            </tr>
+            <tr style="background:#F0EDE6;">
+              <td style="color:#6E6458;font-size:13px;padding:6px 8px;">Room</td>
+              <td style="color:#1C1510;font-size:13px;font-weight:600;padding:6px 8px;">{{room_name}}</td>
+            </tr>
+            <tr>
+              <td style="color:#6E6458;font-size:13px;padding:6px 0;">Check-in</td>
+              <td style="color:#1C1510;font-size:13px;font-weight:600;padding:6px 0;">{{check_in}}</td>
+            </tr>
+            <tr style="background:#F0EDE6;">
+              <td style="color:#6E6458;font-size:13px;padding:6px 8px;">Check-out</td>
+              <td style="color:#1C1510;font-size:13px;font-weight:600;padding:6px 8px;">{{check_out}}</td>
+            </tr>
+            <tr>
+              <td style="color:#6E6458;font-size:13px;padding:6px 0;">Duration</td>
+              <td style="color:#1C1510;font-size:13px;font-weight:600;padding:6px 0;">{{nights}} nights &nbsp;·&nbsp; {{guests}} guests</td>
+            </tr>
+            <tr style="background:#F0EDE6;">
+              <td style="color:#6E6458;font-size:13px;padding:6px 8px;">Payment Method</td>
+              <td style="color:#1C1510;font-size:13px;font-weight:600;padding:6px 8px;">{{payment_method}}</td>
+            </tr>
+          </table>
+          <!-- Total Row -->
+          <div style="margin-top:14px;padding-top:14px;border-top:2px solid #E5E0D5;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="color:#1C1510;font-size:14px;font-weight:700;">Total Amount Charged</td>
+                <td style="color:#B8891A;font-size:26px;font-weight:900;text-align:right;">{{total_amount}}</td>
+              </tr>
+              <tr>
+                <td colspan="2" style="padding-top:6px;">
+                  <span style="display:inline-block;background:#fef9c3;color:#854d0e;font-size:11px;font-weight:700;letter-spacing:1px;padding:3px 10px;border-radius:9999px;text-transform:uppercase;">{{payment_status}}</span>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+      <p style="margin:10px 0 0;color:#A89E94;font-size:11px;text-align:center;">A detailed PDF invoice has been sent to the hotel for your records. You may request a copy from the front desk.</p>
+    </td>
+  </tr>
+
+  <!-- Review Request -->
+  <tr>
+    <td style="padding:28px 40px 0;">
+      <div style="background:#1C1510;border-radius:10px;padding:24px;text-align:center;">
+        <p style="margin:0 0 6px;font-size:22px;">&#11088;</p>
+        <p style="margin:0 0 10px;color:#B8891A;font-size:15px;font-weight:700;">How was your stay?</p>
+        <p style="margin:0 0 18px;color:#A89E94;font-size:13px;line-height:1.7;">Your honest feedback helps us improve and helps other travellers discover us. It takes just 2 minutes!</p>
+        <a href="https://maps.app.goo.gl/wbtZpwUweqdRTicHA"
+           style="display:inline-block;background:#B8891A;color:#FFFFFF;text-decoration:none;font-size:14px;font-weight:700;padding:12px 28px;border-radius:9999px;letter-spacing:1px;">
+          Leave a Google Review
+        </a>
+      </div>
+    </td>
+  </tr>
+
+  <!-- Come Back Soon -->
+  <tr>
+    <td style="padding:24px 40px 0;">
+      <div style="border-left:3px solid #B8891A;padding:14px 20px;background:#FAFAF7;border-radius:0 8px 8px 0;">
+        <p style="margin:0;color:#1C1510;font-size:15px;font-style:italic;line-height:1.7;">
+          "We hope to welcome you back to Hotel Jay Palace very soon. Special rates available for returning guests — just mention your previous Booking ID when you call!"
+        </p>
+        <p style="margin:10px 0 0;color:#B8891A;font-size:13px;font-weight:700;">— The Jay Palace Family</p>
+      </div>
+    </td>
+  </tr>
+
+  <!-- Contact -->
+  <tr>
+    <td style="padding:20px 40px 32px;">
+      <div style="background:#FAFAF7;border:1px solid #E5E0D5;border-radius:10px;padding:18px 24px;">
+        <p style="margin:0 0 8px;color:#1C1510;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Stay in Touch</p>
+        <p style="margin:0;color:#6E6458;font-size:13px;line-height:1.8;">
+          📞 &nbsp;<a href="tel:{{hotel_phone}}" style="color:#B8891A;text-decoration:none;">{{hotel_phone}}</a><br>
+          📧 &nbsp;<a href="mailto:{{hotel_email}}" style="color:#B8891A;text-decoration:none;">{{hotel_email}}</a><br>
+          📍 &nbsp;{{hotel_address}}
+        </p>
+      </div>
+    </td>
+  </tr>
+
+  <!-- Footer -->
+  <tr>
+    <td style="background:#1C1510;padding:22px 40px;text-align:center;">
+      <p style="margin:0;color:#A89E94;font-size:12px;line-height:1.7;">
+        &copy; Hotel Jay Palace, Saraipali &nbsp;·&nbsp; Automated checkout receipt — please do not reply directly.
+      </p>
+    </td>
+  </tr>
+
+</table>
+</td></tr>
+</table>
+
+</body>
+</html>

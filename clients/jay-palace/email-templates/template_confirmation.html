@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#F4F1EB;font-family:Georgia,'Times New Roman',serif;">
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#F4F1EB;padding:32px 16px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#FFFFFF;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(28,21,16,.12);">
+
+  <!-- Header -->
+  <tr>
+    <td style="background:#1C1510;padding:36px 40px 28px;text-align:center;">
+      <div style="display:inline-block;width:52px;height:52px;border:2px solid #B8891A;border-radius:50%;line-height:52px;color:#B8891A;font-size:18px;font-weight:900;letter-spacing:1px;margin-bottom:14px;">JP</div>
+      <h1 style="margin:0;color:#B8891A;font-size:22px;font-weight:700;letter-spacing:1px;">HOTEL JAY PALACE</h1>
+      <p style="margin:6px 0 0;color:#A89E94;font-size:12px;letter-spacing:2px;text-transform:uppercase;">Saraipali, Chhattisgarh</p>
+    </td>
+  </tr>
+
+  <!-- Status Banner -->
+  <tr>
+    <td style="background:#B8891A;padding:14px 40px;text-align:center;">
+      <p style="margin:0;color:#FFFFFF;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">Booking Request Received</p>
+    </td>
+  </tr>
+
+  <!-- Greeting -->
+  <tr>
+    <td style="padding:36px 40px 0;">
+      <p style="margin:0;color:#1C1510;font-size:18px;">Dear <strong>{{to_name}}</strong>,</p>
+      <p style="margin:14px 0 0;color:#6E6458;font-size:15px;line-height:1.7;">
+        Thank you for choosing Hotel Jay Palace! We have received your booking request and it is currently pending review by our team. You will receive a confirmation once approved.
+      </p>
+    </td>
+  </tr>
+
+  <!-- Booking ID Box -->
+  <tr>
+    <td style="padding:24px 40px 0;">
+      <div style="background:#FAFAF7;border:2px solid #B8891A;border-radius:10px;padding:18px 24px;text-align:center;">
+        <p style="margin:0;color:#6E6458;font-size:11px;letter-spacing:2px;text-transform:uppercase;">Your Booking ID</p>
+        <p style="margin:6px 0 0;color:#1C1510;font-size:28px;font-weight:900;letter-spacing:3px;font-family:monospace;">{{booking_id}}</p>
+        <p style="margin:8px 0 0;color:#6E6458;font-size:12px;">Use this ID to track your booking at <strong>jaypalace.online/track.html</strong></p>
+      </div>
+    </td>
+  </tr>
+
+  <!-- Booking Details -->
+  <tr>
+    <td style="padding:24px 40px 0;">
+      <p style="margin:0 0 14px;color:#1C1510;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-bottom:1px solid #E5E0D5;padding-bottom:10px;">Booking Details</p>
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="padding:7px 0;color:#6E6458;font-size:14px;width:45%;">Room</td>
+          <td style="padding:7px 0;color:#1C1510;font-size:14px;font-weight:600;">{{room_name}}</td>
+        </tr>
+        <tr style="background:#FAFAF7;">
+          <td style="padding:7px 8px;color:#6E6458;font-size:14px;">Check-in</td>
+          <td style="padding:7px 8px;color:#1C1510;font-size:14px;font-weight:600;">{{check_in}}</td>
+        </tr>
+        <tr>
+          <td style="padding:7px 0;color:#6E6458;font-size:14px;">Check-out</td>
+          <td style="padding:7px 0;color:#1C1510;font-size:14px;font-weight:600;">{{check_out}}</td>
+        </tr>
+        <tr style="background:#FAFAF7;">
+          <td style="padding:7px 8px;color:#6E6458;font-size:14px;">Nights</td>
+          <td style="padding:7px 8px;color:#1C1510;font-size:14px;font-weight:600;">{{nights}}</td>
+        </tr>
+        <tr>
+          <td style="padding:7px 0;color:#6E6458;font-size:14px;">Guests</td>
+          <td style="padding:7px 0;color:#1C1510;font-size:14px;font-weight:600;">{{guests}}</td>
+        </tr>
+        <tr style="background:#FAFAF7;">
+          <td style="padding:7px 8px;color:#6E6458;font-size:14px;">Payment</td>
+          <td style="padding:7px 8px;color:#1C1510;font-size:14px;font-weight:600;">{{payment_method}}</td>
+        </tr>
+        <tr>
+          <td style="padding:7px 0;color:#6E6458;font-size:14px;">Special Requests</td>
+          <td style="padding:7px 0;color:#1C1510;font-size:14px;">{{special_req}}</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- Total Amount -->
+  <tr>
+    <td style="padding:20px 40px 0;">
+      <div style="background:#1C1510;border-radius:10px;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="color:#A89E94;font-size:13px;">Total Amount</td>
+            <td style="color:#B8891A;font-size:22px;font-weight:900;text-align:right;">{{total_amount}}</td>
+          </tr>
+          <tr>
+            <td colspan="2" style="color:#6E6458;font-size:11px;padding-top:4px;">Status: <span style="color:#d97706;">{{payment_status}}</span></td>
+          </tr>
+        </table>
+      </div>
+    </td>
+  </tr>
+
+  <!-- What's Next -->
+  <tr>
+    <td style="padding:28px 40px 0;">
+      <p style="margin:0 0 14px;color:#1C1510;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-bottom:1px solid #E5E0D5;padding-bottom:10px;">What Happens Next</p>
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr valign="top">
+          <td style="width:28px;padding:6px 0;">
+            <div style="width:22px;height:22px;background:#B8891A;border-radius:50%;text-align:center;line-height:22px;color:#fff;font-size:11px;font-weight:700;">1</div>
+          </td>
+          <td style="padding:6px 0 6px 10px;color:#6E6458;font-size:14px;line-height:1.5;">Our team will review your request within a few hours and approve your booking.</td>
+        </tr>
+        <tr valign="top">
+          <td style="width:28px;padding:6px 0;">
+            <div style="width:22px;height:22px;background:#B8891A;border-radius:50%;text-align:center;line-height:22px;color:#fff;font-size:11px;font-weight:700;">2</div>
+          </td>
+          <td style="padding:6px 0 6px 10px;color:#6E6458;font-size:14px;line-height:1.5;">You'll receive a confirmation message via email and WhatsApp once approved.</td>
+        </tr>
+        <tr valign="top">
+          <td style="width:28px;padding:6px 0;">
+            <div style="width:22px;height:22px;background:#B8891A;border-radius:50%;text-align:center;line-height:22px;color:#fff;font-size:11px;font-weight:700;">3</div>
+          </td>
+          <td style="padding:6px 0 6px 10px;color:#6E6458;font-size:14px;line-height:1.5;">Simply arrive on your check-in date. Show your Booking ID at the front desk.</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- Contact -->
+  <tr>
+    <td style="padding:28px 40px;">
+      <div style="background:#FAFAF7;border:1px solid #E5E0D5;border-radius:10px;padding:18px 24px;">
+        <p style="margin:0 0 10px;color:#1C1510;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Need Help?</p>
+        <p style="margin:0;color:#6E6458;font-size:13px;line-height:1.8;">
+          📞 &nbsp;<a href="tel:{{hotel_phone}}" style="color:#B8891A;text-decoration:none;">{{hotel_phone}}</a><br>
+          📧 &nbsp;<a href="mailto:{{hotel_email}}" style="color:#B8891A;text-decoration:none;">{{hotel_email}}</a><br>
+          📍 &nbsp;{{hotel_address}}
+        </p>
+      </div>
+    </td>
+  </tr>
+
+  <!-- Footer -->
+  <tr>
+    <td style="background:#1C1510;padding:22px 40px;text-align:center;">
+      <p style="margin:0;color:#A89E94;font-size:12px;line-height:1.7;">
+        &copy; Hotel Jay Palace, Saraipali &nbsp;·&nbsp; This is an automated email, please do not reply directly.
+      </p>
+    </td>
+  </tr>
+
+</table>
+</td></tr>
+</table>
+
+</body>
+</html>
