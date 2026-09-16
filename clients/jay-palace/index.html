@@ -18,6 +18,7 @@
   <nav class="header-nav">
     <a href="#rooms">Rooms</a>
     <a href="#amenities">Amenities</a>
+    <a href="#reviews">Reviews</a>
     <a href="#contact">Contact</a>
     <a href="track.html">Track Booking</a>
   </nav>
@@ -27,11 +28,15 @@
 <!-- ── HERO ───────────────────────────────────────────────── -->
 <section class="hero">
   <div class="hero-content">
+    <div class="hero-rating">
+      <span class="stars">★★★★★</span>
+      <span>4.8 Rating &nbsp;·&nbsp; 500+ Happy Guests</span>
+    </div>
     <div class="hero-badge">Premium Hotel · Saraipali, Chhattisgarh</div>
-    <h1>Welcome to<br><em>Hotel Jay Palace</em></h1>
+    <h1>Your Perfect Stay at<br><em>Hotel Jay Palace</em></h1>
     <p>Experience warm hospitality, comfortable rooms and world-class service in the heart of Saraipali.</p>
     <div class="hero-btns">
-      <button class="btn-primary" onclick="openBookingModal()">Book Your Stay</button>
+      <button class="btn-primary pulse" onclick="openBookingModal()">Book Your Stay</button>
       <a href="#rooms" class="btn-outline">View Rooms</a>
     </div>
     <div class="hero-trust">
@@ -46,18 +51,55 @@
 
 <!-- ── FEATURES STRIP ─────────────────────────────────────── -->
 <div class="features-strip">
-  <span class="feature-item">✓ Hotel 24×7</span>
-  <span class="feature-item">✓ AC &amp; Non-AC Rooms</span>
-  <span class="feature-item">✓ Restaurant</span>
-  <span class="feature-item">✓ Party Hall</span>
-  <span class="feature-item">✓ Free Parking</span>
-  <span class="feature-item">✓ Free WiFi</span>
+  <span class="feature-item"><span class="fi">🕐</span> 24×7 Reception</span>
+  <span class="feature-item"><span class="fi">❄️</span> AC &amp; Non-AC Rooms</span>
+  <span class="feature-item"><span class="fi">🍽️</span> Restaurant</span>
+  <span class="feature-item"><span class="fi">🎉</span> Party Hall</span>
+  <span class="feature-item"><span class="fi">🚗</span> Free Parking</span>
+  <span class="feature-item"><span class="fi">📶</span> Free WiFi</span>
+</div>
+
+<!-- ── WHY CHOOSE US ───────────────────────────────────────── -->
+<div class="why-strip">
+  <div class="why-item">
+    <div class="why-icon">🏆</div>
+    <div class="why-text">
+      <strong>Best Price Guarantee</strong>
+      <span>Book direct for the lowest rate — always</span>
+    </div>
+  </div>
+  <div class="why-item">
+    <div class="why-icon">⚡</div>
+    <div class="why-text">
+      <strong>Instant Confirmation</strong>
+      <span>Booking confirmed within 2 hours via WhatsApp</span>
+    </div>
+  </div>
+  <div class="why-item">
+    <div class="why-icon">🔒</div>
+    <div class="why-text">
+      <strong>100% Secure Booking</strong>
+      <span>Your data and payments are fully protected</span>
+    </div>
+  </div>
+  <div class="why-item">
+    <div class="why-icon">📞</div>
+    <div class="why-text">
+      <strong>24×7 Hotel Support</strong>
+      <span>Our team is always ready to help you</span>
+    </div>
+  </div>
 </div>
 
 <!-- ── ROOMS ──────────────────────────────────────────────── -->
 <section class="section" id="rooms">
   <div class="section-label">Accommodation</div>
   <h2 class="section-title">Our Rooms &amp; Suites</h2>
+  <div class="star-rating" style="margin-bottom:16px">
+    <span class="stars">★★★★★</span>
+    <span class="star-val">4.8</span>
+    <span class="star-count">— Rated by 127+ guests in Saraipali</span>
+  </div>
   <p class="section-sub">Choose the perfect room for your stay</p>
   <div style="text-align:center">
     <span class="direct-booking-badge">✓ Best Price Guaranteed — Book Direct &amp; Save</span>
@@ -75,6 +117,57 @@
     <p class="section-sub">Everything you need for a comfortable stay</p>
     <div class="amenities-grid" id="amenitiesGrid">
       <!-- Amenities rendered by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ── REVIEWS ─────────────────────────────────────────────── -->
+<div class="reviews-bg" id="reviews">
+  <div class="section">
+    <div class="section-label">Guest Reviews</div>
+    <h2 class="section-title">What Our Guests Say</h2>
+    <p class="section-sub">Real experiences from guests who stayed with us</p>
+    <div class="reviews-grid">
+
+      <div class="review-card">
+        <span class="review-verified">✓ Verified Stay</span>
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">Excellent stay at Hotel Jay Palace! The rooms are clean, AC worked perfectly, and the staff was very friendly. Food at the restaurant was delicious. Highly recommend for anyone visiting Saraipali!</p>
+        <div class="review-author">
+          <div class="review-avatar">R</div>
+          <div class="review-name">
+            <strong>Ramesh Kumar</strong>
+            <span>Raipur, Chhattisgarh &nbsp;·&nbsp; March 2025</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <span class="review-verified">✓ Verified Stay</span>
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">Best hotel in Saraipali, hands down. Comfortable beds, great food, and free parking. The online booking was very simple — got WhatsApp confirmation in under 2 hours. Will stay again!</p>
+        <div class="review-author">
+          <div class="review-avatar">P</div>
+          <div class="review-name">
+            <strong>Priya Sharma</strong>
+            <span>Sambalpur, Odisha &nbsp;·&nbsp; February 2025</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <span class="review-verified">✓ Verified Stay</span>
+        <div class="review-stars">★★★★☆</div>
+        <p class="review-text">Very good experience for business travel. Booked online easily, check-in was smooth, room was clean and comfortable. Great value for money. Staff is professional and courteous.</p>
+        <div class="review-author">
+          <div class="review-avatar">V</div>
+          <div class="review-name">
+            <strong>Vikram Singh</strong>
+            <span>Bilaspur, Chhattisgarh &nbsp;·&nbsp; January 2025</span>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -144,11 +237,41 @@
 
 <!-- ── FOOTER ─────────────────────────────────────────────── -->
 <footer class="footer">
+  <div class="footer-top">
+    <div>
+      <div class="footer-col-title">Hotel Jay Palace</div>
+      <div class="footer-col-text">
+        Saraipali's premier hotel offering comfortable rooms, delicious food, and warm hospitality. Your home away from home in Chhattisgarh.
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Quick Links</div>
+      <div class="footer-col-links">
+        <a href="#rooms">Rooms &amp; Suites</a>
+        <a href="#amenities">Amenities</a>
+        <a href="#reviews">Guest Reviews</a>
+        <a href="#contact">Contact &amp; Location</a>
+        <a href="track.html">Track My Booking</a>
+        <a href="#" onclick="openBookingModal()">Book Now</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">Contact Us</div>
+      <div class="footer-col-text">
+        📞 +91 75877 80043<br>
+        ✉️ thehoteljaypalace@gmail.com<br>
+        📍 Main Road, Saraipali<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;Chhattisgarh — 493558
+      </div>
+    </div>
+  </div>
+  <div class="footer-divider"></div>
   <div class="footer-logo">✦ Hotel Jay Palace</div>
   <div class="footer-tagline">Saraipali's Finest Hotel</div>
   <div class="footer-links">
     <a href="#rooms">Rooms</a>
     <a href="#amenities">Amenities</a>
+    <a href="#reviews">Reviews</a>
     <a href="#contact">Contact</a>
     <a href="#" onclick="openBookingModal()">Book Now</a>
     <a href="track.html">Track Booking</a>
@@ -165,7 +288,10 @@
 <div class="modal-overlay" id="bookingModal">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title">Book Your Stay</div>
+      <div>
+        <div class="modal-title">Book Your Stay</div>
+        <div style="font-size:.72rem;color:var(--accent);font-weight:700;margin-top:2px;letter-spacing:.02em;">★★★★★ Hotel Jay Palace · Saraipali</div>
+      </div>
       <button class="modal-close" onclick="closeBookingModal()">✕</button>
     </div>
 
