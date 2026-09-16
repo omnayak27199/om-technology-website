@@ -502,7 +502,13 @@
       .catch(function(err) {
         btn.disabled  = false
         btn.innerHTML = 'Search Booking'
-        errEl.textContent  = 'Something went wrong. Please try again.'
+        var msg = 'Something went wrong. Please try again.'
+        if (err && err.code === 'permission-denied') {
+          msg = 'Access denied — Firestore security rules need to allow public reads on bookings.'
+        } else if (err && err.message) {
+          msg = err.message
+        }
+        errEl.textContent   = msg
         errEl.style.display = 'block'
         console.error(err)
       })
