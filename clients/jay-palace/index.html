@@ -61,28 +61,28 @@
 
 <!-- ── WHY CHOOSE US ───────────────────────────────────────── -->
 <div class="why-strip">
-  <div class="why-item">
+  <div class="why-item reveal">
     <div class="why-icon">🏆</div>
     <div class="why-text">
       <strong>Best Price Guarantee</strong>
       <span>Book direct for the lowest rate — always</span>
     </div>
   </div>
-  <div class="why-item">
+  <div class="why-item reveal d1">
     <div class="why-icon">⚡</div>
     <div class="why-text">
       <strong>Instant Confirmation</strong>
       <span>Booking confirmed within 2 hours via WhatsApp</span>
     </div>
   </div>
-  <div class="why-item">
+  <div class="why-item reveal d2">
     <div class="why-icon">🔒</div>
     <div class="why-text">
       <strong>100% Secure Booking</strong>
       <span>Your data and payments are fully protected</span>
     </div>
   </div>
-  <div class="why-item">
+  <div class="why-item reveal d3">
     <div class="why-icon">📞</div>
     <div class="why-text">
       <strong>24×7 Hotel Support</strong>
@@ -93,15 +93,15 @@
 
 <!-- ── ROOMS ──────────────────────────────────────────────── -->
 <section class="section" id="rooms">
-  <div class="section-label">Accommodation</div>
-  <h2 class="section-title">Our Rooms &amp; Suites</h2>
-  <div class="star-rating" style="margin-bottom:16px">
+  <div class="section-label reveal">Accommodation</div>
+  <h2 class="section-title reveal d1">Our Rooms &amp; Suites</h2>
+  <div class="star-rating reveal d2" style="margin-bottom:16px">
     <span class="stars">★★★★★</span>
     <span class="star-val">4.8</span>
     <span class="star-count">— Rated by 127+ guests in Saraipali</span>
   </div>
-  <p class="section-sub">Choose the perfect room for your stay</p>
-  <div style="text-align:center">
+  <p class="section-sub reveal d2">Choose the perfect room for your stay</p>
+  <div style="text-align:center" class="reveal d3">
     <span class="direct-booking-badge">✓ Best Price Guaranteed — Book Direct &amp; Save</span>
   </div>
   <div class="rooms-grid" id="roomsGrid">
@@ -112,9 +112,9 @@
 <!-- ── AMENITIES ──────────────────────────────────────────── -->
 <div class="section-alt" id="amenities">
   <div class="section-inner">
-    <div class="section-label">Facilities</div>
-    <h2 class="section-title">Hotel Amenities</h2>
-    <p class="section-sub">Everything you need for a comfortable stay</p>
+    <div class="section-label reveal">Facilities</div>
+    <h2 class="section-title reveal d1">Hotel Amenities</h2>
+    <p class="section-sub reveal d2">Everything you need for a comfortable stay</p>
     <div class="amenities-grid" id="amenitiesGrid">
       <!-- Amenities rendered by JS -->
     </div>
@@ -124,12 +124,12 @@
 <!-- ── REVIEWS ─────────────────────────────────────────────── -->
 <div class="reviews-bg" id="reviews">
   <div class="section">
-    <div class="section-label">Guest Reviews</div>
-    <h2 class="section-title">What Our Guests Say</h2>
-    <p class="section-sub">Real experiences from guests who stayed with us</p>
+    <div class="section-label reveal">Guest Reviews</div>
+    <h2 class="section-title reveal d1">What Our Guests Say</h2>
+    <p class="section-sub reveal d2">Real experiences from guests who stayed with us</p>
     <div class="reviews-grid">
 
-      <div class="review-card">
+      <div class="review-card reveal d1">
         <span class="review-verified">✓ Verified Stay</span>
         <div class="review-stars">★★★★★</div>
         <p class="review-text">Excellent stay at Hotel Jay Palace! The rooms are clean, AC worked perfectly, and the staff was very friendly. Food at the restaurant was delicious. Highly recommend for anyone visiting Saraipali!</p>
@@ -142,7 +142,7 @@
         </div>
       </div>
 
-      <div class="review-card">
+      <div class="review-card reveal d2">
         <span class="review-verified">✓ Verified Stay</span>
         <div class="review-stars">★★★★★</div>
         <p class="review-text">Best hotel in Saraipali, hands down. Comfortable beds, great food, and free parking. The online booking was very simple — got WhatsApp confirmation in under 2 hours. Will stay again!</p>
@@ -155,7 +155,7 @@
         </div>
       </div>
 
-      <div class="review-card">
+      <div class="review-card reveal d3">
         <span class="review-verified">✓ Verified Stay</span>
         <div class="review-stars">★★★★☆</div>
         <p class="review-text">Very good experience for business travel. Booked online easily, check-in was smooth, room was clean and comfortable. Great value for money. Staff is professional and courteous.</p>
@@ -174,9 +174,9 @@
 
 <!-- ── CONTACT ────────────────────────────────────────────── -->
 <section class="section" id="contact">
-  <div class="section-label">Find Us</div>
-  <h2 class="section-title">Contact &amp; Location</h2>
-  <p class="section-sub">We're always happy to help</p>
+  <div class="section-label reveal">Find Us</div>
+  <h2 class="section-title reveal d1">Contact &amp; Location</h2>
+  <p class="section-sub reveal d2">We're always happy to help</p>
   <div class="contact-grid">
     <div class="contact-info">
       <h3>Get in Touch</h3>
@@ -525,6 +525,29 @@
 <div class="toast" id="toast"></div>
 
 <!-- ── SCRIPTS ─────────────────────────────────────────────── -->
+<script>
+// ── SCROLL REVEAL ─────────────────────────────────────────
+(function() {
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  function observe() {
+    document.querySelectorAll('.reveal, .reveal-left, .section-label').forEach(function(el) {
+      if (!el.dataset.observed) { el.dataset.observed = '1'; io.observe(el); }
+    });
+  }
+  observe();
+
+  // Also catch JS-rendered cards (rooms, amenities)
+  new MutationObserver(observe).observe(document.body, { childList: true, subtree: true });
+})();
+</script>
 <script src="js/config.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
