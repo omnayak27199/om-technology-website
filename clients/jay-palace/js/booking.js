@@ -11,6 +11,11 @@ document.addEventListener('DOMContentLoaded', () => {
   renderContact()
   setMinDates()
 
+  // Init EmailJS for guest confirmation emails
+  if (window.EMAILJS && window.EMAILJS.publicKey !== 'YOUR_PUBLIC_KEY') {
+    if (typeof emailjs !== 'undefined') emailjs.init({ publicKey: window.EMAILJS.publicKey })
+  }
+
   document.getElementById('bookingModal').addEventListener('click', function(e) {
     if (e.target === this) closeBookingModal()
   })
@@ -400,37 +405,44 @@ function saveBooking(booking) {
 
   db.collection('bookings').add(data)
     .then(() => {
-      const utrNum   = booking.paymentId && booking.paymentId.startsWith('UTR:')
-                     ? booking.paymentId.replace('UTR:', '') : null
-      const payLabel = booking.paymentMethod === 'razorpay' ? 'Paid via Razorpay ✓'
-                     : booking.paymentMethod === 'upi'      ? `UPI — UTR: ${utrNum || 'unknown'} ⚠️ VERIFY IN PAYTM APP`
-                     : 'Pay at Hotel (cash on arrival)'
-
-      const ownerMsg = encodeURIComponent(
-        `🏨 *NEW BOOKING — Hotel Jay Palace*\n\n` +
-        `📋 ID: ${booking.bookingCode}\n` +
-        `👤 ${booking.customerName}\n📞 ${booking.customerPhone}\n` +
-        `🛏️ ${booking.roomName}\n` +
-        `📅 ${booking.checkIn} → ${booking.checkOut} (${booking.nights} nights)\n` +
-        `👥 ${booking.guests} guest(s)\n` +
-        `💰 ₹${booking.totalAmount.toLocaleString('en-IN')}\n` +
-        `💳 ${payLabel}\n` +
-        (booking.specialRequests ? `📝 ${booking.specialRequests}\n` : '') +
-        `\nOpen admin panel to manage.`
-      )
-      window.open(`https://wa.me/${HOTEL.whatsapp}?text=${ownerMsg}`, '_blank')
-
-      // Auto-download PDF receipt for paid/UPI customers
+      // Auto-download PDF receipt for online-paid customers
       if (booking.paymentMethod === 'razorpay' || booking.paymentMethod === 'upi') {
         setTimeout(() => generateReceiptPDF(booking), 800)
       }
 
-      // Success screen
+      // Send booking confirmation email to guest automatically (if configured + email provided)
+      if (booking.customerEmail && window.EMAILJS && window.EMAILJS.publicKey !== 'YOUR_PUBLIC_KEY' && typeof emailjs !== 'undefined') {
+        emailjs.send(window.EMAILJS.serviceId, window.EMAILJS.confirmationTemplate, {
+          to_name:        booking.customerName,
+          to_email:       booking.customerEmail,
+          booking_id:     booking.bookingCode,
+          room_name:      booking.roomName,
+          check_in:       fmtDate(booking.checkIn) + ' (' + HOTEL.checkIn + ')',
+          check_out:      fmtDate(booking.checkOut) + ' (' + HOTEL.checkOut + ')',
+          nights:         booking.nights,
+          guests:         booking.guests,
+          total_amount:   '₹' + booking.totalAmount.toLocaleString('en-IN'),
+          payment_method: booking.paymentMethod === 'razorpay' ? 'Online — Razorpay'
+                        : booking.paymentMethod === 'upi'      ? 'UPI Transfer'
+                        : 'Pay at Hotel (Cash)',
+          payment_status: 'Pending Hotel Approval',
+          special_req:    booking.specialRequests || 'None',
+          hotel_phone:    HOTEL.phone,
+          hotel_email:    HOTEL.email,
+          hotel_address:  HOTEL.address,
+        }).catch(() => {})
+      }
+
+      // Success screen with Track Booking button
       const payMsg = booking.paymentMethod === 'razorpay'
-        ? '✅ Payment successful! Your booking is confirmed.'
+        ? 'Payment successful! Your booking has been received and will be confirmed shortly.'
         : booking.paymentMethod === 'upi'
-        ? '📱 UPI payment noted. Owner will verify and confirm your booking.'
-        : '🏨 Booking received! You will pay at the hotel on check-in.'
+        ? 'UPI payment noted. The hotel will verify and send a WhatsApp confirmation to you.'
+        : 'Booking received! Pay when you arrive at the hotel on check-in.'
+
+      const emailNote = booking.customerEmail
+        ? `A confirmation email has been sent to <strong>${booking.customerEmail}</strong><br>`
+        : ''
 
       const successEl = document.getElementById('bookingSuccess')
       successEl.innerHTML = `
@@ -438,9 +450,29 @@ function saveBooking(booking) {
         <h3>Booking Request Sent!</h3>
         <p>${payMsg}</p>
         <div class="booking-code">Booking ID: ${booking.bookingCode}</div>
-        <p style="margin-top:12px;font-size:.78rem;color:var(--muted)">
-          The owner will contact you at <strong>${booking.customerPhone}</strong> to confirm.
+        <p style="margin-top:10px;font-size:.78rem;color:var(--muted);line-height:1.6">
+          ${emailNote}You'll receive a WhatsApp confirmation at <strong>${booking.customerPhone}</strong> once the hotel approves.
         </p>
+        <a href="track.html"
+           onclick="sessionStorage.setItem('jp_track_code','${booking.bookingCode}')"
+           style="display:inline-block;margin-top:18px;padding:13px 32px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border-radius:9999px;font-weight:800;font-size:.9375rem;text-decoration:none;box-shadow:0 4px 20px rgba(22,163,74,.45)">
+          📦 Track My Booking
+        </a>
+        <div class="whats-next">
+          <div class="wn-title">What happens next?</div>
+          <div class="wn-step">
+            <div class="wn-icon">📱</div>
+            <div><strong>Hotel confirms via WhatsApp</strong><span>Within 1–2 hours of your booking</span></div>
+          </div>
+          <div class="wn-step">
+            <div class="wn-icon">🏨</div>
+            <div><strong>Arrive &amp; check in at reception</strong><span>Show your Booking ID — no printout needed</span></div>
+          </div>
+          <div class="wn-step">
+            <div class="wn-icon">⭐</div>
+            <div><strong>Enjoy your stay</strong><span>24×7 hotel team ready to assist you</span></div>
+          </div>
+        </div>
       `
       showStep('bookingSuccess')
     })

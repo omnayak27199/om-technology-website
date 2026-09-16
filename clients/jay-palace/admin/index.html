@@ -1103,28 +1103,14 @@
   }
 
   function sendCheckinMessages(b, mobile) {
-    const code = b.bookingCode || b.id.slice(0,8).toUpperCase()
-    const msg  = `🏨 *CHECK-IN CONFIRMED — Jay Palace*\n\n` +
-      `Dear ${b.customerName},\n\n` +
-      `You have successfully checked in! Here are your stay details:\n\n` +
-      `🆔 Booking ID: *${code}*\n` +
-      `🛏️ Room: ${b.roomName}\n` +
-      `📅 Check-in: ${fmtDate(b.checkIn)} (${HOTEL.checkIn})\n` +
-      `📅 Check-out: ${fmtDate(b.checkOut)} (${HOTEL.checkOut})\n` +
-      `🌙 Nights: ${b.nights}\n` +
-      `👥 Guests: ${b.guestsAtCheckin || b.guests}\n\n` +
-      `We wish you a wonderful stay!\n` +
-      `For any assistance: 📞 ${HOTEL.phone}\n\n` +
-      `*Hotel Jay Palace, Saraipali* ✦`
-
-    const phone = mobile.replace(/[\s\-+]/g, '')
-    const waNum = phone.startsWith('0') ? '91' + phone.slice(1)
-                : phone.startsWith('91') ? phone : '91' + phone
-    window.open(`https://wa.me/${waNum}?text=${encodeURIComponent(msg)}`, '_blank')
+    // WhatsApp checkin message (auto via API if configured, else link)
+    const checkinMsgB = { ...b, customerPhone: mobile }
+    sendWhatsAppMsg(checkinMsgB, 'checkin')
 
     // Email (if configured and guest has email)
+    const code = b.bookingCode || b.id.slice(0,8).toUpperCase()
     if (window.EMAILJS && window.EMAILJS.publicKey !== 'YOUR_PUBLIC_KEY' && b.customerEmail) {
-      emailjs.send(window.EMAILJS.serviceId, window.EMAILJS.confirmationTemplate, {
+      emailjs.send(window.EMAILJS.serviceId, window.EMAILJS.checkinTemplate || window.EMAILJS.confirmationTemplate, {
         to_name:        b.customerName,
         to_email:       b.customerEmail,
         booking_id:     code,
@@ -1134,7 +1120,7 @@
         nights:         b.nights,
         guests:         b.guestsAtCheckin || b.guests,
         total_amount:   'Rs.' + (b.totalAmount || 0).toLocaleString('en-IN'),
-        payment_status: 'CHECKED IN',
+        payment_status: 'CHECKED IN — ENJOY YOUR STAY',
         hotel_phone:    HOTEL.phone,
         hotel_email:    HOTEL.email,
         hotel_address:  HOTEL.address,
@@ -1170,13 +1156,44 @@
     if (!confirm(`Mark checkout for ${b.customerName}?\nThis will deactivate their booking tracker.`)) return
     db.collection('bookings').doc(id).update({ status: 'checked_out', checkedOutAt: firebase.firestore.FieldValue.serverTimestamp() })
       .then(() => {
-        showAdminToast('Guest checked out successfully.')
-        const phone = b.customerPhone.replace(/[\s\-+]/g, '')
-        const waNum = phone.startsWith('0') ? '91' + phone.slice(1)
-                    : phone.startsWith('91') ? phone : '91' + phone
-        const reviewMsg = `🌟 *Thank you for staying at Hotel Jay Palace!*\n\nDear ${b.customerName},\n\nWe hope you had a wonderful stay with us. Your feedback means the world to us!\n\n⭐ Would you take 2 minutes to leave us a Google review? It helps other travelers find us:\n👉 https://maps.app.goo.gl/wbtZpwUweqdRTicHA\n\nWe look forward to welcoming you again!\n*Hotel Jay Palace, Saraipali* ✦\n📞 +91 75877 80043`
-        window.open('https://wa.me/' + waNum + '?text=' + encodeURIComponent(reviewMsg), '_blank')
+        showAdminToast('Guest checked out! Sending farewell message + invoice...')
+        const checkedOut = { ...b, status: 'checked_out' }
+
+        // 1. WhatsApp farewell + review request (auto via API or fallback link)
+        sendWhatsAppMsg(checkedOut, 'checkout')
+
+        // 2. Email with invoice summary
+        sendCheckoutEmail(checkedOut)
+
+        // 3. Auto-download invoice PDF
+        downloadInvoice(id)
       })
+  }
+
+  function sendCheckoutEmail(b) {
+    if (!window.EMAILJS || window.EMAILJS.publicKey === 'YOUR_PUBLIC_KEY') return
+    if (!b.customerEmail) return
+    const code = b.bookingCode || b.id.slice(0,8).toUpperCase()
+    emailjs.send(window.EMAILJS.serviceId, window.EMAILJS.checkoutTemplate || window.EMAILJS.receiptTemplate, {
+      to_name:        b.customerName,
+      to_email:       b.customerEmail,
+      booking_id:     code,
+      room_name:      b.roomName,
+      check_in:       fmtDate(b.checkIn) + ' (' + HOTEL.checkIn + ')',
+      check_out:      fmtDate(b.checkOut) + ' (' + HOTEL.checkOut + ')',
+      nights:         b.nights,
+      guests:         b.guestsAtCheckin || b.guests,
+      total_amount:   'Rs.' + (b.totalAmount||0).toLocaleString('en-IN'),
+      payment_method: b.paymentMethod === 'razorpay' ? 'Online (Razorpay)'
+                    : b.paymentMethod === 'upi'      ? 'UPI Transfer'
+                    : 'Cash at Hotel',
+      payment_status: 'CHECKED OUT — STAY COMPLETE',
+      hotel_phone:    HOTEL.phone,
+      hotel_email:    HOTEL.email,
+      hotel_address:  HOTEL.address,
+    })
+    .then(() => showAdminToast('Checkout email sent to ' + b.customerEmail))
+    .catch(() => {})
   }
 
   // ── Email to Guest ───────────────────────────────────────
@@ -1222,49 +1239,106 @@
     const code = b.bookingCode || b.id.slice(0,8).toUpperCase()
 
     if (type === 'approved') {
-      msg = `✅ *BOOKING CONFIRMED — Jay Palace*\n\n` +
+      msg = `✅ *BOOKING CONFIRMED — Hotel Jay Palace*\n\n` +
         `Dear ${b.customerName},\n\n` +
         `Your booking has been *confirmed*! Here are your details:\n\n` +
         `🆔 Booking ID: *${code}*\n` +
         `🛏️ Room: ${b.roomName}\n` +
-        `📅 Check-in: ${fmtDate(b.checkIn)} (${HOTEL.checkIn})\n` +
-        `📅 Check-out: ${fmtDate(b.checkOut)} (${HOTEL.checkOut})\n` +
+        `📅 Check-in: ${fmtDate(b.checkIn)} at ${HOTEL.checkIn}\n` +
+        `📅 Check-out: ${fmtDate(b.checkOut)} at ${HOTEL.checkOut}\n` +
         `🌙 Nights: ${b.nights}\n` +
         `👥 Guests: ${b.guests}\n` +
         `💰 Total Amount: *₹${(b.totalAmount||0).toLocaleString('en-IN')}*\n\n` +
-        `📍 Address: ${HOTEL.address}\n\n` +
+        `📍 ${HOTEL.address}\n\n` +
         `We look forward to welcoming you!\n` +
-        `*Jay Palace, Saraipali*\n📞 ${HOTEL.phone}`
+        `*Hotel Jay Palace, Saraipali*\n📞 ${HOTEL.phone}`
     } else if (type === 'rejected') {
-      msg = `❌ *Booking Update — Jay Palace*\n\n` +
+      msg = `❌ *Booking Update — Hotel Jay Palace*\n\n` +
         `Dear ${b.customerName},\n\n` +
-        `Unfortunately, we could not accommodate your booking (ID: ${code}) for the requested dates.\n\n` +
-        `Please contact us to check availability:\n📞 ${HOTEL.phone}\n\n` +
-        `We apologise for the inconvenience.\n*Jay Palace, Saraipali*`
+        `Unfortunately, we could not accommodate your booking (ID: ${code}) for the requested dates due to availability.\n\n` +
+        `Please contact us to check other dates:\n📞 ${HOTEL.phone}\n\n` +
+        `We apologise for the inconvenience.\n*Hotel Jay Palace, Saraipali*`
     } else if (type === 'paid') {
-      msg = `🧾 *PAYMENT RECEIPT — Jay Palace*\n\n` +
+      msg = `🧾 *PAYMENT CONFIRMED — Hotel Jay Palace*\n\n` +
         `Dear ${b.customerName},\n\n` +
-        `Thank you for your payment!\n\n` +
+        `Your payment has been received and confirmed!\n\n` +
         `🆔 Booking ID: *${code}*\n` +
         `🛏️ Room: ${b.roomName}\n` +
-        `📅 ${fmtDate(b.checkIn)} → ${fmtDate(b.checkOut)}\n` +
+        `📅 ${fmtDate(b.checkIn)} → ${fmtDate(b.checkOut)} (${b.nights} nights)\n` +
         `💰 Amount Paid: *₹${(b.totalAmount||0).toLocaleString('en-IN')}*\n` +
         (b.paymentId ? `🔖 Payment Ref: ${b.paymentId}\n` : '') +
-        `\nWe look forward to your stay!\n*Jay Palace, Saraipali*`
-    } else {
-      msg = `🏨 *Booking Update — Jay Palace*\n\n` +
+        `\n✅ Your booking is fully confirmed.\nWe look forward to your stay!\n*Hotel Jay Palace, Saraipali*`
+    } else if (type === 'checkin') {
+      msg = `🏨 *CHECK-IN CONFIRMED — Hotel Jay Palace*\n\n` +
         `Dear ${b.customerName},\n\n` +
-        `Here is your booking summary:\n` +
-        `🆔 ID: ${code}\n🛏️ ${b.roomName}\n` +
+        `You have successfully checked in! Here are your stay details:\n\n` +
+        `🆔 Booking ID: *${code}*\n` +
+        `🛏️ Room: ${b.roomName}${b.roomNumber ? ' — Room ' + b.roomNumber : ''}\n` +
+        `📅 Check-in: ${fmtDate(b.checkIn)} at ${HOTEL.checkIn}\n` +
+        `📅 Check-out: ${fmtDate(b.checkOut)} at ${HOTEL.checkOut}\n` +
+        `🌙 Nights: ${b.nights}\n` +
+        `👥 Guests: ${b.guestsAtCheckin || b.guests}\n\n` +
+        `We wish you a wonderful stay!\n` +
+        `For any assistance: 📞 ${HOTEL.phone}\n\n` +
+        `*Hotel Jay Palace, Saraipali* ✦`
+    } else if (type === 'checkout') {
+      msg = `🌟 *Thank you for staying at Hotel Jay Palace!*\n\n` +
+        `Dear ${b.customerName},\n\n` +
+        `We hope you had a wonderful stay with us!\n\n` +
+        `*Stay Summary:*\n` +
+        `🆔 Booking ID: ${code}\n` +
+        `🛏️ ${b.roomName}${b.roomNumber ? ' — Room ' + b.roomNumber : ''}\n` +
+        `📅 ${fmtDate(b.checkIn)} → ${fmtDate(b.checkOut)} (${b.nights} nights)\n` +
+        `💰 Total: ₹${(b.totalAmount||0).toLocaleString('en-IN')}\n\n` +
+        `⭐ Your feedback means the world to us!\nLeave a Google review (takes 2 mins):\n` +
+        `👉 https://maps.app.goo.gl/wbtZpwUweqdRTicHA\n\n` +
+        `We look forward to welcoming you again!\n*Hotel Jay Palace, Saraipali* ✦\n📞 ${HOTEL.phone}`
+    } else {
+      msg = `🏨 *Booking Update — Hotel Jay Palace*\n\n` +
+        `Dear ${b.customerName},\n` +
+        `🆔 ID: ${code} · 🛏️ ${b.roomName}\n` +
         `📅 ${fmtDate(b.checkIn)} → ${fmtDate(b.checkOut)}\n` +
         `💰 ₹${(b.totalAmount||0).toLocaleString('en-IN')}\n\n` +
-        `*Jay Palace*\n📞 ${HOTEL.phone}`
+        `*Hotel Jay Palace*\n📞 ${HOTEL.phone}`
     }
 
-    const phone = b.customerPhone.replace(/[\s\-+]/g, '')
-    const waNum = phone.startsWith('0') ? '91' + phone.slice(1)
-                : phone.startsWith('91') ? phone : '91' + phone
-    window.open(`https://wa.me/${waNum}?text=${encodeURIComponent(msg)}`, '_blank')
+    const rawPhone = (b.customerPhone || '').replace(/[\s\-+()​]/g, '')
+    const waNum = rawPhone.startsWith('0') ? '91' + rawPhone.slice(1)
+                : rawPhone.startsWith('91') ? rawPhone : '91' + rawPhone
+
+    // Use WhatsApp Business Cloud API if configured (fully automatic, zero admin clicks)
+    if (window.WHATSAPP_API && window.WHATSAPP_API.token !== 'YOUR_WHATSAPP_TOKEN' && window.WHATSAPP_API.phoneId) {
+      fetch('https://graph.facebook.com/v19.0/' + window.WHATSAPP_API.phoneId + '/messages', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + window.WHATSAPP_API.token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messaging_product: 'whatsapp',
+          recipient_type:    'individual',
+          to:                waNum,
+          type:              'text',
+          text:              { preview_url: false, body: msg },
+        }),
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) {
+          // API error — fallback to WhatsApp Web link
+          window.open('https://wa.me/' + waNum + '?text=' + encodeURIComponent(msg), '_blank')
+          showAdminToast('WhatsApp API error — opened manually instead.', 'error')
+        } else {
+          showAdminToast('WhatsApp sent automatically ✓')
+        }
+      })
+      .catch(() => {
+        window.open('https://wa.me/' + waNum + '?text=' + encodeURIComponent(msg), '_blank')
+      })
+    } else {
+      // Fallback: open WhatsApp Web with pre-filled message
+      window.open('https://wa.me/' + waNum + '?text=' + encodeURIComponent(msg), '_blank')
+    }
   }
 
   // ── Payment Modal ────────────────────────────────────────

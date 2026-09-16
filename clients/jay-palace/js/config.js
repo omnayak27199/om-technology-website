@@ -105,6 +105,18 @@ window.ADMIN_EMAIL = 'omnayak27199@gmail.com'
 window.EMAILJS = {
   publicKey:            'YOUR_PUBLIC_KEY',        // Account → API Keys
   serviceId:            'YOUR_SERVICE_ID',        // Email Services → Service ID
-  confirmationTemplate: 'template_confirmation',  // Email Templates → Template ID
-  receiptTemplate:      'template_receipt',       // Email Templates → Template ID
+  confirmationTemplate: 'template_confirmation',  // sent when guest books (booking.js)
+  receiptTemplate:      'template_receipt',       // sent when admin marks paid
+  checkinTemplate:      'template_checkin',       // sent on check-in (falls back to confirmationTemplate)
+  checkoutTemplate:     'template_checkout',      // sent on checkout with invoice (falls back to receiptTemplate)
+}
+
+// ─── WhatsApp Business Cloud API Config ──────────────────────
+// Optional: enables fully automatic (zero-click) WhatsApp messages from admin panel.
+// Without this, messages open as wa.me links (admin still needs to tap Send).
+// Setup: https://developers.facebook.com/docs/whatsapp/cloud-api/get-started
+// TODO: Fill after registering a WhatsApp Business account + Meta API token
+window.WHATSAPP_API = {
+  token:   'YOUR_WHATSAPP_TOKEN',   // Meta → System User Access Token (never expires)
+  phoneId: 'YOUR_PHONE_NUMBER_ID',  // WhatsApp → API Setup → Phone Number ID
 }
