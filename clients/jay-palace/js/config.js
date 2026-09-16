@@ -35,7 +35,7 @@ window.ROOMS = [
     name:      'Deluxe Room',
     price:     2500,                    // TODO: update price
     emoji:     '🏨',
-    gradient:  'linear-gradient(135deg, #2d1a0a, #5a3010)',
+    gradient:  'linear-gradient(135deg, #1a1040, #2e1870)',
     desc:      'Spacious deluxe room with king-size bed, premium furnishings, and city view. Ideal for business travellers.',
     amenities: ['Air Conditioning', 'King-Size Bed', 'LCD TV', 'Free WiFi', 'Mini Bar', 'Room Service', 'Balcony'],
     maxGuests: 2,
@@ -57,7 +57,7 @@ window.ROOMS = [
     name:      'Executive Suite',
     price:     5000,                    // TODO: update price
     emoji:     '👑',
-    gradient:  'linear-gradient(135deg, #1a2a1a, #2a5a2a)',
+    gradient:  'linear-gradient(135deg, #2a1800, #5a3a00)',
     desc:      'Luxurious suite with separate living area, premium amenities and panoramic views. The ultimate stay.',
     amenities: ['Air Conditioning', 'King-Size Bed', 'Smart TV', 'Free WiFi', 'Mini Bar', '24/7 Room Service', 'Living Room', 'Premium Bath'],
     maxGuests: 2,
