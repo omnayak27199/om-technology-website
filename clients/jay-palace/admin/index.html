@@ -387,26 +387,24 @@
     .btn-mpaid-cancel  { background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 12px 20px; border-radius: 9999px; font-size: .9rem; cursor: pointer; }
 
     /* WALK-IN MODAL */
-    .wi-overlay { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(26,15,8,.6); backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 16px; }
-    .wi-overlay.open { display: flex; }
-    .wi-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 28px; width: 100%; max-width: 600px; max-height: 93vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(28,21,16,.2); }
-    .wi-box h3 { font-size: 1.15rem; font-weight: 800; margin-bottom: 4px; }
-    .wi-box .wi-sub { font-size: .83rem; color: var(--muted); margin-bottom: 22px; }
-    .wi-sec { font-size: .72rem; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: .08em; margin: 20px 0 12px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
-    .wi-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-    .wi-field { display: flex; flex-direction: column; gap: 6px; }
-    .wi-field label { font-size: .78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
-    .wi-field input, .wi-field select { background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: .9rem; color: var(--text); outline: none; font-family: inherit; width: 100%; box-sizing: border-box; }
+    /* Walk-in permanent panel */
+    .bookings-main-layout { display: grid; grid-template-columns: 1fr 300px; gap: 20px; align-items: start; }
+    .bookings-col { min-width: 0; }
+    .wi-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; position: sticky; top: 16px; max-height: calc(100vh - 100px); overflow-y: auto; }
+    .wi-panel-header { margin-bottom: 16px; }
+    .wi-panel-header span:first-child { font-size: 1rem; font-weight: 800; display: block; }
+    .wi-panel-sub { font-size: .75rem; color: var(--muted); margin-top: 2px; }
+    .wi-sec { font-size: .7rem; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: .07em; margin: 14px 0 8px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+    .wi-field { display: flex; flex-direction: column; gap: 5px; }
+    .wi-field label { font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+    .wi-field input, .wi-field select { background: var(--bg); border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 11px; font-size: .875rem; color: var(--text); outline: none; font-family: inherit; width: 100%; box-sizing: border-box; }
     .wi-field input:focus, .wi-field select:focus { border-color: var(--accent); }
-    .wi-calc { background: var(--bg); border: 1.5px solid var(--border); border-radius: 12px; padding: 14px 18px; margin: 4px 0 16px; }
-    .wi-calc-val { font-size: 1.4rem; font-weight: 900; color: var(--accent); }
-    .wi-calc-lbl { font-size: .78rem; color: var(--muted); margin-top: 3px; }
-    .wi-actions { display: flex; gap: 12px; margin-top: 24px; }
-    .btn-wi-book { flex: 1; background: var(--gold); color: #fff; border: none; padding: 13px; border-radius: 9999px; font-size: .9rem; font-weight: 700; cursor: pointer; }
-    .btn-wi-cancel { background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 13px 22px; border-radius: 9999px; font-size: .9rem; cursor: pointer; }
-    @media (max-width: 600px) { .wi-row { grid-template-columns: 1fr; } }
-    .btn-walkin { background: var(--gold); color: #fff; border: none; padding: 8px 16px; border-radius: 9999px; font-size: .8rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
-    .btn-walkin:hover { opacity: .88; }
+    .wi-calc { background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+    .wi-calc-val { font-size: 1.25rem; font-weight: 900; color: var(--accent); }
+    .wi-calc-lbl { font-size: .72rem; color: var(--muted); margin-top: 2px; }
+    .btn-wi-book { width: 100%; background: var(--gold); color: #fff; border: none; padding: 12px; border-radius: 9999px; font-size: .9rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .btn-wi-book:hover { opacity: .88; }
+    @media (max-width: 1000px) { .bookings-main-layout { grid-template-columns: 1fr; } .wi-panel { position: static; max-height: none; } }
   </style>
 </head>
 <body>
@@ -481,38 +479,129 @@
       </div>
     </div>
 
-    <!-- Revenue chart -->
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:20px;box-shadow:0 1px 4px rgba(28,21,16,.05)">
-      <div style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Revenue — Last 6 Months</div>
-      <canvas id="revenueChart" style="max-height:200px"></canvas>
-    </div>
+    <!-- Two-column layout: booking list + walk-in panel -->
+    <div class="bookings-main-layout">
 
-    <!-- Search bar -->
-    <div class="search-wrap">
-      <input type="text" class="booking-search-input" id="bookingSearch" placeholder="Search by name, phone or booking code…" oninput="searchBookings(this.value)">
-      <button class="search-clear-btn" onclick="clearSearch()">✕ Clear</button>
-      <span class="search-count" id="searchCount"></span>
-    </div>
+      <!-- Left: booking list -->
+      <div class="bookings-col">
+        <!-- Search bar -->
+        <div class="search-wrap">
+          <input type="text" class="booking-search-input" id="bookingSearch" placeholder="Search by name, phone or booking code…" oninput="searchBookings(this.value)">
+          <button class="search-clear-btn" onclick="clearSearch()">✕ Clear</button>
+          <span class="search-count" id="searchCount"></span>
+        </div>
+        <!-- Filter + daily record -->
+        <div class="record-bar">
+          <div class="filter-tabs" style="margin-bottom:0;flex-wrap:wrap">
+            <button class="tab active" onclick="filterBookings('all', this)">All</button>
+            <button class="tab" onclick="filterBookings('pending', this)">Pending</button>
+            <button class="tab" onclick="filterBookings('approved', this)">Approved</button>
+            <button class="tab" onclick="filterBookings('paid', this)">Paid</button>
+            <button class="tab" onclick="filterBookings('checked_in', this)">Checked In</button>
+            <button class="tab" onclick="filterBookings('rejected', this)">Rejected</button>
+            <button class="tab" onclick="filterBookings('checked_out', this)">Checked Out</button>
+          </div>
+          <button class="btn-daily-record" onclick="openDailyRecordModal()">📊 Daily Record</button>
+        </div>
+        <!-- Bookings list -->
+        <div class="bookings-list" id="bookingsList">
+          <div class="loading">Loading bookings...</div>
+        </div>
+      </div><!-- end bookings-col -->
 
-    <!-- Record bar -->
-    <div class="record-bar">
-      <div class="filter-tabs" style="margin-bottom:0;flex-wrap:wrap">
-        <button class="tab active" onclick="filterBookings('all', this)">All</button>
-      <button class="tab" onclick="filterBookings('pending', this)">Pending</button>
-      <button class="tab" onclick="filterBookings('approved', this)">Approved</button>
-      <button class="tab" onclick="filterBookings('paid', this)">Paid</button>
-      <button class="tab" onclick="filterBookings('checked_in', this)">Checked In</button>
-      <button class="tab" onclick="filterBookings('rejected', this)">Rejected</button>
-      <button class="tab" onclick="filterBookings('checked_out', this)">Checked Out</button>
-      </div>
-      <button class="btn-walkin" onclick="openWiModal()">🏨 Walk-in Booking</button>
-      <button class="btn-daily-record" onclick="openDailyRecordModal()">📊 Daily Record</button>
-    </div>
+      <!-- Right: permanent walk-in panel -->
+      <div class="wi-panel">
+        <div class="wi-panel-header">
+          <span>🏨 Walk-in Booking</span>
+          <span class="wi-panel-sub">Front desk · Direct arrival</span>
+        </div>
 
-    <!-- Bookings list -->
-    <div class="bookings-list" id="bookingsList">
-      <div class="loading">Loading bookings...</div>
-    </div>
+        <div class="wi-sec">Room &amp; Dates</div>
+        <div class="wi-field" style="margin-bottom:10px">
+          <label>Room Type *</label>
+          <select id="wiRoomType" onchange="updateWiAmount()">
+            <option value="">Select room…</option>
+          </select>
+        </div>
+        <div class="wi-field" style="margin-bottom:10px">
+          <label>Room Number</label>
+          <input type="text" id="wiRoomNumber" placeholder="e.g. 101">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+          <div class="wi-field">
+            <label>Check-in *</label>
+            <input type="date" id="wiCheckin" onchange="updateWiAmount()">
+          </div>
+          <div class="wi-field">
+            <label>Check-out *</label>
+            <input type="date" id="wiCheckout" onchange="updateWiAmount()">
+          </div>
+        </div>
+
+        <div class="wi-sec">Guest Info</div>
+        <div class="wi-field" style="margin-bottom:10px">
+          <label>Guest Name *</label>
+          <input type="text" id="wiGuestName" placeholder="Full name">
+        </div>
+        <div class="wi-field" style="margin-bottom:10px">
+          <label>Phone *</label>
+          <input type="tel" id="wiGuestPhone" placeholder="+91 98765 43210">
+        </div>
+        <div class="wi-field" style="margin-bottom:10px">
+          <label>Email</label>
+          <input type="email" id="wiGuestEmail" placeholder="Optional">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+          <div class="wi-field">
+            <label>Guests *</label>
+            <input type="number" id="wiGuests" min="1" max="20" value="1">
+          </div>
+          <div class="wi-field">
+            <label>ID Type</label>
+            <select id="wiIdType">
+              <option value="">Select…</option>
+              <option value="aadhaar">Aadhaar</option>
+              <option value="pan">PAN</option>
+              <option value="passport">Passport</option>
+              <option value="dl">Driving Licence</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="wi-field" style="margin-bottom:10px">
+          <label>ID Number</label>
+          <input type="text" id="wiIdNumber" placeholder="Card / document number">
+        </div>
+
+        <div class="wi-sec">Payment</div>
+        <div class="wi-calc" style="margin-bottom:10px">
+          <div class="wi-calc-val" id="wiCalcAmt">Rs. 0</div>
+          <div class="wi-calc-lbl" id="wiCalcInfo">Select room and dates</div>
+        </div>
+        <div class="wi-field" style="margin-bottom:10px">
+          <label>Final Amount (Rs.) *</label>
+          <input type="number" id="wiAmount" min="0" step="1" placeholder="Edit to apply discount">
+        </div>
+        <div class="wi-field" style="margin-bottom:10px">
+          <label>Payment Method *</label>
+          <select id="wiPayMethod" onchange="toggleWiUtr()">
+            <option value="cash">Cash</option>
+            <option value="upi">UPI</option>
+          </select>
+        </div>
+        <div class="wi-field" id="wiUtrWrap" style="display:none;margin-bottom:10px">
+          <label>UTR / Reference No. *</label>
+          <input type="text" id="wiUtr" placeholder="UPI transaction reference">
+        </div>
+        <div class="wi-field" style="margin-bottom:14px">
+          <label>Notes</label>
+          <input type="text" id="wiNotes" placeholder="Special requests">
+        </div>
+
+        <button class="btn-wi-book" onclick="submitWalkin()">✓ Book Walk-in</button>
+      </div><!-- end wi-panel -->
+
+    </div><!-- end bookings-main-layout -->
     </div><!-- end bookingsView -->
 
     <!-- REPORTS VIEW -->
@@ -822,113 +911,11 @@
 </div>
 
 <!-- WALK-IN BOOKING MODAL -->
-<div class="wi-overlay" id="wiModal">
-  <div class="wi-box">
-    <h3>🏨 Walk-in / Front Desk Booking</h3>
-    <p class="wi-sub">Guest arrived directly — booking is saved immediately and invoice generated.</p>
-
-    <div class="wi-sec">Room &amp; Dates</div>
-    <div class="wi-row">
-      <div class="wi-field">
-        <label>Room Type *</label>
-        <select id="wiRoomType" onchange="updateWiAmount()">
-          <option value="">Select room…</option>
-        </select>
-      </div>
-      <div class="wi-field">
-        <label>Room Number</label>
-        <input type="text" id="wiRoomNumber" placeholder="e.g. 101">
-      </div>
-    </div>
-    <div class="wi-row">
-      <div class="wi-field">
-        <label>Check-in Date *</label>
-        <input type="date" id="wiCheckin" onchange="updateWiAmount()">
-      </div>
-      <div class="wi-field">
-        <label>Check-out Date *</label>
-        <input type="date" id="wiCheckout" onchange="updateWiAmount()">
-      </div>
-    </div>
-
-    <div class="wi-sec">Guest Information</div>
-    <div class="wi-row">
-      <div class="wi-field">
-        <label>Guest Name *</label>
-        <input type="text" id="wiGuestName" placeholder="Full name">
-      </div>
-      <div class="wi-field">
-        <label>Phone *</label>
-        <input type="tel" id="wiGuestPhone" placeholder="+91 98765 43210">
-      </div>
-    </div>
-    <div class="wi-row">
-      <div class="wi-field">
-        <label>Email</label>
-        <input type="email" id="wiGuestEmail" placeholder="Optional">
-      </div>
-      <div class="wi-field">
-        <label>Number of Guests *</label>
-        <input type="number" id="wiGuests" min="1" max="20" value="1">
-      </div>
-    </div>
-    <div class="wi-row">
-      <div class="wi-field">
-        <label>ID Type</label>
-        <select id="wiIdType">
-          <option value="">Select…</option>
-          <option value="aadhaar">Aadhaar Card</option>
-          <option value="pan">PAN Card</option>
-          <option value="passport">Passport</option>
-          <option value="dl">Driving Licence</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
-      <div class="wi-field">
-        <label>ID Number</label>
-        <input type="text" id="wiIdNumber" placeholder="Card / document number">
-      </div>
-    </div>
-
-    <div class="wi-sec">Payment</div>
-    <div class="wi-calc">
-      <div class="wi-calc-val" id="wiCalcAmt">Rs. 0</div>
-      <div class="wi-calc-lbl" id="wiCalcInfo">Select room and dates</div>
-    </div>
-    <div class="wi-row">
-      <div class="wi-field">
-        <label>Final Amount (Rs.) *</label>
-        <input type="number" id="wiAmount" min="0" step="1" placeholder="Edit to apply discount">
-      </div>
-      <div class="wi-field">
-        <label>Payment Method *</label>
-        <select id="wiPayMethod" onchange="toggleWiUtr()">
-          <option value="cash">Cash</option>
-          <option value="upi">UPI</option>
-        </select>
-      </div>
-    </div>
-    <div class="wi-field" id="wiUtrWrap" style="display:none;margin-bottom:14px">
-      <label>UTR / Reference No. *</label>
-      <input type="text" id="wiUtr" placeholder="UPI transaction reference">
-    </div>
-    <div class="wi-field" style="margin-bottom:6px">
-      <label>Notes / Special Requests</label>
-      <input type="text" id="wiNotes" placeholder="Any notes for this booking">
-    </div>
-
-    <div class="wi-actions">
-      <button class="btn-wi-book" onclick="submitWalkin()">✓ Book Walk-in</button>
-      <button class="btn-wi-cancel" onclick="closeWiModal()">Cancel</button>
-    </div>
-  </div>
-</div>
 
 <!-- Admin toast -->
 <div class="a-toast" id="adminToast"></div>
 
 <!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="../js/config.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -1061,6 +1048,7 @@
       document.getElementById('adminWrap').style.display   = 'block'
       document.getElementById('adminUser').textContent      = user.email
       loadBookings()
+      initWiPanel()
     } else {
       document.getElementById('loginScreen').style.display = 'flex'
       document.getElementById('adminWrap').style.display   = 'none'
@@ -1095,7 +1083,6 @@
           })
         updateStats()
         renderBookings()
-        renderRevenueChart()
       })
   }
 
@@ -1118,60 +1105,6 @@
     if (b.status === 'paid') return 'paid'
     if (b.paymentMethod === 'razorpay' && b.paymentId && !b.paymentId.startsWith('UTR:')) return 'paid'
     return 'unpaid'
-  }
-
-  let _revenueChart = null
-
-  function renderRevenueChart() {
-    const canvas = document.getElementById('revenueChart')
-    if (!canvas || typeof Chart === 'undefined') return
-
-    // Build last 6 months
-    const now    = new Date()
-    const labels = []
-    const totals = []
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-      labels.push(d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' }))
-      const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0')
-      const sum = allBookings
-        .filter(b => {
-          const ps = getPaymentStatus(b)
-          const st = b.status
-          return (ps === 'paid' || st === 'checked_in' || st === 'checked_out') && b.checkIn && b.checkIn.slice(0, 7) === key
-        })
-        .reduce((s, b) => s + (b.totalAmount || 0), 0)
-      totals.push(sum)
-    }
-
-    if (_revenueChart) _revenueChart.destroy()
-    _revenueChart = new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Revenue (₹)',
-          data: totals,
-          backgroundColor: 'rgba(184,137,26,0.75)',
-          borderColor: '#B8891A',
-          borderWidth: 1.5,
-          borderRadius: 6,
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { grid: { display: false } },
-          y: {
-            grid: { color: 'rgba(0,0,0,0.06)' },
-            ticks: {
-              callback: v => '₹' + (v >= 1000 ? (v/1000).toFixed(0) + 'k' : v)
-            }
-          }
-        }
-      }
-    })
   }
 
   function filterBookings(status, btn) {
@@ -1455,7 +1388,7 @@
   }
 
   // ── Walk-in / Front Desk Booking ─────────────────────────────
-  function openWiModal() {
+  function initWiPanel() {
     const sel = document.getElementById('wiRoomType')
     sel.innerHTML = '<option value="">Select room…</option>'
     ;(window.ROOMS || []).forEach(r => {
@@ -1466,6 +1399,10 @@
       o.textContent   = r.name + ' — Rs. ' + (r.price||0).toLocaleString('en-IN') + '/night'
       sel.appendChild(o)
     })
+    resetWiForm()
+  }
+
+  function resetWiForm() {
     const now  = new Date(), tmrw = new Date(now)
     tmrw.setDate(now.getDate() + 1)
     const fmt = d => d.toISOString().slice(0, 10)
@@ -1484,10 +1421,7 @@
     document.getElementById('wiUtrWrap').style.display = 'none'
     document.getElementById('wiNotes').value        = ''
     updateWiAmount()
-    document.getElementById('wiModal').classList.add('open')
   }
-
-  function closeWiModal() { document.getElementById('wiModal').classList.remove('open') }
 
   function updateWiAmount() {
     const opt   = document.getElementById('wiRoomType').selectedOptions[0]
@@ -1565,7 +1499,7 @@
         paidAt:      { seconds: Date.now() / 1000 },
         createdAt:   { seconds: Date.now() / 1000 } }
       allBookings.unshift(local)
-      closeWiModal()
+      resetWiForm()
       showAdminToast(`Walk-in ${code} saved! Use Invoice button to download PDF.`, 'success')
     }).catch(err => {
       showAdminToast('Failed: ' + err.message, 'error')
