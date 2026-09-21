@@ -339,6 +339,50 @@
       .booking-card { grid-template-columns: 1fr; }
       .admin-body { padding: 16px; }
     }
+
+    /* MARK PAID MODAL */
+    .mpaid-overlay { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(26,15,8,.55); backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 16px; }
+    .mpaid-overlay.open { display: flex; }
+    .mpaid-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 28px; width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(28,21,16,.18); }
+    .mpaid-box h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 18px; }
+    .mpaid-summary { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 18px; }
+    .mpaid-row { display: flex; justify-content: space-between; align-items: center; font-size: .85rem; padding: 4px 0; color: var(--muted); }
+    .mpaid-row strong { color: var(--text); font-weight: 700; }
+    .mpaid-row.orig { border-top: 1px solid var(--border); margin-top: 8px; padding-top: 10px; }
+    .mpaid-row.orig strong { color: var(--accent); font-size: 1rem; }
+    .mpaid-field { margin-bottom: 16px; }
+    .mpaid-field label { display: block; font-size: .78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+    .mpaid-field input { width: 100%; box-sizing: border-box; background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: .95rem; color: var(--text); outline: none; font-family: inherit; }
+    .mpaid-field input:focus { border-color: var(--accent); }
+    .mpaid-field small { display: block; margin-top: 5px; font-size: .75rem; color: var(--muted); }
+    .mpaid-pm-row { display: flex; gap: 10px; margin-top: 6px; }
+    .mpaid-pm-btn { flex: 1; padding: 9px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--bg); font-size: .875rem; font-weight: 700; cursor: pointer; color: var(--muted); transition: all .15s; }
+    .mpaid-pm-btn.active { border-color: var(--accent); background: rgba(184,137,26,.1); color: var(--accent); }
+    .mpaid-actions { display: flex; gap: 10px; margin-top: 22px; }
+    .btn-mpaid-confirm { flex: 1; background: var(--success); color: #fff; border: none; padding: 12px; border-radius: 9999px; font-size: .9rem; font-weight: 700; cursor: pointer; }
+    .btn-mpaid-cancel  { background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 12px 20px; border-radius: 9999px; font-size: .9rem; cursor: pointer; }
+
+    /* WALK-IN MODAL */
+    .wi-overlay { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(26,15,8,.6); backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 16px; }
+    .wi-overlay.open { display: flex; }
+    .wi-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 28px; width: 100%; max-width: 600px; max-height: 93vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(28,21,16,.2); }
+    .wi-box h3 { font-size: 1.15rem; font-weight: 800; margin-bottom: 4px; }
+    .wi-box .wi-sub { font-size: .83rem; color: var(--muted); margin-bottom: 22px; }
+    .wi-sec { font-size: .72rem; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: .08em; margin: 20px 0 12px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+    .wi-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .wi-field { display: flex; flex-direction: column; gap: 6px; }
+    .wi-field label { font-size: .78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+    .wi-field input, .wi-field select { background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: .9rem; color: var(--text); outline: none; font-family: inherit; width: 100%; box-sizing: border-box; }
+    .wi-field input:focus, .wi-field select:focus { border-color: var(--accent); }
+    .wi-calc { background: var(--bg); border: 1.5px solid var(--border); border-radius: 12px; padding: 14px 18px; margin: 4px 0 16px; }
+    .wi-calc-val { font-size: 1.4rem; font-weight: 900; color: var(--accent); }
+    .wi-calc-lbl { font-size: .78rem; color: var(--muted); margin-top: 3px; }
+    .wi-actions { display: flex; gap: 12px; margin-top: 24px; }
+    .btn-wi-book { flex: 1; background: var(--gold); color: #fff; border: none; padding: 13px; border-radius: 9999px; font-size: .9rem; font-weight: 700; cursor: pointer; }
+    .btn-wi-cancel { background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 13px 22px; border-radius: 9999px; font-size: .9rem; cursor: pointer; }
+    @media (max-width: 600px) { .wi-row { grid-template-columns: 1fr; } }
+    .btn-walkin { background: var(--gold); color: #fff; border: none; padding: 8px 16px; border-radius: 9999px; font-size: .8rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+    .btn-walkin:hover { opacity: .88; }
   </style>
 </head>
 <body>
@@ -428,6 +472,7 @@
       <button class="tab" onclick="filterBookings('rejected', this)">Rejected</button>
       <button class="tab" onclick="filterBookings('checked_out', this)">Checked Out</button>
       </div>
+      <button class="btn-walkin" onclick="openWiModal()">🏨 Walk-in Booking</button>
       <button class="btn-daily-record" onclick="openDailyRecordModal()">📊 Daily Record</button>
     </div>
 
@@ -703,6 +748,146 @@
     </div>
     <button class="btn-pay-razorpay" id="btnRazorpay" onclick="launchRazorpay()">Pay with Razorpay / UPI</button>
     <button class="btn-pay-close" onclick="closePayModal()">Close</button>
+  </div>
+</div>
+
+<!-- MARK PAID MODAL -->
+<div class="mpaid-overlay" id="mpaidModal">
+  <div class="mpaid-box">
+    <h3>💰 Collect Payment</h3>
+    <div class="mpaid-summary" id="mpaidSummary"></div>
+
+    <div class="mpaid-field">
+      <label>Final Amount (Rs.) *</label>
+      <input type="number" id="mpaidAmount" min="0" step="1" placeholder="0">
+      <small>Edit to apply a discount — this amount will appear on the invoice</small>
+    </div>
+
+    <div class="mpaid-field">
+      <label>Discount Note (optional)</label>
+      <input type="text" id="mpaidDiscount" placeholder="e.g. Regular customer, Loyalty discount…">
+    </div>
+
+    <div class="mpaid-field">
+      <label>Payment Method *</label>
+      <div class="mpaid-pm-row">
+        <button class="mpaid-pm-btn active" id="mpaidBtnCash" onclick="selectMpaidMethod('cash')">💵 Cash</button>
+        <button class="mpaid-pm-btn" id="mpaidBtnUpi"  onclick="selectMpaidMethod('upi')">📱 UPI</button>
+      </div>
+    </div>
+
+    <div class="mpaid-field" id="mpaidUtrWrap" style="display:none">
+      <label>UTR / Reference No. *</label>
+      <input type="text" id="mpaidUtr" placeholder="12-digit UTR or transaction reference">
+    </div>
+
+    <div class="mpaid-actions">
+      <button class="btn-mpaid-confirm" onclick="confirmMarkPaid()">✓ Confirm Payment</button>
+      <button class="btn-mpaid-cancel"  onclick="closeMpaidModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- WALK-IN BOOKING MODAL -->
+<div class="wi-overlay" id="wiModal">
+  <div class="wi-box">
+    <h3>🏨 Walk-in / Front Desk Booking</h3>
+    <p class="wi-sub">Guest arrived directly — booking is saved immediately and invoice generated.</p>
+
+    <div class="wi-sec">Room &amp; Dates</div>
+    <div class="wi-row">
+      <div class="wi-field">
+        <label>Room Type *</label>
+        <select id="wiRoomType" onchange="updateWiAmount()">
+          <option value="">Select room…</option>
+        </select>
+      </div>
+      <div class="wi-field">
+        <label>Room Number</label>
+        <input type="text" id="wiRoomNumber" placeholder="e.g. 101">
+      </div>
+    </div>
+    <div class="wi-row">
+      <div class="wi-field">
+        <label>Check-in Date *</label>
+        <input type="date" id="wiCheckin" onchange="updateWiAmount()">
+      </div>
+      <div class="wi-field">
+        <label>Check-out Date *</label>
+        <input type="date" id="wiCheckout" onchange="updateWiAmount()">
+      </div>
+    </div>
+
+    <div class="wi-sec">Guest Information</div>
+    <div class="wi-row">
+      <div class="wi-field">
+        <label>Guest Name *</label>
+        <input type="text" id="wiGuestName" placeholder="Full name">
+      </div>
+      <div class="wi-field">
+        <label>Phone *</label>
+        <input type="tel" id="wiGuestPhone" placeholder="+91 98765 43210">
+      </div>
+    </div>
+    <div class="wi-row">
+      <div class="wi-field">
+        <label>Email</label>
+        <input type="email" id="wiGuestEmail" placeholder="Optional">
+      </div>
+      <div class="wi-field">
+        <label>Number of Guests *</label>
+        <input type="number" id="wiGuests" min="1" max="20" value="1">
+      </div>
+    </div>
+    <div class="wi-row">
+      <div class="wi-field">
+        <label>ID Type</label>
+        <select id="wiIdType">
+          <option value="">Select…</option>
+          <option value="aadhaar">Aadhaar Card</option>
+          <option value="pan">PAN Card</option>
+          <option value="passport">Passport</option>
+          <option value="dl">Driving Licence</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="wi-field">
+        <label>ID Number</label>
+        <input type="text" id="wiIdNumber" placeholder="Card / document number">
+      </div>
+    </div>
+
+    <div class="wi-sec">Payment</div>
+    <div class="wi-calc">
+      <div class="wi-calc-val" id="wiCalcAmt">Rs. 0</div>
+      <div class="wi-calc-lbl" id="wiCalcInfo">Select room and dates</div>
+    </div>
+    <div class="wi-row">
+      <div class="wi-field">
+        <label>Final Amount (Rs.) *</label>
+        <input type="number" id="wiAmount" min="0" step="1" placeholder="Edit to apply discount">
+      </div>
+      <div class="wi-field">
+        <label>Payment Method *</label>
+        <select id="wiPayMethod" onchange="toggleWiUtr()">
+          <option value="cash">Cash</option>
+          <option value="upi">UPI</option>
+        </select>
+      </div>
+    </div>
+    <div class="wi-field" id="wiUtrWrap" style="display:none;margin-bottom:14px">
+      <label>UTR / Reference No. *</label>
+      <input type="text" id="wiUtr" placeholder="UPI transaction reference">
+    </div>
+    <div class="wi-field" style="margin-bottom:6px">
+      <label>Notes / Special Requests</label>
+      <input type="text" id="wiNotes" placeholder="Any notes for this booking">
+    </div>
+
+    <div class="wi-actions">
+      <button class="btn-wi-book" onclick="submitWalkin()">✓ Book &amp; Generate Invoice</button>
+      <button class="btn-wi-cancel" onclick="closeWiModal()">Cancel</button>
+    </div>
   </div>
 </div>
 
@@ -1131,28 +1316,185 @@
   }
 
   // ── Mark as Paid ─────────────────────────────────────────
+  // ── Mark As Paid Modal ───────────────────────────────────────
+  let _mpaidId = null, _mpaidMethod = 'cash'
+
   function markAsPaid(id) {
     const b = allBookings.find(x => x.id === id)
-    const label = b.paymentMethod === 'razorpay' ? 'Confirm this Razorpay payment'
-                : b.paymentMethod === 'upi'      ? 'Confirm this UPI payment'
-                : 'Mark cash payment as received'
-    if (!confirm(`${label} for ${b.customerName}?\n\nThis will send the payment receipt to the guest.`)) return
+    if (!b) return
+    _mpaidId = id
+    _mpaidMethod = (b.paymentMethod === 'upi' || b.paymentMethod === 'cash') ? b.paymentMethod : 'cash'
+    const nights = b.nights || 1
+    const origTotal = (b.pricePerNight || 0) * nights
+    document.getElementById('mpaidSummary').innerHTML =
+      `<div class="mpaid-row"><span>Guest</span><strong>${b.customerName}</strong></div>` +
+      `<div class="mpaid-row"><span>Room</span><strong>${b.roomName || '—'}</strong></div>` +
+      `<div class="mpaid-row"><span>Nights</span><strong>${nights}</strong></div>` +
+      `<div class="mpaid-row"><span>Rate / Night</span><strong>Rs. ${(b.pricePerNight||0).toLocaleString('en-IN')}</strong></div>` +
+      `<div class="mpaid-row orig"><span>Original Total</span><strong>Rs. ${origTotal.toLocaleString('en-IN')}</strong></div>`
+    document.getElementById('mpaidAmount').value = b.totalAmount || origTotal
+    document.getElementById('mpaidDiscount').value = b.discountNote || ''
+    document.getElementById('mpaidUtr').value = (b.paymentId||'').startsWith('UTR:') ? b.paymentId.slice(4) : ''
+    selectMpaidMethod(_mpaidMethod)
+    document.getElementById('mpaidModal').classList.add('open')
+  }
 
-    // If guest is already checked in, keep that status — just record the payment
+  function selectMpaidMethod(m) {
+    _mpaidMethod = m
+    document.getElementById('mpaidBtnCash').classList.toggle('active', m === 'cash')
+    document.getElementById('mpaidBtnUpi').classList.toggle('active',  m === 'upi')
+    document.getElementById('mpaidUtrWrap').style.display = m === 'upi' ? 'block' : 'none'
+  }
+
+  function closeMpaidModal() {
+    document.getElementById('mpaidModal').classList.remove('open')
+    _mpaidId = null
+  }
+
+  function confirmMarkPaid() {
+    const id  = _mpaidId
+    const b   = allBookings.find(x => x.id === id)
+    const amt = parseFloat(document.getElementById('mpaidAmount').value)
+    const discount = document.getElementById('mpaidDiscount').value.trim()
+    const utr = document.getElementById('mpaidUtr').value.trim()
+    if (!amt || amt <= 0)                  { showAdminToast('Enter a valid amount', 'error'); return }
+    if (_mpaidMethod === 'upi' && !utr)    { showAdminToast('Enter UTR / reference number', 'error'); return }
+
     const newStatus = b.status === 'checked_in' ? 'checked_in' : 'paid'
-    const paidRef   = 'CASH-' + Date.now()
+    const payRef    = _mpaidMethod === 'upi' ? 'UTR:' + utr : 'CASH-' + Date.now()
+    const updates   = {
+      status: newStatus, paymentStatus: 'paid',
+      paymentMethod: _mpaidMethod, paymentId: payRef,
+      totalAmount: amt, paidAt: firebase.firestore.FieldValue.serverTimestamp(),
+    }
+    if (discount) updates.discountNote = discount
 
-    db.collection('bookings').doc(id).update({
-      status:        newStatus,
-      paymentStatus: 'paid',
-      paymentId:     b.paymentId || paidRef,
-      paidAt:        firebase.firestore.FieldValue.serverTimestamp(),
-    }).then(() => {
-        const paid = { ...b, status: newStatus }
-        sendWhatsAppMsg(paid, 'paid')
-        sendEmailToGuest('receipt', paid)
-        showAdminToast('Payment confirmed! Receipt sent via WhatsApp + email.')
-      })
+    db.collection('bookings').doc(id).update(updates).then(() => {
+      const paid = { ...b, ...updates, totalAmount: amt }
+      sendWhatsAppMsg(paid, 'paid')
+      sendEmailToGuest('receipt', paid)
+      closeMpaidModal()
+      showAdminToast(`Rs. ${amt.toLocaleString('en-IN')} collected ✓  Receipt sent to guest.`, 'success')
+    }).catch(err => showAdminToast('Failed: ' + err.message, 'error'))
+  }
+
+  // ── Walk-in / Front Desk Booking ─────────────────────────────
+  function openWiModal() {
+    const sel = document.getElementById('wiRoomType')
+    sel.innerHTML = '<option value="">Select room…</option>'
+    ;(window.ROOMS || []).forEach(r => {
+      const o = document.createElement('option')
+      o.value = r.id
+      o.dataset.name  = r.name
+      o.dataset.price = r.price
+      o.textContent   = r.name + ' — Rs. ' + (r.price||0).toLocaleString('en-IN') + '/night'
+      sel.appendChild(o)
+    })
+    const now  = new Date(), tmrw = new Date(now)
+    tmrw.setDate(now.getDate() + 1)
+    const fmt = d => d.toISOString().slice(0, 10)
+    document.getElementById('wiCheckin').value      = fmt(now)
+    document.getElementById('wiCheckout').value     = fmt(tmrw)
+    document.getElementById('wiRoomType').value     = ''
+    document.getElementById('wiRoomNumber').value   = ''
+    document.getElementById('wiGuestName').value    = ''
+    document.getElementById('wiGuestPhone').value   = ''
+    document.getElementById('wiGuestEmail').value   = ''
+    document.getElementById('wiGuests').value       = 1
+    document.getElementById('wiIdType').value       = ''
+    document.getElementById('wiIdNumber').value     = ''
+    document.getElementById('wiPayMethod').value    = 'cash'
+    document.getElementById('wiUtr').value          = ''
+    document.getElementById('wiUtrWrap').style.display = 'none'
+    document.getElementById('wiNotes').value        = ''
+    updateWiAmount()
+    document.getElementById('wiModal').classList.add('open')
+  }
+
+  function closeWiModal() { document.getElementById('wiModal').classList.remove('open') }
+
+  function updateWiAmount() {
+    const opt   = document.getElementById('wiRoomType').selectedOptions[0]
+    const price = opt ? parseFloat(opt.dataset.price || 0) : 0
+    const ci    = document.getElementById('wiCheckin').value
+    const co    = document.getElementById('wiCheckout').value
+    let nights  = 1
+    if (ci && co) {
+      const diff = Math.round((new Date(co) - new Date(ci)) / 86400000)
+      if (diff > 0) nights = diff
+    }
+    const total = price * nights
+    document.getElementById('wiCalcAmt').textContent  = 'Rs. ' + total.toLocaleString('en-IN')
+    document.getElementById('wiCalcInfo').textContent = nights + ' night' + (nights > 1 ? 's' : '') +
+      (price ? ' × Rs. ' + price.toLocaleString('en-IN') + '/night' : '')
+    document.getElementById('wiAmount').value = total || ''
+  }
+
+  function toggleWiUtr() {
+    document.getElementById('wiUtrWrap').style.display =
+      document.getElementById('wiPayMethod').value === 'upi' ? 'block' : 'none'
+  }
+
+  function submitWalkin() {
+    const opt = document.getElementById('wiRoomType').selectedOptions[0]
+    const roomId    = document.getElementById('wiRoomType').value
+    const roomName  = opt ? opt.dataset.name  : ''
+    const ppn       = opt ? parseFloat(opt.dataset.price || 0) : 0
+    const roomNum   = document.getElementById('wiRoomNumber').value.trim()
+    const ci        = document.getElementById('wiCheckin').value
+    const co        = document.getElementById('wiCheckout').value
+    const name      = document.getElementById('wiGuestName').value.trim()
+    const phone     = document.getElementById('wiGuestPhone').value.trim()
+    const email     = document.getElementById('wiGuestEmail').value.trim()
+    const guests    = parseInt(document.getElementById('wiGuests').value) || 1
+    const idType    = document.getElementById('wiIdType').value
+    const idNum     = document.getElementById('wiIdNumber').value.trim()
+    const amount    = parseFloat(document.getElementById('wiAmount').value) || 0
+    const payMethod = document.getElementById('wiPayMethod').value
+    const utr       = document.getElementById('wiUtr').value.trim()
+    const notes     = document.getElementById('wiNotes').value.trim()
+
+    if (!roomId)      { showAdminToast('Select a room type', 'error'); return }
+    if (!ci || !co)   { showAdminToast('Select check-in and check-out dates', 'error'); return }
+    const nights = Math.round((new Date(co) - new Date(ci)) / 86400000)
+    if (nights < 1)   { showAdminToast('Check-out must be after check-in', 'error'); return }
+    if (!name)        { showAdminToast('Enter guest name', 'error'); return }
+    if (!phone)       { showAdminToast('Enter guest phone number', 'error'); return }
+    if (amount <= 0)  { showAdminToast('Enter a valid amount', 'error'); return }
+    if (payMethod === 'upi' && !utr) { showAdminToast('Enter UTR / reference number for UPI', 'error'); return }
+
+    const code   = 'JP-W' + Math.random().toString(36).slice(2, 8).toUpperCase()
+    const payRef = payMethod === 'upi' ? 'UTR:' + utr : 'CASH-' + Date.now()
+
+    const booking = {
+      bookingCode: code, source: 'walkin',
+      roomId, roomName, roomNumber: roomNum || '—',
+      pricePerNight: ppn, nights, checkIn: ci, checkOut: co,
+      customerName: name, customerPhone: phone, customerEmail: email,
+      guests, idType, idNumber: idNum,
+      status: 'checked_in', paymentStatus: 'paid',
+      paymentMethod: payMethod, paymentId: payRef, totalAmount: amount,
+      specialRequests: notes,
+      checkedInAt:  firebase.firestore.FieldValue.serverTimestamp(),
+      paidAt:       firebase.firestore.FieldValue.serverTimestamp(),
+      createdAt:    firebase.firestore.FieldValue.serverTimestamp(),
+    }
+
+    const btn = document.querySelector('.btn-wi-book')
+    btn.disabled = true; btn.textContent = 'Saving…'
+
+    db.collection('bookings').add(booking).then(ref => {
+      const local = { id: ref.id, ...booking,
+        checkedInAt: { seconds: Date.now() / 1000 },
+        paidAt:      { seconds: Date.now() / 1000 },
+        createdAt:   { seconds: Date.now() / 1000 } }
+      allBookings.unshift(local)
+      closeWiModal()
+      showAdminToast(`Walk-in ${code} saved! Generating invoice…`, 'success')
+      downloadInvoice(ref.id)
+    }).catch(err => {
+      showAdminToast('Failed: ' + err.message, 'error')
+    }).finally(() => { btn.disabled = false; btn.textContent = '✓ Book & Generate Invoice' })
   }
 
   // ── Check-In ─────────────────────────────────────────────────
