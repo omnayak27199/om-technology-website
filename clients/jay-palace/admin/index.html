@@ -388,23 +388,23 @@
 
     /* WALK-IN MODAL */
     /* Walk-in permanent panel */
-    .bookings-main-layout { display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start; }
-    .bookings-col { min-width: 0; }
-    .wi-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; position: sticky; top: 16px; max-height: calc(100vh - 100px); overflow-y: auto; }
-    .wi-panel-header { margin-bottom: 16px; }
-    .wi-panel-header span:first-child { font-size: 1rem; font-weight: 800; display: block; }
-    .wi-panel-sub { font-size: .75rem; color: var(--muted); margin-top: 2px; }
+    .wi-fullpage-wrap { max-width: 860px; }
+    .wi-fp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .wi-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px 32px; }
+    .wi-panel-header { margin-bottom: 20px; }
+    .wi-panel-header span:first-child { font-size: 1.1rem; font-weight: 800; display: block; }
+    .wi-panel-sub { font-size: .78rem; color: var(--muted); margin-top: 4px; }
     .wi-sec { font-size: .7rem; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: .07em; margin: 14px 0 8px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
     .wi-field { display: flex; flex-direction: column; gap: 5px; }
     .wi-field label { font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
     .wi-field input, .wi-field select { background: var(--bg); border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 11px; font-size: .875rem; color: var(--text); outline: none; font-family: inherit; width: 100%; box-sizing: border-box; }
     .wi-field input:focus, .wi-field select:focus { border-color: var(--accent); }
-    .wi-calc { background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 14px; }
-    .wi-calc-val { font-size: 1.25rem; font-weight: 900; color: var(--accent); }
-    .wi-calc-lbl { font-size: .72rem; color: var(--muted); margin-top: 2px; }
-    .btn-wi-book { width: 100%; background: var(--gold); color: #fff; border: none; padding: 12px; border-radius: 9999px; font-size: .9rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .wi-calc { background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; padding: 14px 18px; }
+    .wi-calc-val { font-size: 1.6rem; font-weight: 900; color: var(--accent); }
+    .wi-calc-lbl { font-size: .75rem; color: var(--muted); margin-top: 3px; }
+    .btn-wi-book { background: var(--gold); color: #fff; border: none; padding: 13px 44px; border-radius: 9999px; font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 8px; }
     .btn-wi-book:hover { opacity: .88; }
-    @media (max-width: 1000px) { .bookings-main-layout { grid-template-columns: 1fr; } .wi-panel { position: static; max-height: none; } }
+    @media (max-width: 800px) { .wi-fp-grid { grid-template-columns: 1fr; } .wi-panel { padding: 18px 16px; } }
   </style>
 </head>
 <body>
@@ -446,6 +446,7 @@
       <button class="main-tab active" onclick="showView('bookings', this)">📋 Bookings</button>
       <button class="main-tab" onclick="showView('reports', this)">📊 Reports</button>
       <button class="main-tab" onclick="showView('rooms', this)">🏨 Manage Rooms</button>
+      <button class="main-tab" onclick="showView('walkin', this)">🚶 Walk-in Booking</button>
     </div>
 
     <!-- BOOKINGS VIEW -->
@@ -479,129 +480,29 @@
       </div>
     </div>
 
-    <!-- Two-column layout: booking list + walk-in panel -->
-    <div class="bookings-main-layout">
-
-      <!-- Left: booking list -->
-      <div class="bookings-col">
-        <!-- Search bar -->
-        <div class="search-wrap">
-          <input type="text" class="booking-search-input" id="bookingSearch" placeholder="Search by name, phone or booking code…" oninput="searchBookings(this.value)">
-          <button class="search-clear-btn" onclick="clearSearch()">✕ Clear</button>
-          <span class="search-count" id="searchCount"></span>
-        </div>
-        <!-- Filter + daily record -->
-        <div class="record-bar">
-          <div class="filter-tabs" style="margin-bottom:0;flex-wrap:wrap">
-            <button class="tab active" onclick="filterBookings('all', this)">All</button>
-            <button class="tab" onclick="filterBookings('pending', this)">Pending</button>
-            <button class="tab" onclick="filterBookings('approved', this)">Approved</button>
-            <button class="tab" onclick="filterBookings('paid', this)">Paid</button>
-            <button class="tab" onclick="filterBookings('checked_in', this)">Checked In</button>
-            <button class="tab" onclick="filterBookings('rejected', this)">Rejected</button>
-            <button class="tab" onclick="filterBookings('checked_out', this)">Checked Out</button>
-          </div>
-          <button class="btn-daily-record" onclick="openDailyRecordModal()">📊 Daily Record</button>
-        </div>
-        <!-- Bookings list -->
-        <div class="bookings-list" id="bookingsList">
-          <div class="loading">Loading bookings...</div>
-        </div>
-      </div><!-- end bookings-col -->
-
-      <!-- Right: permanent walk-in panel -->
-      <div class="wi-panel">
-        <div class="wi-panel-header">
-          <span>🏨 Walk-in Booking</span>
-          <span class="wi-panel-sub">Front desk · Direct arrival</span>
-        </div>
-
-        <div class="wi-sec">Room &amp; Dates</div>
-        <div class="wi-field" style="margin-bottom:10px">
-          <label>Room Type *</label>
-          <select id="wiRoomType" onchange="updateWiAmount()">
-            <option value="">Select room…</option>
-          </select>
-        </div>
-        <div class="wi-field" style="margin-bottom:10px">
-          <label>Room Number</label>
-          <input type="text" id="wiRoomNumber" placeholder="e.g. 101">
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-          <div class="wi-field">
-            <label>Check-in *</label>
-            <input type="date" id="wiCheckin" onchange="updateWiAmount()">
-          </div>
-          <div class="wi-field">
-            <label>Check-out *</label>
-            <input type="date" id="wiCheckout" onchange="updateWiAmount()">
-          </div>
-        </div>
-
-        <div class="wi-sec">Guest Info</div>
-        <div class="wi-field" style="margin-bottom:10px">
-          <label>Guest Name *</label>
-          <input type="text" id="wiGuestName" placeholder="Full name">
-        </div>
-        <div class="wi-field" style="margin-bottom:10px">
-          <label>Phone *</label>
-          <input type="tel" id="wiGuestPhone" placeholder="+91 98765 43210">
-        </div>
-        <div class="wi-field" style="margin-bottom:10px">
-          <label>Email</label>
-          <input type="email" id="wiGuestEmail" placeholder="Optional">
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-          <div class="wi-field">
-            <label>Guests *</label>
-            <input type="number" id="wiGuests" min="1" max="20" value="1">
-          </div>
-          <div class="wi-field">
-            <label>ID Type</label>
-            <select id="wiIdType">
-              <option value="">Select…</option>
-              <option value="aadhaar">Aadhaar</option>
-              <option value="pan">PAN</option>
-              <option value="passport">Passport</option>
-              <option value="dl">Driving Licence</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-        </div>
-        <div class="wi-field" style="margin-bottom:10px">
-          <label>ID Number</label>
-          <input type="text" id="wiIdNumber" placeholder="Card / document number">
-        </div>
-
-        <div class="wi-sec">Payment</div>
-        <div class="wi-calc" style="margin-bottom:10px">
-          <div class="wi-calc-val" id="wiCalcAmt">Rs. 0</div>
-          <div class="wi-calc-lbl" id="wiCalcInfo">Select room and dates</div>
-        </div>
-        <div class="wi-field" style="margin-bottom:10px">
-          <label>Final Amount (Rs.) *</label>
-          <input type="number" id="wiAmount" min="0" step="1" placeholder="Edit to apply discount">
-        </div>
-        <div class="wi-field" style="margin-bottom:10px">
-          <label>Payment Method *</label>
-          <select id="wiPayMethod" onchange="toggleWiUtr()">
-            <option value="cash">Cash</option>
-            <option value="upi">UPI</option>
-          </select>
-        </div>
-        <div class="wi-field" id="wiUtrWrap" style="display:none;margin-bottom:10px">
-          <label>UTR / Reference No. *</label>
-          <input type="text" id="wiUtr" placeholder="UPI transaction reference">
-        </div>
-        <div class="wi-field" style="margin-bottom:14px">
-          <label>Notes</label>
-          <input type="text" id="wiNotes" placeholder="Special requests">
-        </div>
-
-        <button class="btn-wi-book" onclick="submitWalkin()">✓ Book Walk-in</button>
-      </div><!-- end wi-panel -->
-
-    </div><!-- end bookings-main-layout -->
+    <!-- Search bar -->
+    <div class="search-wrap">
+      <input type="text" class="booking-search-input" id="bookingSearch" placeholder="Search by name, phone or booking code…" oninput="searchBookings(this.value)">
+      <button class="search-clear-btn" onclick="clearSearch()">✕ Clear</button>
+      <span class="search-count" id="searchCount"></span>
+    </div>
+    <!-- Filter + daily record -->
+    <div class="record-bar">
+      <div class="filter-tabs" style="margin-bottom:0;flex-wrap:wrap">
+        <button class="tab active" onclick="filterBookings('all', this)">All</button>
+        <button class="tab" onclick="filterBookings('pending', this)">Pending</button>
+        <button class="tab" onclick="filterBookings('approved', this)">Approved</button>
+        <button class="tab" onclick="filterBookings('paid', this)">Paid</button>
+        <button class="tab" onclick="filterBookings('checked_in', this)">Checked In</button>
+        <button class="tab" onclick="filterBookings('rejected', this)">Rejected</button>
+        <button class="tab" onclick="filterBookings('checked_out', this)">Checked Out</button>
+      </div>
+      <button class="btn-daily-record" onclick="openDailyRecordModal()">📊 Daily Record</button>
+    </div>
+    <!-- Bookings list -->
+    <div class="bookings-list" id="bookingsList">
+      <div class="loading">Loading bookings...</div>
+    </div>
     </div><!-- end bookingsView -->
 
     <!-- REPORTS VIEW -->
@@ -732,6 +633,126 @@
         <div id="blockedDatesList"></div>
       </div>
     </div>
+
+    <!-- WALK-IN VIEW -->
+    <div id="walkinView" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div>
+          <h2 style="font-size:1.1rem;font-weight:800">🚶 Walk-in Booking</h2>
+          <p style="font-size:.8rem;color:var(--muted);margin-top:4px">Front desk · Direct arrival · Instant check-in</p>
+        </div>
+      </div>
+      <div class="wi-fullpage-wrap">
+        <div class="wi-panel">
+
+          <!-- Amount summary at top -->
+          <div class="wi-calc" style="margin-bottom:24px">
+            <div class="wi-calc-val" id="wiCalcAmt">Rs. 0</div>
+            <div class="wi-calc-lbl" id="wiCalcInfo">Select room and dates</div>
+          </div>
+
+          <!-- Two-column: Room & Dates | Guest Info -->
+          <div class="wi-fp-grid">
+
+            <!-- Room & Dates -->
+            <div>
+              <div class="wi-sec">Room &amp; Dates</div>
+              <div class="wi-field" style="margin-bottom:12px">
+                <label>Room Type *</label>
+                <select id="wiRoomType" onchange="updateWiAmount()">
+                  <option value="">Select room…</option>
+                </select>
+              </div>
+              <div class="wi-field" style="margin-bottom:12px">
+                <label>Room Number</label>
+                <input type="text" id="wiRoomNumber" placeholder="e.g. 101">
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+                <div class="wi-field">
+                  <label>Check-in *</label>
+                  <input type="date" id="wiCheckin" onchange="updateWiAmount()">
+                </div>
+                <div class="wi-field">
+                  <label>Check-out *</label>
+                  <input type="date" id="wiCheckout" onchange="updateWiAmount()">
+                </div>
+              </div>
+            </div>
+
+            <!-- Guest Info -->
+            <div>
+              <div class="wi-sec">Guest Info</div>
+              <div class="wi-field" style="margin-bottom:12px">
+                <label>Guest Name *</label>
+                <input type="text" id="wiGuestName" placeholder="Full name">
+              </div>
+              <div class="wi-field" style="margin-bottom:12px">
+                <label>Phone *</label>
+                <input type="tel" id="wiGuestPhone" placeholder="+91 98765 43210">
+              </div>
+              <div class="wi-field" style="margin-bottom:12px">
+                <label>Email</label>
+                <input type="email" id="wiGuestEmail" placeholder="Optional">
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+                <div class="wi-field">
+                  <label>Guests *</label>
+                  <input type="number" id="wiGuests" min="1" max="20" value="1">
+                </div>
+                <div class="wi-field">
+                  <label>ID Type</label>
+                  <select id="wiIdType">
+                    <option value="">Select…</option>
+                    <option value="aadhaar">Aadhaar</option>
+                    <option value="pan">PAN</option>
+                    <option value="passport">Passport</option>
+                    <option value="dl">Driving Licence</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+              </div>
+              <div class="wi-field" style="margin-bottom:12px">
+                <label>ID Number</label>
+                <input type="text" id="wiIdNumber" placeholder="Card / document number">
+              </div>
+            </div>
+
+          </div><!-- end wi-fp-grid (room + guest) -->
+
+          <!-- Payment -->
+          <div class="wi-sec" style="margin-top:20px">Payment</div>
+          <div class="wi-fp-grid">
+            <div>
+              <div class="wi-field" style="margin-bottom:12px">
+                <label>Final Amount (Rs.) *</label>
+                <input type="number" id="wiAmount" min="0" step="1" placeholder="Edit to apply discount">
+              </div>
+            </div>
+            <div>
+              <div class="wi-field" style="margin-bottom:12px">
+                <label>Payment Method *</label>
+                <select id="wiPayMethod" onchange="toggleWiUtr()">
+                  <option value="cash">Cash</option>
+                  <option value="upi">UPI</option>
+                </select>
+              </div>
+              <div class="wi-field" id="wiUtrWrap" style="display:none;margin-bottom:12px">
+                <label>UTR / Reference No. *</label>
+                <input type="text" id="wiUtr" placeholder="UPI transaction reference">
+              </div>
+            </div>
+          </div><!-- end wi-fp-grid (payment) -->
+
+          <div class="wi-field" style="margin-bottom:8px;margin-top:14px">
+            <label>Notes</label>
+            <input type="text" id="wiNotes" placeholder="Special requests, preferences, etc.">
+          </div>
+
+          <button class="btn-wi-book" onclick="submitWalkin()">✓ Book Walk-in</button>
+
+        </div><!-- end wi-panel -->
+      </div><!-- end wi-fullpage-wrap -->
+    </div><!-- end walkinView -->
 
   </div><!-- end admin-body -->
 </div><!-- end adminWrap -->
@@ -2382,6 +2403,7 @@
     document.getElementById('bookingsView').style.display = view === 'bookings' ? 'block' : 'none'
     document.getElementById('reportsView').style.display  = view === 'reports'  ? 'block' : 'none'
     document.getElementById('roomsView').style.display    = view === 'rooms'    ? 'block' : 'none'
+    document.getElementById('walkinView').style.display   = view === 'walkin'   ? 'block' : 'none'
     if (view === 'rooms')   { renderAdminRooms(); loadBlockedDates() }
     if (view === 'reports') initReports()
   }
