@@ -1844,7 +1844,6 @@
 
     // ── TITLE BAR ─────────────────────────────────────────────
     const docTitle = isCorp ? 'TAX INVOICE' : 'HOTEL INVOICE'
-    doc.setFillColor(...XG); doc.rect(M, y, IW, 9, 'F')
     doc.setDrawColor(...BK); doc.setLineWidth(0.3); doc.rect(M, y, IW, 9, 'D')
     doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(10)
     doc.text(docTitle, PW/2, y+6.5, {align:'center'})
@@ -1869,8 +1868,8 @@
     ]
     const SecH = Math.max(BH+billingItems.length*RH+4, BH+detailItems.length*RH+4)
 
-    doc.setFillColor(...XG); doc.rect(M, y, LCW, BH, 'F')
     doc.setDrawColor(...BK); doc.setLineWidth(0.2); doc.rect(M, y, LCW, SecH, 'D')
+    doc.setLineWidth(0.15); doc.line(M, y+BH, M+LCW, y+BH)
     doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(8)
     doc.text('Billing To', M+3, y+5)
     let by = y+BH+3
@@ -1882,8 +1881,8 @@
       by += RH
     })
 
-    doc.setFillColor(...XG); doc.rect(X2, y, RCW, BH, 'F')
     doc.setDrawColor(...BK); doc.setLineWidth(0.2); doc.rect(X2, y, RCW, SecH, 'D')
+    doc.setLineWidth(0.15); doc.line(X2, y+BH, X2+RCW, y+BH)
     doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(8)
     doc.text('Invoice Details', X2+3, y+5)
     let dy = y+BH+3
@@ -1909,9 +1908,8 @@
     ]
     iC[iC.length-1].w = IW - iC.slice(0,-1).reduce((s,c)=>s+c.w,0)
 
-    doc.setFillColor(...XG)
     let hx = M
-    iC.forEach(c => { doc.setDrawColor(...BK); doc.setLineWidth(0.2); doc.rect(hx,y,c.w,8,'FD'); hx+=c.w })
+    iC.forEach(c => { doc.setDrawColor(...BK); doc.setLineWidth(0.2); doc.rect(hx,y,c.w,8,'D'); hx+=c.w })
     hx = M
     iC.forEach(c => {
       doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(6.5)
@@ -1921,9 +1919,8 @@
     y += 8
 
     const IRH = 13
-    doc.setFillColor(...WH)
     hx = M
-    iC.forEach(c => { doc.setDrawColor(...BK); doc.setLineWidth(0.15); doc.rect(hx,y,c.w,IRH,'FD'); hx+=c.w })
+    iC.forEach(c => { doc.setDrawColor(...BK); doc.setLineWidth(0.15); doc.rect(hx,y,c.w,IRH,'D'); hx+=c.w })
     const iVals = ['1',null,'996311',String(b.nights||1),'Night'+((b.nights||1)>1?'s':''),
                    (b.pricePerNight||0).toLocaleString('en-IN'),gstPct?gstPct+'%':'Nil',
                    taxable.toLocaleString('en-IN')]
@@ -1944,9 +1941,8 @@
     })
     y += IRH
 
-    doc.setFillColor(...LG)
     hx = M
-    iC.forEach(c => { doc.setDrawColor(...BK); doc.setLineWidth(0.15); doc.rect(hx,y,c.w,7,'FD'); hx+=c.w })
+    iC.forEach(c => { doc.setDrawColor(...BK); doc.setLineWidth(0.15); doc.rect(hx,y,c.w,7,'D'); hx+=c.w })
     doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...BK)
     doc.text('Item Total', M+2, y+5)
     doc.text('Rs. '+taxable.toLocaleString('en-IN'), M+IW-2, y+5, {align:'right'})
@@ -1956,7 +1952,6 @@
     const TW = 108, SW = IW-TW-0.5, XS = M+TW+0.5
     const sy0 = y
 
-    doc.setFillColor(...XG); doc.rect(M, y, TW, 7, 'F')
     doc.setDrawColor(...BK); doc.setLineWidth(0.2); doc.rect(M, y, TW, 7, 'D')
     doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(7.5)
     doc.text('Tax Breakdown', M+3, y+5); y += 7
@@ -1967,22 +1962,20 @@
     ]
     const tFix = tC.slice(0,-2).reduce((s,c)=>s+c.w,0)
     tC[5].w = Math.round((TW-tFix)*0.55); tC[6].w = TW-tFix-tC[5].w
-    doc.setFillColor(...XG)
     let tx2 = M
     tC.forEach(c => {
-      doc.rect(tx2,y,c.w,6.5,'FD'); doc.setDrawColor(...BK); doc.setLineWidth(0.15); doc.rect(tx2,y,c.w,6.5,'D')
+      doc.setDrawColor(...BK); doc.setLineWidth(0.15); doc.rect(tx2,y,c.w,6.5,'D')
       doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(6)
       doc.text(c.lbl, tx2+c.w/2, y+4.5, {align:'center'}); tx2+=c.w
     }); y += 6.5
 
     ;[[false],[true]].forEach(([isTot]) => {
-      if (isTot) doc.setFillColor(...LG); else doc.setFillColor(...WH)
       tx2 = M
       const td = isTot
         ? ['TOTAL',taxable.toLocaleString('en-IN'),'',cgst.toLocaleString('en-IN'),'',sgst.toLocaleString('en-IN'),gstAmt.toLocaleString('en-IN')]
         : ['996311',taxable.toLocaleString('en-IN'),cgstPct?cgstPct+'%':'0%',cgst.toLocaleString('en-IN'),sgstPct?sgstPct+'%':'0%',sgst.toLocaleString('en-IN'),gstAmt.toLocaleString('en-IN')]
       tC.forEach((c,ci) => {
-        doc.rect(tx2,y,c.w,6.5,'FD'); doc.setDrawColor(...BK); doc.setLineWidth(0.15); doc.rect(tx2,y,c.w,6.5,'D')
+        doc.setDrawColor(...BK); doc.setLineWidth(0.15); doc.rect(tx2,y,c.w,6.5,'D')
         doc.setFont('helvetica',isTot?'bold':'normal'); doc.setFontSize(6.5); doc.setTextColor(...BK)
         doc.text(String(td[ci]??''), tx2+c.w/2, y+4.5, {align:'center'}); tx2+=c.w
       }); y += 6.5
@@ -1990,7 +1983,6 @@
     const taxEndY = y
 
     let sy = sy0
-    doc.setFillColor(...XG); doc.rect(XS, sy, SW, 7, 'F')
     doc.setDrawColor(...BK); doc.setLineWidth(0.2); doc.rect(XS, sy, SW, 7, 'D')
     doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(7.5)
     doc.text('Amount Summary', XS+3, sy+5); sy += 7
@@ -2004,7 +1996,6 @@
     ]
     sRows.forEach(([lbl,val,bold]) => {
       const rh = bold?8.5:7
-      doc.setFillColor(...(bold?LG:WH)); doc.rect(XS, sy, SW, rh, 'F')
       doc.setDrawColor(...BK); doc.setLineWidth(0.15); doc.rect(XS, sy, SW, rh, 'D')
       doc.setFont('helvetica',bold?'bold':'normal'); doc.setFontSize(bold?8.5:7.5)
       doc.setTextColor(...BK)
@@ -2014,7 +2005,6 @@
     const words = amountInWords(total)
     const wLines = doc.splitTextToSize(words, SW-6)
     const wH = 5.5+wLines.length*4.5
-    doc.setFillColor(...LG); doc.rect(XS, sy, SW, wH, 'F')
     doc.setDrawColor(...BK); doc.setLineWidth(0.15); doc.rect(XS, sy, SW, wH, 'D')
     doc.setFont('helvetica','bold'); doc.setFontSize(5.5); doc.setTextColor(...MG)
     doc.text('Amount in Words:', XS+3, sy+5)
@@ -2026,8 +2016,8 @@
 
     // ── TERMS & CONDITIONS ────────────────────────────────────
     const termsH = 25
-    doc.setFillColor(...XG); doc.rect(M, y, IW, 7, 'F')
     doc.setDrawColor(...BK); doc.setLineWidth(0.2); doc.rect(M, y, IW, termsH, 'D')
+    doc.setLineWidth(0.15); doc.line(M, y+7, M+IW, y+7)
     doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(7.5)
     doc.text('Terms & Conditions', M+3, y+5)
     doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(...MG)
@@ -2038,8 +2028,8 @@
 
     // ── PAYMENT DETAILS ───────────────────────────────────────
     const payH = 22
-    doc.setFillColor(...XG); doc.rect(M, y, IW, 7, 'F')
     doc.setDrawColor(...BK); doc.setLineWidth(0.2); doc.rect(M, y, IW, payH, 'D')
+    doc.setLineWidth(0.15); doc.line(M, y+7, M+IW, y+7)
     doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(7.5)
     doc.text('Payment Details', M+3, y+5)
     doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...BK)
