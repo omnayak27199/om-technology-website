@@ -53,14 +53,20 @@
     .admin-body { padding: 24px; max-width: 1200px; margin: 0 auto; }
 
     /* STAT CARDS */
-    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
-    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; box-shadow: 0 1px 4px rgba(28,21,16,.06); }
-    .stat-label { font-size: .75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
-    .stat-value { font-size: 2rem; font-weight: 900; }
-    .stat-card.pending .stat-value { color: var(--warning); }
+    .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 24px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; box-shadow: 0 1px 4px rgba(28,21,16,.06); border-top: 3px solid transparent; }
+    .stat-icon { font-size: 1.25rem; line-height: 1; margin-bottom: 10px; }
+    .stat-label { font-size: .72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+    .stat-value { font-size: 1.75rem; font-weight: 900; }
+    .stat-card.pending  { border-top-color: var(--warning); }
+    .stat-card.pending .stat-value  { color: var(--warning); }
+    .stat-card.confirmed { border-top-color: var(--success); }
     .stat-card.confirmed .stat-value { color: var(--success); }
-    .stat-card.paid .stat-value { color: var(--gold); }
-    .stat-card.total .stat-value { color: var(--text); }
+    .stat-card.inhouse  { border-top-color: #0369a1; }
+    .stat-card.inhouse .stat-value  { color: #0369a1; }
+    .stat-card.paid     { border-top-color: var(--gold); }
+    .stat-card.paid .stat-value     { color: var(--gold); }
+    .stat-card.total .stat-value    { color: var(--text); }
 
     /* FILTER TABS */
     .filter-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
@@ -73,58 +79,71 @@
     .tab:hover:not(.active) { border-color: var(--gold-light); color: var(--text); }
 
     /* BOOKING CARDS */
-    .bookings-list { display: flex; flex-direction: column; gap: 14px; }
+    .bookings-list { display: flex; flex-direction: column; gap: 10px; }
     .booking-card {
       background: var(--surface); border: 1px solid var(--border);
-      border-radius: 16px; padding: 20px; display: grid;
-      grid-template-columns: 1fr 1fr 1fr auto; gap: 16px; align-items: start;
-      box-shadow: 0 1px 4px rgba(28,21,16,.05);
+      border-radius: 14px; border-left: 4px solid var(--border);
+      display: flex; flex-direction: column; overflow: hidden;
+      box-shadow: 0 1px 4px rgba(28,21,16,.05); transition: box-shadow .15s;
     }
-    .booking-card.status-pending  { border-left: 4px solid var(--warning); }
-    .booking-card.status-approved { border-left: 4px solid var(--success); }
-    .booking-card.status-rejected { border-left: 4px solid var(--danger); }
-    .booking-card.status-paid     { border-left: 4px solid var(--gold); }
+    .booking-card:hover { box-shadow: 0 4px 16px rgba(28,21,16,.09); }
+    .booking-card.status-pending    { border-left-color: var(--warning); }
+    .booking-card.status-approved   { border-left-color: var(--success); }
+    .booking-card.status-rejected   { border-left-color: var(--danger); opacity: .75; }
+    .booking-card.status-paid       { border-left-color: var(--gold); }
+    .booking-card.status-checked_in  { border-left-color: #0369a1; }
+    .booking-card.status-checked_out { border-left-color: #374151; }
 
-    .booking-id { font-size: .7rem; font-weight: 700; color: var(--gold); letter-spacing: .08em; margin-bottom: 4px; }
-    .booking-guest { font-size: 1rem; font-weight: 700; margin-bottom: 3px; }
-    .booking-phone { font-size: .85rem; color: var(--muted); }
-    .booking-room { font-size: .9375rem; font-weight: 700; margin-bottom: 3px; }
-    .booking-dates { font-size: .8rem; color: var(--muted); margin-bottom: 3px; }
-    .booking-guests { font-size: .8rem; color: var(--muted); }
-    .booking-amount { font-size: 1.2rem; font-weight: 900; color: var(--gold); margin-bottom: 4px; }
-    .booking-nights { font-size: .75rem; color: var(--muted); }
-    .booking-special { font-size: .75rem; color: var(--warning); margin-top: 4px; }
+    /* Card header row */
+    .bc-header { display: flex; align-items: center; gap: 7px; padding: 9px 16px 8px; border-bottom: 1px solid var(--border); background: rgba(28,21,16,.025); flex-wrap: wrap; }
+    .bc-code { font-family: monospace; font-size: .78rem; font-weight: 800; color: var(--text); letter-spacing: .04em; }
+    .bc-booked-at { margin-left: auto; font-size: .7rem; color: var(--muted); white-space: nowrap; }
+    .bc-source { font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; padding: 2px 7px; border-radius: 9999px; border: 1px solid; }
+    .bc-source.walkin { background: rgba(3,105,161,.1); color: #0369a1; border-color: rgba(3,105,161,.3); }
+    .bc-source.online { background: rgba(124,58,237,.08); color: #7c3aed; border-color: rgba(124,58,237,.25); }
+    .bc-source.corp   { background: rgba(28,21,16,.1); color: var(--text); border-color: rgba(28,21,16,.25); }
+
+    /* Card body */
+    .bc-body { display: grid; grid-template-columns: 1.1fr 1.2fr 0.8fr; align-items: start; padding: 14px 16px; }
+    .bc-guest { padding-right: 14px; border-right: 1px solid var(--border); }
+    .bc-guest-name { font-size: .9375rem; font-weight: 800; color: var(--text); margin-bottom: 5px; }
+    .bc-guest-meta { font-size: .78rem; color: var(--muted); line-height: 1.65; }
+    .bc-room-info { padding: 0 14px; border-right: 1px solid var(--border); }
+    .bc-room-name { font-size: .875rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .bc-room-detail { font-size: .78rem; color: var(--muted); margin-bottom: 2px; }
+    .bc-room-detail strong { color: var(--text); }
+    .bc-special-req { font-size: .72rem; color: var(--warning); margin-top: 4px; }
+    .bc-amount-col { padding-left: 14px; }
+    .bc-amount { font-size: 1.1rem; font-weight: 900; color: var(--text); margin-bottom: 2px; }
+    .bc-rate { font-size: .72rem; color: var(--muted); margin-bottom: 4px; }
+    .bc-paid-ref { font-size: .7rem; color: var(--success); font-weight: 600; }
+
+    /* Card actions footer */
+    .bc-actions { display: flex; align-items: center; gap: 8px; padding: 9px 14px; border-top: 1px solid var(--border); background: rgba(28,21,16,.02); flex-wrap: wrap; }
+    .bc-actions-right { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn-ac-primary { background: var(--success); color: #fff; border: none; padding: 7px 16px; border-radius: 9999px; font-size: .8rem; font-weight: 700; cursor: pointer; white-space: nowrap; font-family: inherit; }
+    .btn-ac-primary:hover { opacity: .9; }
+    .btn-ac-primary.danger { background: transparent; color: var(--danger); border: 1px solid rgba(220,38,38,.4); }
+    .btn-ac-primary.danger:hover { background: rgba(220,38,38,.07); }
+    .btn-ac-primary.gold { background: var(--gold); }
+    .btn-ac-primary.blue { background: #0369a1; }
+    .btn-ac-primary.dark { background: #374151; }
+    .btn-ac-icon { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 6px 11px; border-radius: 9999px; font-size: .78rem; cursor: pointer; white-space: nowrap; font-weight: 600; font-family: inherit; }
+    .btn-ac-icon:hover { border-color: var(--gold); }
+    .btn-ac-icon.wa { background: rgba(37,211,102,.1); border-color: rgba(37,211,102,.4); color: #16a34a; }
+    .btn-ac-icon.wa:hover { background: rgba(37,211,102,.2); }
 
     .badge {
-      display: inline-block; padding: 3px 10px; border-radius: 9999px;
-      font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
-      margin-bottom: 10px;
+      display: inline-block; padding: 2px 9px; border-radius: 9999px;
+      font-size: .67rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
     }
     .badge-pending  { background: rgba(180,83,9,.10);  color: var(--warning); border: 1px solid rgba(180,83,9,.25); }
     .badge-approved { background: rgba(21,128,61,.10); color: var(--success); border: 1px solid rgba(21,128,61,.25); }
     .badge-rejected { background: rgba(220,38,38,.10); color: var(--danger);  border: 1px solid rgba(220,38,38,.25); }
     .badge-paid     { background: rgba(28,21,16,.10); color: var(--gold);    border: 1px solid rgba(28,21,16,.30); }
 
-    .booking-actions { display: flex; flex-direction: column; gap: 8px; min-width: 160px; }
-    .btn-approve { background: var(--success); color: #fff; border: none; padding: 9px 16px; border-radius: 9999px; font-size: .8125rem; font-weight: 700; }
-    .btn-approve:hover { opacity: .9; }
-    .btn-reject  { background: transparent; color: var(--danger); border: 1px solid rgba(220,38,38,.4); padding: 8px 16px; border-radius: 9999px; font-size: .8125rem; font-weight: 700; }
-    .btn-reject:hover  { background: rgba(220,38,38,.07); }
-    .btn-wa      { background: #25d366; color: #fff; border: none; padding: 9px 16px; border-radius: 9999px; font-size: .8125rem; font-weight: 700; }
-    .btn-wa:hover { opacity: .9; }
-    .btn-pay     { background: var(--gold); color: #fff; border: none; padding: 9px 16px; border-radius: 9999px; font-size: .8125rem; font-weight: 700; }
-    .btn-pay:hover { opacity: .9; }
-    .btn-invoice { background: var(--info); color: #fff; border: none; padding: 9px 16px; border-radius: 9999px; font-size: .8125rem; font-weight: 700; }
-    .btn-invoice:hover { opacity: .9; }
-    .btn-checkout { background: #374151; color: #fff; border: none; padding: 9px 16px; border-radius: 9999px; font-size: .8125rem; font-weight: 700; }
-    .btn-checkout:hover { opacity: .85; }
-    .booking-card.status-checked_out { border-left: 4px solid #374151; }
     .badge-checked_out { background: rgba(55,65,81,.10); color: #374151; border: 1px solid rgba(55,65,81,.30); }
 
-    /* CHECK-IN */
-    .btn-checkin { background: #0369a1; color: #fff; border: none; padding: 9px 16px; border-radius: 9999px; font-size: .8125rem; font-weight: 700; }
-    .btn-checkin:hover { opacity: .9; }
-    .booking-card.status-checked_in { border-left: 4px solid #0369a1; }
     .badge-checked_in { background: rgba(3,105,161,.10); color: #0369a1; border: 1px solid rgba(3,105,161,.30); }
     .stay-timer-badge {
       display: inline-flex; align-items: center; gap: 5px;
@@ -305,9 +324,6 @@
     .utr-verify-box { background: rgba(180,83,9,.07); border: 1px solid rgba(180,83,9,.30); border-radius: 8px; padding: 8px 12px; margin-bottom: 8px; font-size: .75rem; }
     .utr-verify-box strong { color: var(--warning); display: block; margin-bottom: 2px; }
     .utr-verify-box span { color: var(--muted); }
-    .btn-email { background: #7c3aed; color: #fff; border: none; padding: 9px 16px; border-radius: 9999px; font-size: .8125rem; font-weight: 700; }
-    .btn-email:hover { opacity: .9; }
-    .btn-mark-paid { background: var(--success); color: #fff; border: none; padding: 9px 16px; border-radius: 9999px; font-size: .8125rem; font-weight: 700; }
 
     /* PAYMENT STATUS CHIP */
     .pay-status-chip { font-size: .68rem; font-weight: 800; padding: 2px 8px; border-radius: 9999px; display: inline-block; margin-bottom: 6px; }
@@ -329,15 +345,21 @@
     .search-clear-btn:hover { border-color: var(--gold); color: var(--text); }
     .search-count { font-size: .8rem; color: var(--muted); white-space: nowrap; }
 
+    @media (max-width: 1100px) {
+      .stats-grid { grid-template-columns: repeat(3, 1fr); }
+    }
     @media (max-width: 900px) {
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .booking-card { grid-template-columns: 1fr 1fr; }
-      .booking-actions { flex-direction: row; flex-wrap: wrap; min-width: unset; grid-column: 1 / -1; }
+      .stats-grid { grid-template-columns: repeat(3, 1fr); }
+      .bc-body { grid-template-columns: 1fr 1fr; }
+      .bc-amount-col { grid-column: 1 / -1; padding-left: 0; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 2px; }
     }
     @media (max-width: 600px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .booking-card { grid-template-columns: 1fr; }
-      .admin-body { padding: 16px; }
+      .bc-body { grid-template-columns: 1fr; }
+      .bc-guest { padding-right: 0; border-right: none; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 10px; }
+      .bc-room-info { padding: 0; border-right: none; padding-bottom: 10px; }
+      .bc-amount-col { padding-top: 10px; }
+      .admin-body { padding: 12px; }
     }
 
     /* MARK PAID MODAL */
@@ -431,19 +453,28 @@
     <!-- Stats -->
     <div class="stats-grid">
       <div class="stat-card pending">
+        <div class="stat-icon">⏳</div>
         <div class="stat-label">Pending</div>
         <div class="stat-value" id="statPending">—</div>
       </div>
       <div class="stat-card confirmed">
-        <div class="stat-label">Confirmed</div>
+        <div class="stat-icon">✅</div>
+        <div class="stat-label">Approved</div>
         <div class="stat-value" id="statApproved">—</div>
       </div>
+      <div class="stat-card inhouse">
+        <div class="stat-icon">🏨</div>
+        <div class="stat-label">In-House</div>
+        <div class="stat-value" id="statCheckedIn">—</div>
+      </div>
       <div class="stat-card paid">
+        <div class="stat-icon">💳</div>
         <div class="stat-label">Paid</div>
         <div class="stat-value" id="statPaid">—</div>
       </div>
       <div class="stat-card total">
-        <div class="stat-label">Total Revenue</div>
+        <div class="stat-icon">💰</div>
+        <div class="stat-label">Revenue</div>
         <div class="stat-value" id="statRevenue">—</div>
       </div>
     </div>
@@ -1073,10 +1104,11 @@
     const checkedIn = allBookings.filter(b => b.status === 'checked_in').length
     const revenue   = allBookings.filter(b => ['paid','checked_in','checked_out'].includes(b.status)).reduce((s, b) => s + (b.totalAmount || 0), 0)
 
-    document.getElementById('statPending').textContent  = pending
-    document.getElementById('statApproved').textContent = approved + (checkedIn ? ' · ' + checkedIn + ' in' : '')
-    document.getElementById('statPaid').textContent     = paid
-    document.getElementById('statRevenue').textContent  = '₹' + revenue.toLocaleString('en-IN')
+    document.getElementById('statPending').textContent   = pending
+    document.getElementById('statApproved').textContent  = approved
+    document.getElementById('statCheckedIn').textContent = checkedIn
+    document.getElementById('statPaid').textContent      = paid
+    document.getElementById('statRevenue').textContent   = '₹' + revenue.toLocaleString('en-IN')
   }
 
   function getPaymentStatus(b) {
@@ -1161,6 +1193,21 @@
     renderBookings()
   }
 
+  function timeAgo(ts) {
+    if (!ts) return ''
+    const t = ts && ts.toDate ? ts.toDate() : (ts && ts.seconds ? new Date(ts.seconds * 1000) : null)
+    if (!t) return ''
+    const diff = Date.now() - t.getTime()
+    const mins = Math.floor(diff / 60000)
+    if (mins < 2) return 'just now'
+    if (mins < 60) return mins + 'm ago'
+    const hrs = Math.floor(mins / 60)
+    if (hrs < 24) return hrs + 'h ago'
+    const days = Math.floor(hrs / 24)
+    if (days < 7) return days + 'd ago'
+    return t.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+  }
+
   function renderBookings() {
     const list = document.getElementById('bookingsList')
     let filtered = currentFilter === 'all'
@@ -1187,32 +1234,74 @@
     list.innerHTML = filtered.map(b => {
       const statusLabel = b.status === 'checked_out' ? 'Checked Out'
                         : b.status === 'checked_in'  ? 'Checked In'
-                        : b.status
-      const statusBadge = `<div class="badge badge-${b.status}">${statusLabel}</div>`
-      const actions     = buildActions(b)
+                        : b.status.charAt(0).toUpperCase() + b.status.slice(1)
+      const statusBadge = `<span class="badge badge-${b.status}">${statusLabel}</span>`
+      const payBadge = (b.status !== 'pending' && b.status !== 'rejected')
+        ? `<span class="pay-status-chip ${getPaymentStatus(b) === 'paid' ? 'paid' : 'unpaid'}">${getPaymentStatus(b) === 'paid' ? '✓ Paid' : 'Unpaid'}</span>`
+        : ''
+      const chipClass = b.paymentMethod || 'cash'
+      const chipLabel = b.paymentMethod === 'razorpay' ? 'Razorpay'
+                      : b.paymentMethod === 'upi'      ? 'UPI'
+                      : b.paymentMethod === 'cash'     ? 'Pay at Hotel'
+                      : ''
+      const payChip = chipLabel ? `<span class="pay-chip ${chipClass}">${chipLabel}</span>` : ''
+      const sourceClass = b.source === 'walkin' ? 'walkin' : 'online'
+      const sourceLabel = b.source === 'walkin' ? 'Walk-in' : 'Online'
+      const corpBadge   = b.isCorporate ? `<span class="bc-source corp">CORP</span>` : ''
+      const booked      = timeAgo(b.createdAt)
+
+      const utrNum = b.paymentId && b.paymentId.startsWith('UTR:') ? b.paymentId.replace('UTR:', '') : null
+      const utrBox = (b.paymentMethod === 'upi' && b.status === 'pending')
+        ? `<div class="utr-verify-box" style="margin:0 16px 8px">
+            <strong>⚠️ Verify UPI Payment First</strong>
+            <span>UTR: <strong style="color:var(--text)">${utrNum || 'not provided'}</strong> — Check in Paytm before approving.</span>
+           </div>`
+        : ''
+
+      const ciAt = b.checkedInAt && b.checkedInAt.toDate ? b.checkedInAt.toDate().getTime()
+                 : b.checkedInAt && b.checkedInAt.seconds ? b.checkedInAt.seconds * 1000 : null
+      const stayTimer = (b.status === 'checked_in')
+        ? `<div class="stay-timer-badge" style="margin-top:8px"><span class="dot"></span><span class="stay-timer" data-since="${ciAt || ''}">...</span></div>`
+        : ''
+
+      const actions = buildActions(b)
       return `
         <div class="booking-card status-${b.status}" id="card-${b.id}">
-          <div>
-            <div class="booking-id">${b.bookingCode || b.id.slice(0,8).toUpperCase()}${b.isCorporate ? ' <span style="background:#1C1510;color:#fff;font-size:.65rem;padding:1px 6px;border-radius:9999px;vertical-align:middle;">CORP</span>' : ''}</div>
-            <div class="booking-guest">${b.customerName}</div>
-            <div class="booking-phone">📞 ${b.customerPhone}</div>
-            ${b.customerEmail ? `<div class="booking-phone">✉️ ${b.customerEmail}</div>` : ''}
-            ${b.isCorporate && b.customerGstin ? `<div class="booking-phone" style="font-family:monospace;font-size:.8rem;">🏢 GSTIN: ${b.customerGstin}</div>` : ''}
-          </div>
-          <div>
-            <div class="booking-room">🛏️ ${b.roomName}</div>
-            <div class="booking-dates">📅 ${fmtDate(b.checkIn)} → ${fmtDate(b.checkOut)}</div>
-            <div class="booking-guests">👥 ${b.guests} guest${b.guests > 1 ? 's' : ''} · ${b.nights} night${b.nights > 1 ? 's' : ''}</div>
-            ${b.specialRequests ? `<div class="booking-special">📝 ${b.specialRequests}</div>` : ''}
-          </div>
-          <div>
+          <div class="bc-header">
+            <span class="bc-code">${b.bookingCode || b.id.slice(0,8).toUpperCase()}</span>
+            <span class="bc-source ${sourceClass}">${sourceLabel}</span>
+            ${corpBadge}
             ${statusBadge}
-            ${(b.status !== 'pending' && b.status !== 'rejected') ? `<div class="pay-status-chip ${getPaymentStatus(b) === 'paid' ? 'paid' : 'unpaid'}">${getPaymentStatus(b) === 'paid' ? '💳 Paid' : '💰 Unpaid'}</div>` : ''}
-            <div class="booking-amount">₹${(b.totalAmount||0).toLocaleString('en-IN')}</div>
-            <div class="booking-nights">₹${b.pricePerNight}/night × ${b.nights}</div>
-            ${b.paymentId ? `<div style="font-size:.7rem;color:var(--success);margin-top:4px">✓ Paid · ${b.paymentId}</div>` : ''}
+            ${payBadge}
+            ${payChip}
+            <span class="bc-booked-at">${booked}</span>
           </div>
-          <div class="booking-actions">${actions}</div>
+          <div class="bc-body">
+            <div class="bc-guest">
+              <div class="bc-guest-name">${b.customerName}</div>
+              <div class="bc-guest-meta">
+                📞 ${b.customerPhone}
+                ${b.customerEmail ? `<br>✉ ${b.customerEmail}` : ''}
+                ${b.isCorporate && b.customerGstin ? `<br>🏢 ${b.customerGstin}` : ''}
+              </div>
+            </div>
+            <div class="bc-room-info">
+              <div class="bc-room-name">🛏 ${b.roomName}</div>
+              <div class="bc-room-detail">📅 ${fmtDate(b.checkIn)} → ${fmtDate(b.checkOut)}</div>
+              <div class="bc-room-detail">👥 ${b.guests} guest${b.guests > 1 ? 's' : ''} · ${b.nights} night${b.nights > 1 ? 's' : ''}</div>
+              ${b.specialRequests ? `<div class="bc-special-req">📝 ${b.specialRequests}</div>` : ''}
+              ${b.roomNumber ? `<div class="bc-room-detail">🚪 Room <strong>${b.roomNumber}</strong></div>` : ''}
+              ${b.aadharNumber ? `<div class="bc-room-detail">🪪 ${b.idType || 'Aadhar'}: <strong>${b.aadharNumber}</strong></div>` : ''}
+            </div>
+            <div class="bc-amount-col">
+              <div class="bc-amount">₹${(b.totalAmount||0).toLocaleString('en-IN')}</div>
+              <div class="bc-rate">₹${b.pricePerNight}/night × ${b.nights}</div>
+              ${b.paymentId ? `<div class="bc-paid-ref">✓ ${b.paymentId}</div>` : ''}
+              ${stayTimer}
+            </div>
+          </div>
+          ${utrBox}
+          <div class="bc-actions">${actions}</div>
         </div>`
     }).join('')
     refreshStayTimers()
@@ -1221,73 +1310,61 @@
   function buildActions(b) {
     const id = b.id
 
-    // Payment method chip
-    const chipClass = b.paymentMethod || 'cash'
-    const chipLabel = b.paymentMethod === 'razorpay' ? '💳 Razorpay'
-                    : b.paymentMethod === 'upi'      ? '📱 UPI — Verify'
-                    : b.paymentMethod === 'cash'     ? '🏨 Pay at Hotel'
-                    : ''
-    const chip = chipLabel
-      ? `<div class="pay-chip ${chipClass}">${chipLabel}</div>`
-      : ''
-
-    // UTR verify box for UPI bookings
-    const utrNum = b.paymentId && b.paymentId.startsWith('UTR:') ? b.paymentId.replace('UTR:', '') : null
-    const utrBox = (b.paymentMethod === 'upi' && b.status === 'pending')
-      ? `<div class="utr-verify-box">
-          <strong>⚠️ Verify UPI Payment First</strong>
-          <span>UTR: <strong style="color:var(--text)">${utrNum || 'not provided'}</strong> — Check in your Paytm app before approving.</span>
-         </div>`
-      : ''
-
     if (b.status === 'pending') {
-      return `${chip}${utrBox}
-        <button class="btn-approve" onclick="approveBooking('${id}')">✓ Approve</button>
-        <button class="btn-reject"  onclick="rejectBooking('${id}')">✗ Reject</button>`
+      return `
+        <button class="btn-ac-primary" onclick="approveBooking('${id}')">✓ Approve</button>
+        <button class="btn-ac-primary danger" onclick="rejectBooking('${id}')">✗ Reject</button>
+        <div class="bc-actions-right">
+          <button class="btn-ac-icon wa" onclick="sendWhatsApp('${id}')">💬 WhatsApp</button>
+        </div>`
     }
     if (b.status === 'approved') {
       const markLabel = b.paymentMethod === 'razorpay' ? '✓ Confirm Razorpay'
                       : b.paymentMethod === 'upi'      ? '✓ Confirm UPI'
-                      : '✓ Mark as Paid'
+                      : '✓ Mark Paid'
       const showCollect = !b.paymentMethod || b.paymentMethod === 'cash'
-      return `${chip}
-        <button class="btn-mark-paid" onclick="markAsPaid('${id}')">${markLabel}</button>
-        ${showCollect ? `<button class="btn-pay" onclick="openPayModal('${id}')">💳 Collect via Razorpay</button>` : ''}
-        <button class="btn-checkin"  onclick="openCheckinModal('${id}')">🏨 Check In</button>
-        <button class="btn-wa"       onclick="sendWhatsApp('${id}')">💬 WhatsApp</button>
-        <button class="btn-invoice"  onclick="downloadInvoice('${id}')">📄 Download PDF</button>`
+      return `
+        <button class="btn-ac-primary blue" onclick="openCheckinModal('${id}')">🏨 Check In</button>
+        <button class="btn-ac-primary" onclick="markAsPaid('${id}')">${markLabel}</button>
+        ${showCollect ? `<button class="btn-ac-icon" onclick="openPayModal('${id}')">💳 Collect Online</button>` : ''}
+        <div class="bc-actions-right">
+          <button class="btn-ac-icon wa" onclick="sendWhatsApp('${id}')">💬</button>
+          <button class="btn-ac-icon" onclick="downloadInvoice('${id}')">📄 Invoice</button>
+        </div>`
     }
     if (b.status === 'paid') {
-      return `${chip}
-        <button class="btn-checkin"  onclick="openCheckinModal('${id}')">🏨 Check In</button>
-        <button class="btn-wa"       onclick="sendWhatsApp('${id}')">💬 Receipt WA</button>
-        ${b.customerEmail ? `<button class="btn-email" onclick="sendEmailToGuest('receipt', allBookings.find(x=>x.id==='${id}'))">📧 Email Receipt</button>` : ''}
-        <button class="btn-invoice"  onclick="downloadInvoice('${id}')">📄 Download PDF</button>`
+      return `
+        <button class="btn-ac-primary blue" onclick="openCheckinModal('${id}')">🏨 Check In</button>
+        <div class="bc-actions-right">
+          <button class="btn-ac-icon wa" onclick="sendWhatsApp('${id}')">💬 Receipt</button>
+          ${b.customerEmail ? `<button class="btn-ac-icon" onclick="sendEmailToGuest('receipt', allBookings.find(x=>x.id==='${id}'))">📧 Email</button>` : ''}
+          <button class="btn-ac-icon" onclick="downloadInvoice('${id}')">📄 Invoice</button>
+        </div>`
     }
     if (b.status === 'checked_in') {
-      const ciAt = b.checkedInAt && b.checkedInAt.toDate ? b.checkedInAt.toDate().getTime() : null
       const markLabel = b.paymentMethod === 'razorpay' ? '✓ Confirm Razorpay'
                       : b.paymentMethod === 'upi'      ? '✓ Confirm UPI'
-                      : '✓ Mark as Paid'
-      return `${chip}
-        <div class="stay-timer-badge"><span class="dot"></span><span class="stay-timer" data-since="${ciAt || ''}">Calculating…</span></div>
-        ${b.roomNumber ? `<div class="checkin-detail-row">🚪 Room No: <strong>${b.roomNumber}</strong></div>` : ''}
-        ${b.aadharNumber ? `<div class="checkin-detail-row">🪪 Aadhar: <strong>${b.aadharNumber}</strong></div>` : ''}
-        ${b.genderAtCheckin ? `<div class="checkin-detail-row">👤 Gender: <strong>${b.genderAtCheckin}</strong></div>` : ''}
-        ${getPaymentStatus(b) === 'unpaid' ? `<button class="btn-mark-paid" onclick="markAsPaid('${id}')">${markLabel}</button>` : `<div style="font-size:.75rem;color:var(--success);font-weight:700">✓ Paid</div>`}
-        <button class="btn-checkout" onclick="checkoutBooking('${id}')">🚪 Checkout</button>
-        <button class="btn-wa"       onclick="sendWhatsApp('${id}')">💬 WhatsApp</button>
-        <button class="btn-invoice"  onclick="downloadInvoice('${id}')">📄 Invoice PDF</button>`
+                      : '✓ Mark Paid'
+      const isPaid = getPaymentStatus(b) === 'paid'
+      return `
+        <button class="btn-ac-primary dark" onclick="checkoutBooking('${id}')">🚪 Checkout</button>
+        ${!isPaid
+          ? `<button class="btn-ac-primary" onclick="markAsPaid('${id}')">${markLabel}</button>`
+          : `<span style="font-size:.78rem;color:var(--success);font-weight:700;padding:0 4px">✓ Paid</span>`}
+        <div class="bc-actions-right">
+          <button class="btn-ac-icon wa" onclick="sendWhatsApp('${id}')">💬</button>
+          <button class="btn-ac-icon" onclick="downloadInvoice('${id}')">📄 Invoice</button>
+        </div>`
     }
     if (b.status === 'checked_out') {
-      return `${chip}<span style="font-size:.8rem;color:var(--muted)">✅ Checked out</span>
-        ${b.roomNumber    ? `<div class="checkin-detail-row">🚪 Room No: <strong>${b.roomNumber}</strong></div>` : ''}
-        ${b.aadharNumber  ? `<div class="checkin-detail-row">🪪 Aadhar: <strong>${b.aadharNumber}</strong></div>` : ''}
-        ${b.genderAtCheckin ? `<div class="checkin-detail-row">👤 Gender: <strong>${b.genderAtCheckin}</strong></div>` : ''}
-        <button class="btn-invoice" onclick="downloadInvoice('${id}')">📄 Invoice PDF</button>`
+      return `
+        <span style="font-size:.78rem;color:var(--success);font-weight:600">✅ Checked out</span>
+        <div class="bc-actions-right">
+          <button class="btn-ac-icon" onclick="downloadInvoice('${id}')">📄 Invoice</button>
+        </div>`
     }
     if (b.status === 'rejected') {
-      return `<span style="font-size:.8rem;color:var(--muted)">Booking rejected</span>`
+      return `<span style="font-size:.78rem;color:var(--muted)">Booking rejected</span>`
     }
     return ''
   }
@@ -1813,32 +1890,58 @@
     let y = M
     const roomTotal = (b.pricePerNight||0)*(b.nights||1)
     const total     = b.totalAmount || roomTotal
-    const gstAmt    = b.gstAmount || 0
-    const taxable   = total - gstAmt
-    const gstPct    = (gstAmt && taxable) ? Math.round(gstAmt/taxable*100) : 0
-    const cgst      = gstAmt ? Math.round(gstAmt/2) : 0
-    const sgst      = gstAmt - cgst
-    const cgstPct   = gstPct/2, sgstPct = gstPct/2
+    const gstRate   = HOTEL.gstRate || 0
+
+    // Prices are GST-inclusive — back-calculate taxable amount
+    let taxable, gstAmt, gstPct, cgst, sgst, cgstPct, sgstPct
+    if (b.gstAmount > 0) {
+      gstAmt  = b.gstAmount
+      taxable = total - gstAmt
+      gstPct  = gstRate || Math.round(gstAmt / taxable * 100)
+    } else if (HOTEL.gstIncluded && gstRate > 0) {
+      taxable = Math.round(total * 100 / (100 + gstRate))
+      gstAmt  = total - taxable
+      gstPct  = gstRate
+    } else {
+      taxable = total; gstAmt = 0; gstPct = 0
+    }
+    cgst = Math.floor(gstAmt / 2); sgst = gstAmt - cgst
+    cgstPct = gstPct / 2; sgstPct = gstPct / 2
 
     // ── OUTER BORDER ──────────────────────────────────────────
     doc.setDrawColor(...BK); doc.setLineWidth(0.6)
     doc.rect(M-1, M-1, IW+2, 277, 'D')
 
     // ── HEADER ────────────────────────────────────────────────
+    // Hotel building logo (mirrors the website SVG icon)
+    const LS = 20, LX = PW - M - LS, LY = y
+    const sc = LS / 56
+    const lcx = LX + 28*sc, lcy = LY + 28*sc, lr = 26*sc
+    doc.setDrawColor(...BK); doc.setLineWidth(0.5); doc.circle(lcx, lcy, lr, 'D')
+    doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(7)
+    doc.text('JP', lcx, LY + 21*sc, {align:'center'})
+    // Roof triangle
+    doc.setFillColor(...BK); doc.setDrawColor(...BK); doc.setLineWidth(0.1)
+    doc.lines([[-14*sc, 8*sc],[28*sc, 0],[-14*sc,-8*sc]], LX+28*sc, LY+23*sc, [1,1], 'F', true)
+    // Building body
+    doc.rect(LX+17*sc, LY+31*sc, 22*sc, 15*sc, 'F')
+    // Windows (white)
+    doc.setFillColor(...WH)
+    doc.rect(LX+20*sc, LY+34*sc, 4*sc, 4*sc, 'F')
+    doc.rect(LX+32*sc, LY+34*sc, 4*sc, 4*sc, 'F')
+    // Door (white)
+    doc.rect(LX+25*sc, LY+39*sc, 6*sc, 7*sc, 'F')
+
     doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(18)
     doc.text('HOTEL JAY PALACE', M+2, y+8)
     doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...MG)
     doc.text("Saraipali's Finest Hotel", M+2, y+14)
-    doc.setDrawColor(...BK); doc.setLineWidth(0.5)
-    doc.circle(PW-M-11, y+8, 9, 'D')
-    doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(11)
-    doc.text('JP', PW-M-11, y+11.5, {align:'center'})
-    y += 18
+    y += 20
     doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...BK)
     doc.text('Tel: '+HOTEL.phone+'   |   Email: '+HOTEL.email, M+2, y)
     doc.text('Address: '+HOTEL.address, M+2, y+6)
     doc.text('GSTIN: '+(HOTEL.gstin||'22BBHPP6396R1ZQ')+'   |   Website: jaypalace.online', M+2, y+12)
-    y += 17
+    y += 15
     doc.setDrawColor(...BK); doc.setLineWidth(0.5); doc.line(M, y, M+IW, y)
     y += 3
 
@@ -1921,8 +2024,10 @@
     const IRH = 13
     hx = M
     iC.forEach(c => { doc.setDrawColor(...BK); doc.setLineWidth(0.15); doc.rect(hx,y,c.w,IRH,'D'); hx+=c.w })
-    const iVals = ['1',null,'996311',String(b.nights||1),'Night'+((b.nights||1)>1?'s':''),
-                   (b.pricePerNight||0).toLocaleString('en-IN'),gstPct?gstPct+'%':'Nil',
+    const nights    = b.nights || 1
+    const baseRate  = gstAmt > 0 ? Math.round(taxable / nights) : (b.pricePerNight || 0)
+    const iVals = ['1',null,'996311',String(nights),'Night'+(nights>1?'s':''),
+                   baseRate.toLocaleString('en-IN'),gstPct?gstPct+'%':'Nil',
                    taxable.toLocaleString('en-IN')]
     hx = M
     iVals.forEach((val,ci) => {
@@ -2027,19 +2132,15 @@
     y += termsH+4
 
     // ── PAYMENT DETAILS ───────────────────────────────────────
-    const payH = 22
+    const payH = 20
     doc.setDrawColor(...BK); doc.setLineWidth(0.2); doc.rect(M, y, IW, payH, 'D')
     doc.setLineWidth(0.15); doc.line(M, y+7, M+IW, y+7)
     doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(7.5)
     doc.text('Payment Details', M+3, y+5)
     doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...BK)
-    doc.text('UPI ID:  '+(HOTEL.upiId||'HOTELJAYPALACE309@iob'), M+4, y+13.5)
-    doc.text('Bank:  Indian Overseas Bank, Saraipali Branch', M+4, y+19.5)
-    const qx=M+IW-22, qy=y+5, qsz=16
-    doc.setDrawColor(...BK); doc.setLineWidth(0.3); doc.rect(qx,qy,qsz,qsz,'D')
-    doc.setFont('helvetica','normal'); doc.setFontSize(5.5); doc.setTextColor(...MG)
-    doc.text('UPI QR', qx+qsz/2, qy+qsz/2, {align:'center'})
-    doc.text('Scan to Pay', qx+qsz/2, qy+qsz/2+4, {align:'center'})
+    doc.text('UPI ID: '+(HOTEL.upiId||'HOTELJAYPALACE309@iob'), M+4, y+13)
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(...MG)
+    doc.text('Bank: Indian Overseas Bank, Saraipali Branch', M+4, y+18.5)
     y += payH+5
 
     // ── FOOTER ────────────────────────────────────────────────

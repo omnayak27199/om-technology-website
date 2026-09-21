@@ -14,7 +14,9 @@ window.HOTEL = {
   mapLink:     'https://maps.app.goo.gl/wbtZpwUweqdRTicHA',
   checkIn:     '12:00 PM',
   checkOut:    '11:00 AM',
-  gst:         0,                       // GST % to add on total (e.g. 12 for 12%). 0 = no GST
+  gst:         0,                       // Keep 0 — prices are GST-inclusive (back-calculated in invoice)
+  gstRate:     12,                      // GST % included in the displayed price (12% for tariff ≤ ₹7500)
+  gstIncluded: true,                    // true = displayed price already includes GST
   gstin:       '22BBHPP6396R1ZQ',       // Hotel GST Identification Number
   upiId:       'HOTELJAYPALACE309@iob',
 }
