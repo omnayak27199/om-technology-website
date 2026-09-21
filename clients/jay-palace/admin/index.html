@@ -1790,7 +1790,7 @@
     const doc = new jsPDF({ unit: 'mm', format: 'a4' })
 
     const PW = 210, M = 10, IW = 190
-    const BK = [0,0,0], WH = [255,255,255], DG = [40,40,40]
+    const BK = [0,0,0], WH = [255,255,255]
     const MG = [120,120,120], LG = [245,245,245], XG = [218,218,218]
 
     function amountInWords(n) {
@@ -1844,8 +1844,9 @@
 
     // ── TITLE BAR ─────────────────────────────────────────────
     const docTitle = isCorp ? 'TAX INVOICE' : 'HOTEL INVOICE'
-    doc.setFillColor(...DG); doc.rect(M, y, IW, 9, 'F')
-    doc.setTextColor(...WH); doc.setFont('helvetica','bold'); doc.setFontSize(10)
+    doc.setFillColor(...XG); doc.rect(M, y, IW, 9, 'F')
+    doc.setDrawColor(...BK); doc.setLineWidth(0.3); doc.rect(M, y, IW, 9, 'D')
+    doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(10)
     doc.text(docTitle, PW/2, y+6.5, {align:'center'})
     y += 11
 
@@ -1908,12 +1909,12 @@
     ]
     iC[iC.length-1].w = IW - iC.slice(0,-1).reduce((s,c)=>s+c.w,0)
 
-    doc.setFillColor(...DG)
+    doc.setFillColor(...XG)
     let hx = M
-    iC.forEach(c => { doc.rect(hx,y,c.w,8,'FD'); hx+=c.w })
+    iC.forEach(c => { doc.setDrawColor(...BK); doc.setLineWidth(0.2); doc.rect(hx,y,c.w,8,'FD'); hx+=c.w })
     hx = M
     iC.forEach(c => {
-      doc.setTextColor(...WH); doc.setFont('helvetica','bold'); doc.setFontSize(6.5)
+      doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(6.5)
       doc.text(c.lbl, c.al==='center'?hx+c.w/2:hx+2, y+5.5, {align:c.al==='center'?'center':'left'})
       hx += c.w
     })
@@ -1955,8 +1956,9 @@
     const TW = 108, SW = IW-TW-0.5, XS = M+TW+0.5
     const sy0 = y
 
-    doc.setFillColor(...DG); doc.rect(M, y, TW, 7, 'F')
-    doc.setTextColor(...WH); doc.setFont('helvetica','bold'); doc.setFontSize(7.5)
+    doc.setFillColor(...XG); doc.rect(M, y, TW, 7, 'F')
+    doc.setDrawColor(...BK); doc.setLineWidth(0.2); doc.rect(M, y, TW, 7, 'D')
+    doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(7.5)
     doc.text('Tax Breakdown', M+3, y+5); y += 7
 
     const tC = [
@@ -1988,8 +1990,9 @@
     const taxEndY = y
 
     let sy = sy0
-    doc.setFillColor(...DG); doc.rect(XS, sy, SW, 7, 'F')
-    doc.setTextColor(...WH); doc.setFont('helvetica','bold'); doc.setFontSize(7.5)
+    doc.setFillColor(...XG); doc.rect(XS, sy, SW, 7, 'F')
+    doc.setDrawColor(...BK); doc.setLineWidth(0.2); doc.rect(XS, sy, SW, 7, 'D')
+    doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(7.5)
     doc.text('Amount Summary', XS+3, sy+5); sy += 7
 
     const sRows = [
@@ -2001,10 +2004,10 @@
     ]
     sRows.forEach(([lbl,val,bold]) => {
       const rh = bold?8.5:7
-      doc.setFillColor(...(bold?DG:WH)); doc.rect(XS, sy, SW, rh, 'F')
+      doc.setFillColor(...(bold?LG:WH)); doc.rect(XS, sy, SW, rh, 'F')
       doc.setDrawColor(...BK); doc.setLineWidth(0.15); doc.rect(XS, sy, SW, rh, 'D')
       doc.setFont('helvetica',bold?'bold':'normal'); doc.setFontSize(bold?8.5:7.5)
-      doc.setTextColor(...(bold?WH:BK))
+      doc.setTextColor(...BK)
       doc.text(lbl, XS+3, sy+rh/2+1.5)
       doc.text(val, XS+SW-3, sy+rh/2+1.5, {align:'right'}); sy+=rh
     })
