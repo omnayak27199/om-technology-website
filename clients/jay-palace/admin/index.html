@@ -1441,228 +1441,287 @@
   function downloadInvoice(id) {
     const b = allBookings.find(x => x.id === id)
     if (!b) return
-    const code    = b.bookingCode || id.slice(0, 8).toUpperCase()
-    const isPaid  = getPaymentStatus(b) === 'paid'
-    const isCorp  = !!b.isCorporate
+    const code   = b.bookingCode || id.slice(0, 8).toUpperCase()
+    const isCorp = !!b.isCorporate
+    const isPaid = getPaymentStatus(b) === 'paid'
     const { jsPDF } = window.jspdf
     const doc = new jsPDF({ unit: 'mm', format: 'a4' })
 
-    // ── Palette: strict black & white ────────────────────────
-    const W    = 210, M = 14
-    const BK   = [0, 0, 0]       // pure black
-    const WH   = [255, 255, 255] // pure white
-    const LG   = [245, 245, 245] // light grey row fill
-    const MG   = [100, 100, 100] // mid grey labels
+    const PW = 210, M = 10, IW = 190
+    const BK = [0,0,0], WH = [255,255,255], DG = [40,40,40]
+    const MG = [120,120,120], LG = [245,245,245], XG = [218,218,218]
 
-    function row(label, value, y, shade) {
-      if (shade) { doc.setFillColor(...LG); doc.rect(M, y, W - M * 2, 8, 'F') }
-      doc.setDrawColor(...MG); doc.setLineWidth(0.15)
-      doc.line(M, y + 8, W - M, y + 8)
-      doc.setTextColor(...MG); doc.setFont('helvetica', 'normal'); doc.setFontSize(8)
-      doc.text(label, M + 4, y + 5.5)
-      doc.setTextColor(...BK); doc.setFont('helvetica', 'bold'); doc.setFontSize(8)
-      doc.text(String(value), W - M - 4, y + 5.5, { align: 'right' })
-      return y + 8
+    function amountInWords(n) {
+      const o = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten',
+                 'Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen']
+      const t = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety']
+      function w(n) {
+        if (!n) return ''
+        if (n<20) return o[n]
+        if (n<100) return t[~~(n/10)]+(n%10?' '+o[n%10]:'')
+        if (n<1000) return o[~~(n/100)]+' Hundred'+(n%100?' '+w(n%100):'')
+        if (n<1e5) return w(~~(n/1000))+' Thousand'+(n%1000?' '+w(n%1000):'')
+        if (n<1e7) return w(~~(n/1e5))+' Lakh'+(n%1e5?' '+w(n%1e5):'')
+        return w(~~(n/1e7))+' Crore'+(n%1e7?' '+w(n%1e7):'')
+      }
+      const i=Math.floor(n), d=Math.round((n-i)*100)
+      return (w(i)||'Zero')+' Rupees'+(d?' and '+w(d)+' Paise':'')+' Only'
     }
 
-    function sectionHead(label, y) {
-      doc.setFillColor(...BK); doc.rect(M, y, W - M * 2, 7, 'F')
-      doc.setTextColor(...WH); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5)
-      doc.text(label, M + 4, y + 5)
-      return y + 7
-    }
+    let y = M
+    const roomTotal = (b.pricePerNight||0)*(b.nights||1)
+    const total     = b.totalAmount || roomTotal
+    const gstAmt    = b.gstAmount || 0
+    const taxable   = total - gstAmt
+    const gstPct    = (gstAmt && taxable) ? Math.round(gstAmt/taxable*100) : 0
+    const cgst      = gstAmt ? Math.round(gstAmt/2) : 0
+    const sgst      = gstAmt - cgst
+    const cgstPct   = gstPct/2, sgstPct = gstPct/2
 
-    // ── OUTER BORDER ─────────────────────────────────────────
-    doc.setDrawColor(...BK); doc.setLineWidth(0.8)
-    doc.rect(M - 2, 6, W - M * 2 + 4, 281, 'D')
+    // ── OUTER BORDER ──────────────────────────────────────────
+    doc.setDrawColor(...BK); doc.setLineWidth(0.6)
+    doc.rect(M-1, M-1, IW+2, 277, 'D')
 
-    // ── HEADER ───────────────────────────────────────────────
-    doc.setFillColor(...BK); doc.rect(M - 2, 6, W - M * 2 + 4, 36, 'F')
-    doc.setTextColor(...WH); doc.setFont('helvetica', 'bold'); doc.setFontSize(20)
-    doc.text('HOTEL JAY PALACE', W / 2, 21, { align: 'center' })
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5)
-    doc.text(HOTEL.address, W / 2, 28, { align: 'center' })
-    doc.text('Tel: ' + HOTEL.phone + '   |   ' + HOTEL.email + '   |   jaypalace.online', W / 2, 33, { align: 'center' })
-    doc.text('GSTIN: ' + (HOTEL.gstin || '22BBHPP6396R1ZQ'), W / 2, 38, { align: 'center' })
+    // ── HEADER ────────────────────────────────────────────────
+    doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(18)
+    doc.text('HOTEL JAY PALACE', M+2, y+8)
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...MG)
+    doc.text("Saraipali's Finest Hotel", M+2, y+14)
+    doc.setDrawColor(...BK); doc.setLineWidth(0.5)
+    doc.circle(PW-M-11, y+8, 9, 'D')
+    doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(11)
+    doc.text('JP', PW-M-11, y+11.5, {align:'center'})
+    y += 18
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...BK)
+    doc.text('Tel: '+HOTEL.phone+'   |   Email: '+HOTEL.email, M+2, y)
+    doc.text('Address: '+HOTEL.address, M+2, y+6)
+    doc.text('GSTIN: '+(HOTEL.gstin||'22BBHPP6396R1ZQ')+'   |   Website: jaypalace.online', M+2, y+12)
+    y += 17
+    doc.setDrawColor(...BK); doc.setLineWidth(0.5); doc.line(M, y, M+IW, y)
+    y += 3
 
-    // ── DOCUMENT TITLE ────────────────────────────────────────
-    const docTitle = (b.status === 'checked_in' || b.status === 'checked_out')
-      ? (isCorp ? 'TAX INVOICE' : 'GUEST INVOICE')
-      : (isCorp ? 'TAX INVOICE' : 'BOOKING CONFIRMATION')
-    doc.setTextColor(...BK); doc.setFont('helvetica', 'bold'); doc.setFontSize(13)
-    doc.text(docTitle, W / 2, 51, { align: 'center' })
-    if (isCorp) {
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...MG)
-      doc.text('CORPORATE BOOKING', W / 2, 56, { align: 'center' })
-    }
+    // ── TITLE BAR ─────────────────────────────────────────────
+    const docTitle = isCorp ? 'TAX INVOICE' : 'HOTEL INVOICE'
+    doc.setFillColor(...DG); doc.rect(M, y, IW, 9, 'F')
+    doc.setTextColor(...WH); doc.setFont('helvetica','bold'); doc.setFontSize(10)
+    doc.text(docTitle, PW/2, y+6.5, {align:'center'})
+    y += 11
 
-    // ── INVOICE META (2-column strip) ─────────────────────────
-    let y = isCorp ? 60 : 56
-    doc.setDrawColor(...BK); doc.setLineWidth(0.3)
-    doc.rect(M, y, W - M * 2, 16, 'D')
-    doc.line(W / 2 + 5, y + 2, W / 2 + 5, y + 14)
-
-    doc.setTextColor(...MG); doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5)
-    doc.text('Invoice No.', M + 4, y + 6)
-    doc.text('Date', M + 4, y + 12)
-    doc.setTextColor(...BK); doc.setFont('helvetica', 'bold'); doc.setFontSize(8)
-    doc.text('INV-JP-' + code, M + 36, y + 6)
-    doc.text(new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }), M + 36, y + 12)
-
-    doc.setTextColor(...MG); doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5)
-    doc.text('Booking ID', W / 2 + 9, y + 6)
-    doc.text('Status', W / 2 + 9, y + 12)
-    doc.setTextColor(...BK); doc.setFont('helvetica', 'bold'); doc.setFontSize(8)
-    doc.text(code, W - M - 4, y + 6, { align: 'right' })
-    const sLbl = { pending:'PENDING', approved:'CONFIRMED', paid:'PAID', checked_in:'CHECKED IN', checked_out:'CHECKED OUT', rejected:'REJECTED' }
-    doc.text(sLbl[b.status] || b.status.toUpperCase(), W - M - 4, y + 12, { align: 'right' })
-    y += 20
-
-    // ── TWO COLUMNS: GUEST + BOOKING ─────────────────────────
-    const colW = (W - M * 2 - 4) / 2
-    const col2 = M + colW + 4
-
-    // Build guest rows (no Aadhar, no Gender)
-    const guestRows = [
-      ['Name',    b.customerName  || '—'],
-      ['Phone',   b.customerPhone || '—'],
-      ['Email',   b.customerEmail || '—'],
-      ['Guests',  (b.guests || '—') + (b.guests > 1 ? ' Guests' : ' Guest')],
+    // ── BILLING TO | INVOICE DETAILS ──────────────────────────
+    const LCW = 82, RCW = IW-LCW-0.5, X2 = M+LCW+0.5
+    const BH = 7, RH = 5.5
+    const billingItems = [['Name',b.customerName||'—'],['Phone',b.customerPhone||'—'],['Email',b.customerEmail||'—']]
+    if (isCorp && b.customerGstin) billingItems.push(['GSTIN',b.customerGstin])
+    const pmL = {razorpay:'Online (Razorpay)',upi:'UPI Transfer',cash:'Cash at Hotel'}
+    const stL = {pending:'Pending',approved:'Confirmed',paid:'Paid',checked_in:'Checked In',checked_out:'Checked Out',rejected:'Rejected'}
+    const detailItems = [
+      ['Bill No.','INV-JP-'+code],
+      ['Date',new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric'})],
+      ['Booking ID',code],
+      ['Check-in',fmtDate(b.checkIn)],
+      ['Check-out',fmtDate(b.checkOut)],
+      ['Nights',(b.nights||1)+' Night'+((b.nights||1)>1?'s':'')],
+      ['Payment',pmL[b.paymentMethod]||'—'],
+      ['Status',stL[b.status]||b.status],
     ]
-    if (isCorp && b.customerGstin) guestRows.push(['GSTIN', b.customerGstin])
+    const SecH = Math.max(BH+billingItems.length*RH+4, BH+detailItems.length*RH+4)
 
-    const ciTs = b.checkedInAt
-      ? new Date(b.checkedInAt.seconds ? b.checkedInAt.seconds * 1000 : b.checkedInAt)
-      : null
-    const bookingRows = [
-      ['Room Type',  b.roomName   || '—'],
-      ['Room No.',   b.roomNumber || '—'],
-      ['Check-in',   fmtDate(b.checkIn)  + ' ' + HOTEL.checkIn],
-      ['Check-out',  fmtDate(b.checkOut) + ' ' + HOTEL.checkOut],
-      ['Nights',     (b.nights || '—') + (b.nights > 1 ? ' Nights' : ' Night')],
-      ['Arr. Time',  ciTs ? ciTs.toLocaleString('en-IN', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '—'],
-    ]
-    const boxH = Math.max(guestRows.length, bookingRows.length) * 8 + 10
-
-    // Left column header
-    doc.setFillColor(...BK); doc.rect(M, y, colW, 8, 'F')
-    doc.setTextColor(...WH); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5)
-    doc.text('GUEST DETAILS', M + 4, y + 5.5)
-    doc.setDrawColor(...BK); doc.setLineWidth(0.3); doc.rect(M, y, colW, boxH, 'D')
-    let gy = y + 11
-    guestRows.forEach(([lbl, val], i) => {
-      if (i % 2 === 0) { doc.setFillColor(...LG); doc.rect(M + 0.5, gy - 1.5, colW - 1, 8, 'F') }
-      doc.setTextColor(...MG); doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5)
-      doc.text(lbl, M + 4, gy + 4)
-      doc.setTextColor(...BK); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5)
-      doc.text(doc.splitTextToSize(String(val), colW - 30)[0], M + colW - 3, gy + 4, { align: 'right' })
-      gy += 8
+    doc.setFillColor(...XG); doc.rect(M, y, LCW, BH, 'F')
+    doc.setDrawColor(...BK); doc.setLineWidth(0.2); doc.rect(M, y, LCW, SecH, 'D')
+    doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(8)
+    doc.text('Billing To', M+3, y+5)
+    let by = y+BH+3
+    billingItems.forEach(([lbl,val]) => {
+      doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(...MG)
+      doc.text(lbl+':', M+3, by)
+      doc.setFont('helvetica','normal'); doc.setTextColor(...BK)
+      doc.text(doc.splitTextToSize(String(val),LCW-26)[0], M+22, by)
+      by += RH
     })
 
-    // Right column header
-    doc.setFillColor(...BK); doc.rect(col2, y, colW, 8, 'F')
-    doc.setTextColor(...WH); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5)
-    doc.text('BOOKING SUMMARY', col2 + 4, y + 5.5)
-    doc.setDrawColor(...BK); doc.setLineWidth(0.3); doc.rect(col2, y, colW, boxH, 'D')
-    let ry = y + 11
-    bookingRows.forEach(([lbl, val], i) => {
-      if (i % 2 === 0) { doc.setFillColor(...LG); doc.rect(col2 + 0.5, ry - 1.5, colW - 1, 8, 'F') }
-      doc.setTextColor(...MG); doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5)
-      doc.text(lbl, col2 + 4, ry + 4)
-      doc.setTextColor(...BK); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5)
-      doc.text(doc.splitTextToSize(String(val), colW - 30)[0], col2 + colW - 3, ry + 4, { align: 'right' })
-      ry += 8
+    doc.setFillColor(...XG); doc.rect(X2, y, RCW, BH, 'F')
+    doc.setDrawColor(...BK); doc.setLineWidth(0.2); doc.rect(X2, y, RCW, SecH, 'D')
+    doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(8)
+    doc.text('Invoice Details', X2+3, y+5)
+    let dy = y+BH+3
+    detailItems.forEach(([lbl,val]) => {
+      doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(...MG)
+      doc.text(lbl+':', X2+3, dy)
+      doc.setFont('helvetica','normal'); doc.setTextColor(...BK)
+      doc.text(doc.splitTextToSize(String(val),RCW-32)[0], X2+32, dy)
+      dy += RH
     })
-    y += boxH + 5
+    y += SecH+3
 
-    // Special requests
-    if (b.specialRequests) {
-      doc.setDrawColor(...BK); doc.setLineWidth(0.3)
-      doc.rect(M, y, W - M * 2, 10, 'D')
-      doc.setTextColor(...MG); doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5)
-      doc.text('Special Requests:', M + 4, y + 6.5)
-      doc.setTextColor(...BK); doc.setFont('helvetica', 'bold')
-      doc.text(doc.splitTextToSize(b.specialRequests, W - M * 2 - 46)[0], M + 44, y + 6.5)
-      y += 13
-    }
+    // ── ITEMS TABLE ───────────────────────────────────────────
+    const iC = [
+      {w:10,lbl:'S.No.',al:'center'},
+      {w:64,lbl:'Description',al:'left'},
+      {w:22,lbl:'HSN/SAC',al:'center'},
+      {w:15,lbl:'Qty',al:'center'},
+      {w:18,lbl:'Unit',al:'center'},
+      {w:25,lbl:'Rate (Rs.)',al:'center'},
+      {w:14,lbl:'GST',al:'center'},
+      {w:22,lbl:'Amt (Rs.)',al:'center'},
+    ]
+    iC[iC.length-1].w = IW - iC.slice(0,-1).reduce((s,c)=>s+c.w,0)
 
-    // ── CHARGES TABLE ─────────────────────────────────────────
-    y = sectionHead('CHARGES', y)
-    // Table header
-    doc.setFillColor(...LG); doc.rect(M, y, W - M * 2, 8, 'F')
-    doc.setTextColor(...MG); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5)
-    doc.text('Description', M + 4, y + 5.5)
-    doc.text('Qty', M + 110, y + 5.5, { align: 'center' })
-    doc.text('Rate (Rs.)', M + 140, y + 5.5, { align: 'center' })
-    doc.text('Amount (Rs.)', W - M - 4, y + 5.5, { align: 'right' })
-    doc.setDrawColor(...BK); doc.setLineWidth(0.2); doc.line(M, y + 8, W - M, y + 8)
+    doc.setFillColor(...DG)
+    let hx = M
+    iC.forEach(c => { doc.rect(hx,y,c.w,8,'FD'); hx+=c.w })
+    hx = M
+    iC.forEach(c => {
+      doc.setTextColor(...WH); doc.setFont('helvetica','bold'); doc.setFontSize(6.5)
+      doc.text(c.lbl, c.al==='center'?hx+c.w/2:hx+2, y+5.5, {align:c.al==='center'?'center':'left'})
+      hx += c.w
+    })
     y += 8
 
-    const roomTotal = (b.pricePerNight || 0) * (b.nights || 1)
-    doc.setTextColor(...BK); doc.setFont('helvetica', 'normal'); doc.setFontSize(9)
-    doc.text((b.roomName || 'Accommodation') + ' — Room Charges', M + 4, y + 6.5)
-    doc.text(String(b.nights || 1) + ' Night' + (b.nights > 1 ? 's' : ''), M + 110, y + 6.5, { align: 'center' })
-    doc.text((b.pricePerNight || 0).toLocaleString('en-IN'), M + 140, y + 6.5, { align: 'center' })
-    doc.setFont('helvetica', 'bold')
-    doc.text(roomTotal.toLocaleString('en-IN'), W - M - 4, y + 6.5, { align: 'right' })
-    doc.setDrawColor(...MG); doc.setLineWidth(0.15); doc.line(M, y + 10, W - M, y + 10)
-    y += 10
+    const IRH = 13
+    doc.setFillColor(...WH)
+    hx = M
+    iC.forEach(c => { doc.setDrawColor(...BK); doc.setLineWidth(0.15); doc.rect(hx,y,c.w,IRH,'FD'); hx+=c.w })
+    const iVals = ['1',null,'996311',String(b.nights||1),'Night'+((b.nights||1)>1?'s':''),
+                   (b.pricePerNight||0).toLocaleString('en-IN'),gstPct?gstPct+'%':'Nil',
+                   taxable.toLocaleString('en-IN')]
+    hx = M
+    iVals.forEach((val,ci) => {
+      const c = iC[ci]
+      if (ci===1) {
+        doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...BK)
+        doc.text(b.roomName||'Accommodation', hx+2, y+5)
+        doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(...MG)
+        doc.text('Hotel accommodation / SAC 996311', hx+2, y+9.5)
+      } else {
+        const al = c.al, tx = al==='center'?hx+c.w/2:hx+2
+        doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...BK)
+        doc.text(String(val??''), tx, y+IRH/2+1.5, {align:al==='center'?'center':'left'})
+      }
+      hx += c.w
+    })
+    y += IRH
 
-    if (b.gstAmount) {
-      doc.setFillColor(...LG); doc.rect(M, y, W - M * 2, 8, 'F')
-      doc.setTextColor(...MG); doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5)
-      doc.text('GST', M + 4, y + 5.5)
-      doc.setTextColor(...BK); doc.setFont('helvetica', 'bold')
-      doc.text(b.gstAmount.toLocaleString('en-IN'), W - M - 4, y + 5.5, { align: 'right' })
-      doc.setDrawColor(...MG); doc.setLineWidth(0.15); doc.line(M, y + 8, W - M, y + 8)
-      y += 8
-    }
+    doc.setFillColor(...LG)
+    hx = M
+    iC.forEach(c => { doc.setDrawColor(...BK); doc.setLineWidth(0.15); doc.rect(hx,y,c.w,7,'FD'); hx+=c.w })
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...BK)
+    doc.text('Item Total', M+2, y+5)
+    doc.text('Rs. '+taxable.toLocaleString('en-IN'), M+IW-2, y+5, {align:'right'})
+    y += 7+4
 
-    // Total row
-    doc.setFillColor(...BK); doc.rect(M, y, W - M * 2, 11, 'F')
-    doc.setTextColor(...WH); doc.setFont('helvetica', 'bold'); doc.setFontSize(10)
-    doc.text('TOTAL AMOUNT', M + 4, y + 7.5)
-    doc.text('Rs. ' + (b.totalAmount || roomTotal).toLocaleString('en-IN'), W - M - 4, y + 7.5, { align: 'right' })
-    y += 14
+    // ── TAX BREAKDOWN (left) | AMOUNT SUMMARY (right) ─────────
+    const TW = 108, SW = IW-TW-0.5, XS = M+TW+0.5
+    const sy0 = y
 
-    // ── PAYMENT ───────────────────────────────────────────────
-    y = sectionHead('PAYMENT INFORMATION', y)
-    const pmLabel = { razorpay: 'Online — Razorpay', upi: 'UPI Transfer', cash: 'Cash at Hotel' }
-    const payRef  = b.paymentId ? b.paymentId.replace('UTR:', 'UTR ') : '—'
-    y = row('Payment Method',    pmLabel[b.paymentMethod] || '—',        y, false)
-    y = row('Transaction / UTR', payRef,                                  y, true)
-    y = row('Payment Status',    isPaid ? 'PAID' : 'PENDING',            y, false)
-    y += 6
+    doc.setFillColor(...DG); doc.rect(M, y, TW, 7, 'F')
+    doc.setTextColor(...WH); doc.setFont('helvetica','bold'); doc.setFontSize(7.5)
+    doc.text('Tax Breakdown', M+3, y+5); y += 7
 
-    // ── TERMS ─────────────────────────────────────────────────
-    doc.setDrawColor(...BK); doc.setLineWidth(0.3)
-    doc.rect(M, y, W - M * 2, 28, 'D')
-    doc.setTextColor(...BK); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5)
-    doc.text('TERMS & CONDITIONS', M + 4, y + 6)
-    doc.setTextColor(...MG); doc.setFont('helvetica', 'normal'); doc.setFontSize(6.8)
-    doc.text('1.  Check-in: 12:00 PM  |  Check-out: 11:00 AM. Early check-in subject to availability.', M + 4, y + 12)
-    doc.text('2.  Valid government photo ID (Aadhaar / PAN / Passport) mandatory at check-in.', M + 4, y + 17)
-    doc.text('3.  This is a computer-generated invoice and is legally valid without a physical signature.', M + 4, y + 22)
-    doc.text('4.  For queries: ' + HOTEL.phone + '  |  ' + HOTEL.email, M + 4, y + 27)
-    y += 32
+    const tC = [
+      {w:22,lbl:'HSN/SAC'},{w:26,lbl:'Taxable (Rs.)'},{w:16,lbl:'CGST %'},
+      {w:18,lbl:'CGST Amt'},{w:14,lbl:'SGST %'},{w:0,lbl:'SGST Amt'},{w:0,lbl:'Tax Total'}
+    ]
+    const tFix = tC.slice(0,-2).reduce((s,c)=>s+c.w,0)
+    tC[5].w = Math.round((TW-tFix)*0.55); tC[6].w = TW-tFix-tC[5].w
+    doc.setFillColor(...XG)
+    let tx2 = M
+    tC.forEach(c => {
+      doc.rect(tx2,y,c.w,6.5,'FD'); doc.setDrawColor(...BK); doc.setLineWidth(0.15); doc.rect(tx2,y,c.w,6.5,'D')
+      doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(6)
+      doc.text(c.lbl, tx2+c.w/2, y+4.5, {align:'center'}); tx2+=c.w
+    }); y += 6.5
+
+    ;[[false],[true]].forEach(([isTot]) => {
+      if (isTot) doc.setFillColor(...LG); else doc.setFillColor(...WH)
+      tx2 = M
+      const td = isTot
+        ? ['TOTAL',taxable.toLocaleString('en-IN'),'',cgst.toLocaleString('en-IN'),'',sgst.toLocaleString('en-IN'),gstAmt.toLocaleString('en-IN')]
+        : ['996311',taxable.toLocaleString('en-IN'),cgstPct?cgstPct+'%':'0%',cgst.toLocaleString('en-IN'),sgstPct?sgstPct+'%':'0%',sgst.toLocaleString('en-IN'),gstAmt.toLocaleString('en-IN')]
+      tC.forEach((c,ci) => {
+        doc.rect(tx2,y,c.w,6.5,'FD'); doc.setDrawColor(...BK); doc.setLineWidth(0.15); doc.rect(tx2,y,c.w,6.5,'D')
+        doc.setFont('helvetica',isTot?'bold':'normal'); doc.setFontSize(6.5); doc.setTextColor(...BK)
+        doc.text(String(td[ci]??''), tx2+c.w/2, y+4.5, {align:'center'}); tx2+=c.w
+      }); y += 6.5
+    })
+    const taxEndY = y
+
+    let sy = sy0
+    doc.setFillColor(...DG); doc.rect(XS, sy, SW, 7, 'F')
+    doc.setTextColor(...WH); doc.setFont('helvetica','bold'); doc.setFontSize(7.5)
+    doc.text('Amount Summary', XS+3, sy+5); sy += 7
+
+    const sRows = [
+      ['Item Total','Rs. '+taxable.toLocaleString('en-IN'),false],
+      ['CGST ('+(cgstPct||0)+'%)','Rs. '+cgst.toLocaleString('en-IN'),false],
+      ['SGST ('+(sgstPct||0)+'%)','Rs. '+sgst.toLocaleString('en-IN'),false],
+      ['GRAND TOTAL','Rs. '+total.toLocaleString('en-IN'),true],
+      [isPaid?'PAID ✓':'PENDING',isPaid?'Amount Received':'Payment Due',false],
+    ]
+    sRows.forEach(([lbl,val,bold]) => {
+      const rh = bold?8.5:7
+      doc.setFillColor(...(bold?DG:WH)); doc.rect(XS, sy, SW, rh, 'F')
+      doc.setDrawColor(...BK); doc.setLineWidth(0.15); doc.rect(XS, sy, SW, rh, 'D')
+      doc.setFont('helvetica',bold?'bold':'normal'); doc.setFontSize(bold?8.5:7.5)
+      doc.setTextColor(...(bold?WH:BK))
+      doc.text(lbl, XS+3, sy+rh/2+1.5)
+      doc.text(val, XS+SW-3, sy+rh/2+1.5, {align:'right'}); sy+=rh
+    })
+    const words = amountInWords(total)
+    const wLines = doc.splitTextToSize(words, SW-6)
+    const wH = 5.5+wLines.length*4.5
+    doc.setFillColor(...LG); doc.rect(XS, sy, SW, wH, 'F')
+    doc.setDrawColor(...BK); doc.setLineWidth(0.15); doc.rect(XS, sy, SW, wH, 'D')
+    doc.setFont('helvetica','bold'); doc.setFontSize(5.5); doc.setTextColor(...MG)
+    doc.text('Amount in Words:', XS+3, sy+5)
+    doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(...BK)
+    wLines.forEach((l,i) => doc.text(l, XS+3, sy+5+4.5*(i+1)))
+    sy += wH
+
+    y = Math.max(taxEndY, sy)+5
+
+    // ── TERMS & CONDITIONS ────────────────────────────────────
+    const termsH = 25
+    doc.setFillColor(...XG); doc.rect(M, y, IW, 7, 'F')
+    doc.setDrawColor(...BK); doc.setLineWidth(0.2); doc.rect(M, y, IW, termsH, 'D')
+    doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(7.5)
+    doc.text('Terms & Conditions', M+3, y+5)
+    doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(...MG)
+    doc.text('1.  Check-in: '+HOTEL.checkIn+'  |  Check-out: '+HOTEL.checkOut+'. Early check-in subject to availability.', M+4, y+12)
+    doc.text('2.  Valid Government ID (Aadhaar / PAN / Passport) mandatory at check-in for all guests.', M+4, y+17.5)
+    doc.text('3.  Computer-generated invoice — legally valid without physical signature. Queries: '+HOTEL.phone, M+4, y+23)
+    y += termsH+4
+
+    // ── PAYMENT DETAILS ───────────────────────────────────────
+    const payH = 22
+    doc.setFillColor(...XG); doc.rect(M, y, IW, 7, 'F')
+    doc.setDrawColor(...BK); doc.setLineWidth(0.2); doc.rect(M, y, IW, payH, 'D')
+    doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(7.5)
+    doc.text('Payment Details', M+3, y+5)
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...BK)
+    doc.text('UPI ID:  '+(HOTEL.upiId||'HOTELJAYPALACE309@iob'), M+4, y+13.5)
+    doc.text('Bank:  Indian Overseas Bank, Saraipali Branch', M+4, y+19.5)
+    const qx=M+IW-22, qy=y+5, qsz=16
+    doc.setDrawColor(...BK); doc.setLineWidth(0.3); doc.rect(qx,qy,qsz,qsz,'D')
+    doc.setFont('helvetica','normal'); doc.setFontSize(5.5); doc.setTextColor(...MG)
+    doc.text('UPI QR', qx+qsz/2, qy+qsz/2, {align:'center'})
+    doc.text('Scan to Pay', qx+qsz/2, qy+qsz/2+4, {align:'center'})
+    y += payH+5
 
     // ── FOOTER ────────────────────────────────────────────────
-    const fy = Math.max(y, 263)
-    const sx1 = W - M - 52, sx2 = W - M
-    doc.setDrawColor(...BK); doc.setLineWidth(0.3)
-    doc.line(sx1, fy - 8, sx2, fy - 8)
-    doc.setTextColor(...MG); doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5)
-    doc.text('Authorised Signatory', (sx1 + sx2) / 2, fy - 4, { align: 'center' })
-    doc.text('Hotel Jay Palace', (sx1 + sx2) / 2, fy - 0.5, { align: 'center' })
+    doc.setDrawColor(...BK); doc.setLineWidth(0.4); doc.line(M, y, M+IW, y)
+    y += 6
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...BK)
+    doc.text('Thank You, Visit Again!', PW/2, y+2, {align:'center'})
+    doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(...MG)
+    doc.text('Hotel Jay Palace, Main Road, Saraipali, Chhattisgarh  |  jaypalace.online', PW/2, y+7.5, {align:'center'})
+    doc.text('Powered by OM Technology  ·  omtechnology.online', PW/2, y+13, {align:'center'})
+    const sx1=M+IW-52, sx2=M+IW
+    doc.setLineWidth(0.3); doc.line(sx1, y+4, sx2, y+4)
+    doc.setFontSize(6); doc.setTextColor(...MG)
+    doc.text('Authorised Signatory', (sx1+sx2)/2, y+8, {align:'center'})
+    doc.text('Hotel Jay Palace', (sx1+sx2)/2, y+12, {align:'center'})
 
-    doc.setDrawColor(...BK); doc.setLineWidth(0.6)
-    doc.line(M, fy + 3, W - M, fy + 3)
-    doc.setTextColor(...BK); doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5)
-    doc.text('Thank you for choosing Hotel Jay Palace!', W / 2, fy + 9, { align: 'center' })
-    doc.setTextColor(...MG); doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5)
-    doc.text('Booking system powered by OM Technology  ·  omtechnology.online', W / 2, fy + 14, { align: 'center' })
-
-    doc.save('Invoice-JP-' + code + '.pdf')
+    doc.save('Invoice-JP-'+code+'.pdf')
   }
 
   // ── Helpers ──────────────────────────────────────────────
