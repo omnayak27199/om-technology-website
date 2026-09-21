@@ -918,7 +918,7 @@
     </div>
 
     <div class="wi-actions">
-      <button class="btn-wi-book" onclick="submitWalkin()">✓ Book &amp; Generate Invoice</button>
+      <button class="btn-wi-book" onclick="submitWalkin()">✓ Book Walk-in</button>
       <button class="btn-wi-cancel" onclick="closeWiModal()">Cancel</button>
     </div>
   </div>
@@ -1378,9 +1378,8 @@
     db.collection('bookings').doc(id).update({ status: 'approved' })
       .then(() => {
         const approved = { ...b, status: 'approved' }
-        sendWhatsAppMsg(approved, 'approved')
         sendEmailToGuest('confirmation', approved)
-        showAdminToast('Booking approved! WhatsApp + email sent to guest.')
+        showAdminToast('Booking approved! Confirmation email sent to guest.')
       })
   }
 
@@ -1389,7 +1388,6 @@
     if (!confirm(`Reject booking for ${b.customerName}?`)) return
     db.collection('bookings').doc(id).update({ status: 'rejected' })
       .then(() => {
-        sendWhatsAppMsg(b, 'rejected')
         showAdminToast('Booking rejected.', 'error')
       })
   }
@@ -1450,10 +1448,9 @@
 
     db.collection('bookings').doc(id).update(updates).then(() => {
       const paid = { ...b, ...updates, totalAmount: amt }
-      sendWhatsAppMsg(paid, 'paid')
       sendEmailToGuest('receipt', paid)
       closeMpaidModal()
-      showAdminToast(`Rs. ${amt.toLocaleString('en-IN')} collected ✓  Receipt sent to guest.`, 'success')
+      showAdminToast(`Rs. ${amt.toLocaleString('en-IN')} collected ✓  Receipt email sent.`, 'success')
     }).catch(err => showAdminToast('Failed: ' + err.message, 'error'))
   }
 
@@ -1569,11 +1566,10 @@
         createdAt:   { seconds: Date.now() / 1000 } }
       allBookings.unshift(local)
       closeWiModal()
-      showAdminToast(`Walk-in ${code} saved! Generating invoice…`, 'success')
-      downloadInvoice(ref.id)
+      showAdminToast(`Walk-in ${code} saved! Use Invoice button to download PDF.`, 'success')
     }).catch(err => {
       showAdminToast('Failed: ' + err.message, 'error')
-    }).finally(() => { btn.disabled = false; btn.textContent = '✓ Book & Generate Invoice' })
+    }).finally(() => { btn.disabled = false; btn.textContent = '✓ Book Walk-in' })
   }
 
   // ── Check-In ─────────────────────────────────────────────────
@@ -1626,14 +1622,11 @@
       closeCheckinModal()
       const checkedIn = { ...b, status: 'checked_in', roomNumber, aadharNumber: aadhar, guestsAtCheckin: guests, genderAtCheckin: gender }
       sendCheckinMessages(checkedIn, mobile)
-      showAdminToast(`${b.customerName} checked in to Room ${roomNumber}! Messages sent.`, 'success')
+      showAdminToast(`${b.customerName} checked in to Room ${roomNumber}!`, 'success')
     }).catch(err => showAdminToast('Check-in failed: ' + err.message, 'error'))
   }
 
   function sendCheckinMessages(b, mobile) {
-    // WhatsApp (auto via Business API if configured, else wa.me link)
-    sendWhatsAppMsg({ ...b, customerPhone: mobile }, 'checkin')
-    // Email via Gmail API
     sendGuestEmail('checkin',
       'Welcome! You\'re Checked In — ' + b.roomName + ' | Hotel Jay Palace',
       b)
@@ -1667,17 +1660,9 @@
     if (!confirm(`Mark checkout for ${b.customerName}?\nThis will deactivate their booking tracker.`)) return
     db.collection('bookings').doc(id).update({ status: 'checked_out', checkedOutAt: firebase.firestore.FieldValue.serverTimestamp() })
       .then(() => {
-        showAdminToast('Guest checked out! Sending farewell message + invoice...')
         const checkedOut = { ...b, status: 'checked_out' }
-
-        // 1. WhatsApp farewell + review request (auto via API or fallback link)
-        sendWhatsAppMsg(checkedOut, 'checkout')
-
-        // 2. Email with invoice summary
         sendCheckoutEmail(checkedOut)
-
-        // 3. Auto-download invoice PDF
-        downloadInvoice(id)
+        showAdminToast(`${b.customerName} checked out. Farewell email sent.`, 'success')
       })
   }
 
