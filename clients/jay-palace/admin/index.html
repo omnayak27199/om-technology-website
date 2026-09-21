@@ -130,8 +130,10 @@
     .btn-ac-primary.dark { background: #374151; }
     .btn-ac-icon { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 6px 11px; border-radius: 9999px; font-size: .78rem; cursor: pointer; white-space: nowrap; font-weight: 600; font-family: inherit; }
     .btn-ac-icon:hover { border-color: var(--gold); }
-    .btn-ac-icon.wa { background: rgba(37,211,102,.1); border-color: rgba(37,211,102,.4); color: #16a34a; }
-    .btn-ac-icon.wa:hover { background: rgba(37,211,102,.2); }
+    .btn-ac-icon.wa { background: #25d366; border-color: #25d366; color: #fff; }
+    .btn-ac-icon.wa:hover { background: #1db954; border-color: #1db954; }
+    .btn-ac-icon.invoice { background: #0369a1; border-color: #0369a1; color: #fff; }
+    .btn-ac-icon.invoice:hover { background: #025585; border-color: #025585; }
 
     .badge {
       display: inline-block; padding: 2px 9px; border-radius: 9999px;
@@ -1329,7 +1331,7 @@
         ${showCollect ? `<button class="btn-ac-icon" onclick="openPayModal('${id}')">💳 Collect Online</button>` : ''}
         <div class="bc-actions-right">
           <button class="btn-ac-icon wa" onclick="sendWhatsApp('${id}')">💬</button>
-          <button class="btn-ac-icon" onclick="downloadInvoice('${id}')">📄 Invoice</button>
+          <button class="btn-ac-icon invoice" onclick="downloadInvoice('${id}')">📄 Invoice</button>
         </div>`
     }
     if (b.status === 'paid') {
@@ -1338,7 +1340,7 @@
         <div class="bc-actions-right">
           <button class="btn-ac-icon wa" onclick="sendWhatsApp('${id}')">💬 Receipt</button>
           ${b.customerEmail ? `<button class="btn-ac-icon" onclick="sendEmailToGuest('receipt', allBookings.find(x=>x.id==='${id}'))">📧 Email</button>` : ''}
-          <button class="btn-ac-icon" onclick="downloadInvoice('${id}')">📄 Invoice</button>
+          <button class="btn-ac-icon invoice" onclick="downloadInvoice('${id}')">📄 Invoice</button>
         </div>`
     }
     if (b.status === 'checked_in') {
@@ -1353,14 +1355,14 @@
           : `<span style="font-size:.78rem;color:var(--success);font-weight:700;padding:0 4px">✓ Paid</span>`}
         <div class="bc-actions-right">
           <button class="btn-ac-icon wa" onclick="sendWhatsApp('${id}')">💬</button>
-          <button class="btn-ac-icon" onclick="downloadInvoice('${id}')">📄 Invoice</button>
+          <button class="btn-ac-icon invoice" onclick="downloadInvoice('${id}')">📄 Invoice</button>
         </div>`
     }
     if (b.status === 'checked_out') {
       return `
         <span style="font-size:.78rem;color:var(--success);font-weight:600">✅ Checked out</span>
         <div class="bc-actions-right">
-          <button class="btn-ac-icon" onclick="downloadInvoice('${id}')">📄 Invoice</button>
+          <button class="btn-ac-icon invoice" onclick="downloadInvoice('${id}')">📄 Invoice</button>
         </div>`
     }
     if (b.status === 'rejected') {
