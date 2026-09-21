@@ -661,6 +661,14 @@
       <input type="text" id="editRoomEmoji" placeholder="e.g. 🛏️" maxlength="4">
     </div>
     <div class="edit-field">
+      <label>Room Photo</label>
+      <div id="editRoomPhotoPreview" style="margin-bottom:8px;display:none;">
+        <img id="editRoomPhotoImg" src="" alt="Room photo" style="width:100%;max-height:140px;object-fit:cover;border-radius:8px;border:1px solid #e5e0d5;">
+      </div>
+      <input type="file" id="editRoomPhoto" accept="image/*" onchange="previewRoomPhoto(this)" style="font-size:.85rem;">
+      <small style="color:var(--muted);font-size:.75rem;">JPG/PNG, max 2 MB. Displays on the hotel website.</small>
+    </div>
+    <div class="edit-field">
       <label>Price per night (₹)</label>
       <input type="number" id="editRoomPrice" min="100" step="50">
     </div>
@@ -707,14 +715,16 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
 <script>
   firebase.initializeApp(window.FIREBASE_CONFIG)
-  const auth = firebase.auth()
-  const db   = firebase.firestore()
+  const auth    = firebase.auth()
+  const db      = firebase.firestore()
+  const storage = firebase.storage()
 
   // ── Gmail OAuth ──────────────────────────────────────────────
   let _gmailTokenClient = null
@@ -998,10 +1008,11 @@
       return `
         <div class="booking-card status-${b.status}" id="card-${b.id}">
           <div>
-            <div class="booking-id">${b.bookingCode || b.id.slice(0,8).toUpperCase()}</div>
+            <div class="booking-id">${b.bookingCode || b.id.slice(0,8).toUpperCase()}${b.isCorporate ? ' <span style="background:#1C1510;color:#fff;font-size:.65rem;padding:1px 6px;border-radius:9999px;vertical-align:middle;">CORP</span>' : ''}</div>
             <div class="booking-guest">${b.customerName}</div>
             <div class="booking-phone">📞 ${b.customerPhone}</div>
             ${b.customerEmail ? `<div class="booking-phone">✉️ ${b.customerEmail}</div>` : ''}
+            ${b.isCorporate && b.customerGstin ? `<div class="booking-phone" style="font-family:monospace;font-size:.8rem;">🏢 GSTIN: ${b.customerGstin}</div>` : ''}
           </div>
           <div>
             <div class="booking-room">🛏️ ${b.roomName}</div>
@@ -1430,272 +1441,225 @@
   function downloadInvoice(id) {
     const b = allBookings.find(x => x.id === id)
     if (!b) return
-    const code = b.bookingCode || id.slice(0, 8).toUpperCase()
+    const code    = b.bookingCode || id.slice(0, 8).toUpperCase()
+    const isPaid  = getPaymentStatus(b) === 'paid'
+    const isCorp  = !!b.isCorporate
     const { jsPDF } = window.jspdf
     const doc = new jsPDF({ unit: 'mm', format: 'a4' })
 
-    const W = 210, M = 14
-    const DBROWN = [80, 45, 20]
-    const BROWN  = [123, 79, 46]
-    const CREAM  = [250, 248, 245]
-    const CREAM2 = [240, 232, 220]
-    const BORDER = [210, 195, 180]
-    const DARK   = [26, 15, 8]
-    const GREY   = [130, 120, 110]
-    const WHITE  = [255, 255, 255]
-    const GREEN  = [22, 163, 74]
-    const AMBER  = [180, 120, 0]
-    const BLUE   = [59, 130, 246]
-    const RED    = [220, 38, 38]
-    const STRIPE = [244, 240, 236]
+    // ── Palette: strict black & white ────────────────────────
+    const W    = 210, M = 14
+    const BK   = [0, 0, 0]       // pure black
+    const WH   = [255, 255, 255] // pure white
+    const LG   = [245, 245, 245] // light grey row fill
+    const MG   = [100, 100, 100] // mid grey labels
 
-    const isPaid = getPaymentStatus(b) === 'paid'
-
-    function fmtAadhar(a) {
-      if (!a) return '—'
-      const s = String(a).replace(/\D/g, '')
-      return s.length === 12 ? s.replace(/(\d{4})(\d{4})(\d{4})/, '$1 $2 $3') : s
-    }
-
-    function sectionBar(label, y) {
-      doc.setFillColor(...BROWN)
-      doc.rect(M, y, W - M * 2, 8, 'F')
-      doc.setTextColor(...WHITE)
-      doc.setFont('helvetica', 'bold')
-      doc.setFontSize(8)
+    function row(label, value, y, shade) {
+      if (shade) { doc.setFillColor(...LG); doc.rect(M, y, W - M * 2, 8, 'F') }
+      doc.setDrawColor(...MG); doc.setLineWidth(0.15)
+      doc.line(M, y + 8, W - M, y + 8)
+      doc.setTextColor(...MG); doc.setFont('helvetica', 'normal'); doc.setFontSize(8)
       doc.text(label, M + 4, y + 5.5)
+      doc.setTextColor(...BK); doc.setFont('helvetica', 'bold'); doc.setFontSize(8)
+      doc.text(String(value), W - M - 4, y + 5.5, { align: 'right' })
       return y + 8
     }
 
-    // ── HEADER ─────────────────────────────────────────────
-    doc.setFillColor(...DBROWN)
-    doc.rect(0, 0, W, 44, 'F')
-    doc.setFillColor(...BROWN)
-    doc.rect(0, 0, W, 2, 'F')
-    doc.setTextColor(...WHITE)
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(22)
-    doc.text('HOTEL JAY PALACE', W / 2, 15, { align: 'center' })
-    doc.setFontSize(8)
-    doc.setTextColor(232, 215, 188)
-    doc.text('★  ★  ★  ★  ★', W / 2, 21, { align: 'center' })
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(8)
+    function sectionHead(label, y) {
+      doc.setFillColor(...BK); doc.rect(M, y, W - M * 2, 7, 'F')
+      doc.setTextColor(...WH); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5)
+      doc.text(label, M + 4, y + 5)
+      return y + 7
+    }
+
+    // ── OUTER BORDER ─────────────────────────────────────────
+    doc.setDrawColor(...BK); doc.setLineWidth(0.8)
+    doc.rect(M - 2, 6, W - M * 2 + 4, 281, 'D')
+
+    // ── HEADER ───────────────────────────────────────────────
+    doc.setFillColor(...BK); doc.rect(M - 2, 6, W - M * 2 + 4, 36, 'F')
+    doc.setTextColor(...WH); doc.setFont('helvetica', 'bold'); doc.setFontSize(20)
+    doc.text('HOTEL JAY PALACE', W / 2, 21, { align: 'center' })
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5)
     doc.text(HOTEL.address, W / 2, 28, { align: 'center' })
-    doc.text('Tel: ' + HOTEL.phone + '   |   Email: ' + HOTEL.email, W / 2, 34, { align: 'center' })
-    doc.text('Web: jaypalace.online', W / 2, 40, { align: 'center' })
+    doc.text('Tel: ' + HOTEL.phone + '   |   ' + HOTEL.email + '   |   jaypalace.online', W / 2, 33, { align: 'center' })
+    doc.text('GSTIN: ' + (HOTEL.gstin || '22BBHPP6396R1ZQ'), W / 2, 38, { align: 'center' })
 
-    // ── TITLE STRIP ─────────────────────────────────────────
-    doc.setFillColor(...CREAM2)
-    doc.rect(0, 44, W, 11, 'F')
-    doc.setTextColor(...DBROWN)
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(12)
-    const isStayed = b.status === 'checked_in' || b.status === 'checked_out'
-    doc.text(isStayed ? 'GUEST INVOICE' : 'BOOKING CONFIRMATION', W / 2, 52, { align: 'center' })
+    // ── DOCUMENT TITLE ────────────────────────────────────────
+    const docTitle = (b.status === 'checked_in' || b.status === 'checked_out')
+      ? (isCorp ? 'TAX INVOICE' : 'GUEST INVOICE')
+      : (isCorp ? 'TAX INVOICE' : 'BOOKING CONFIRMATION')
+    doc.setTextColor(...BK); doc.setFont('helvetica', 'bold'); doc.setFontSize(13)
+    doc.text(docTitle, W / 2, 51, { align: 'center' })
+    if (isCorp) {
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...MG)
+      doc.text('CORPORATE BOOKING', W / 2, 56, { align: 'center' })
+    }
 
-    // ── INVOICE META ─────────────────────────────────────────
-    let y = 60
-    doc.setFillColor(...CREAM)
-    doc.setDrawColor(...BORDER)
-    doc.setLineWidth(0.3)
-    doc.rect(M, y, W - M * 2, 16, 'FD')
+    // ── INVOICE META (2-column strip) ─────────────────────────
+    let y = isCorp ? 60 : 56
+    doc.setDrawColor(...BK); doc.setLineWidth(0.3)
+    doc.rect(M, y, W - M * 2, 16, 'D')
+    doc.line(W / 2 + 5, y + 2, W / 2 + 5, y + 14)
 
-    doc.setTextColor(...GREY)
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(7.5)
-    doc.text('Invoice No.', M + 4, y + 5.5)
-    doc.text('Date Issued', M + 4, y + 11.5)
-    doc.setTextColor(...DARK)
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(8)
-    doc.text('INV-JP-' + code, M + 30, y + 5.5)
-    doc.text(new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }), M + 30, y + 11.5)
+    doc.setTextColor(...MG); doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5)
+    doc.text('Invoice No.', M + 4, y + 6)
+    doc.text('Date', M + 4, y + 12)
+    doc.setTextColor(...BK); doc.setFont('helvetica', 'bold'); doc.setFontSize(8)
+    doc.text('INV-JP-' + code, M + 36, y + 6)
+    doc.text(new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }), M + 36, y + 12)
 
-    doc.setDrawColor(...BORDER)
-    doc.line(W / 2 + 5, y + 3, W / 2 + 5, y + 13)
-
-    doc.setTextColor(...GREY)
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(7.5)
-    doc.text('Booking ID', W / 2 + 9, y + 5.5)
-    doc.text('Status', W / 2 + 9, y + 11.5)
-    doc.setTextColor(...DARK)
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(8)
-    doc.text(code, W - M - 4, y + 5.5, { align: 'right' })
-    const sLbl = { pending: 'PENDING', approved: 'CONFIRMED', paid: 'PAID', checked_in: 'CHECKED IN', checked_out: 'CHECKED OUT', rejected: 'REJECTED' }
-    const sClr = { pending: AMBER, approved: BLUE, paid: GREEN, checked_in: BLUE, checked_out: GREEN, rejected: RED }
-    doc.setTextColor(...(sClr[b.status] || GREY))
-    doc.text(sLbl[b.status] || b.status.toUpperCase(), W - M - 4, y + 11.5, { align: 'right' })
+    doc.setTextColor(...MG); doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5)
+    doc.text('Booking ID', W / 2 + 9, y + 6)
+    doc.text('Status', W / 2 + 9, y + 12)
+    doc.setTextColor(...BK); doc.setFont('helvetica', 'bold'); doc.setFontSize(8)
+    doc.text(code, W - M - 4, y + 6, { align: 'right' })
+    const sLbl = { pending:'PENDING', approved:'CONFIRMED', paid:'PAID', checked_in:'CHECKED IN', checked_out:'CHECKED OUT', rejected:'REJECTED' }
+    doc.text(sLbl[b.status] || b.status.toUpperCase(), W - M - 4, y + 12, { align: 'right' })
     y += 20
 
-    // ── TWO COLUMNS ──────────────────────────────────────────
-    const colW = (W - M * 2 - 5) / 2
-    const col1 = M, col2 = M + colW + 5
-    const boxH = 52
+    // ── TWO COLUMNS: GUEST + BOOKING ─────────────────────────
+    const colW = (W - M * 2 - 4) / 2
+    const col2 = M + colW + 4
 
-    // Guest Details box
-    doc.setFillColor(...CREAM)
-    doc.rect(col1, y, colW, boxH, 'F')
-    doc.setFillColor(...BROWN)
-    doc.rect(col1, y, colW, 8, 'F')
-    doc.setDrawColor(...BORDER)
-    doc.setLineWidth(0.3)
-    doc.rect(col1, y, colW, boxH, 'D')
-    doc.setTextColor(...WHITE)
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(7.5)
-    doc.text('GUEST DETAILS', col1 + 4, y + 5.5)
-
+    // Build guest rows (no Aadhar, no Gender)
     const guestRows = [
       ['Name',    b.customerName  || '—'],
       ['Phone',   b.customerPhone || '—'],
       ['Email',   b.customerEmail || '—'],
-      ['Aadhaar', fmtAadhar(b.aadharNumber)],
-      ['Gender',  b.genderAtCheckin ? (b.genderAtCheckin.charAt(0).toUpperCase() + b.genderAtCheckin.slice(1)) : '—'],
-      ['Guests',  b.guests ? b.guests + (b.guests > 1 ? ' Guests' : ' Guest') : '—'],
+      ['Guests',  (b.guests || '—') + (b.guests > 1 ? ' Guests' : ' Guest')],
     ]
-    let gy = y + 11
-    guestRows.forEach(([lbl, val], i) => {
-      if (i % 2 === 0) { doc.setFillColor(...STRIPE); doc.rect(col1 + 1, gy - 1, colW - 2, 7, 'F') }
-      doc.setTextColor(...GREY); doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5)
-      doc.text(lbl, col1 + 4, gy + 4)
-      doc.setTextColor(...DARK); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5)
-      doc.text(doc.splitTextToSize(String(val), colW - 28)[0], col1 + 26, gy + 4)
-      gy += 7
-    })
-
-    // Booking Summary box
-    doc.setFillColor(...CREAM)
-    doc.rect(col2, y, colW, boxH, 'F')
-    doc.setFillColor(...BROWN)
-    doc.rect(col2, y, colW, 8, 'F')
-    doc.setDrawColor(...BORDER)
-    doc.setLineWidth(0.3)
-    doc.rect(col2, y, colW, boxH, 'D')
-    doc.setTextColor(...WHITE)
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(7.5)
-    doc.text('BOOKING SUMMARY', col2 + 4, y + 5.5)
+    if (isCorp && b.customerGstin) guestRows.push(['GSTIN', b.customerGstin])
 
     const ciTs = b.checkedInAt
       ? new Date(b.checkedInAt.seconds ? b.checkedInAt.seconds * 1000 : b.checkedInAt)
       : null
     const bookingRows = [
-      ['Room Type', b.roomName    || '—'],
-      ['Room No.',  b.roomNumber  || '(at check-in)'],
-      ['Check-in',  fmtDate(b.checkIn)  + (HOTEL.checkIn  ? ' (' + HOTEL.checkIn  + ')' : '')],
-      ['Check-out', fmtDate(b.checkOut) + (HOTEL.checkOut ? ' (' + HOTEL.checkOut + ')' : '')],
-      ['Duration',  (b.nights || '—') + (b.nights > 1 ? ' Nights' : ' Night')],
-      ['Arr. Time', ciTs ? ciTs.toLocaleString('en-IN', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '—'],
+      ['Room Type',  b.roomName   || '—'],
+      ['Room No.',   b.roomNumber || '—'],
+      ['Check-in',   fmtDate(b.checkIn)  + ' ' + HOTEL.checkIn],
+      ['Check-out',  fmtDate(b.checkOut) + ' ' + HOTEL.checkOut],
+      ['Nights',     (b.nights || '—') + (b.nights > 1 ? ' Nights' : ' Night')],
+      ['Arr. Time',  ciTs ? ciTs.toLocaleString('en-IN', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '—'],
     ]
-    let ry2 = y + 11
-    bookingRows.forEach(([lbl, val], i) => {
-      if (i % 2 === 0) { doc.setFillColor(...STRIPE); doc.rect(col2 + 1, ry2 - 1, colW - 2, 7, 'F') }
-      doc.setTextColor(...GREY); doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5)
-      doc.text(lbl, col2 + 4, ry2 + 4)
-      doc.setTextColor(...DARK); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5)
-      doc.text(doc.splitTextToSize(String(val), colW - 28)[0], col2 + 28, ry2 + 4)
-      ry2 += 7
-    })
-    y += boxH + 6
+    const boxH = Math.max(guestRows.length, bookingRows.length) * 8 + 10
 
+    // Left column header
+    doc.setFillColor(...BK); doc.rect(M, y, colW, 8, 'F')
+    doc.setTextColor(...WH); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5)
+    doc.text('GUEST DETAILS', M + 4, y + 5.5)
+    doc.setDrawColor(...BK); doc.setLineWidth(0.3); doc.rect(M, y, colW, boxH, 'D')
+    let gy = y + 11
+    guestRows.forEach(([lbl, val], i) => {
+      if (i % 2 === 0) { doc.setFillColor(...LG); doc.rect(M + 0.5, gy - 1.5, colW - 1, 8, 'F') }
+      doc.setTextColor(...MG); doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5)
+      doc.text(lbl, M + 4, gy + 4)
+      doc.setTextColor(...BK); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5)
+      doc.text(doc.splitTextToSize(String(val), colW - 30)[0], M + colW - 3, gy + 4, { align: 'right' })
+      gy += 8
+    })
+
+    // Right column header
+    doc.setFillColor(...BK); doc.rect(col2, y, colW, 8, 'F')
+    doc.setTextColor(...WH); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5)
+    doc.text('BOOKING SUMMARY', col2 + 4, y + 5.5)
+    doc.setDrawColor(...BK); doc.setLineWidth(0.3); doc.rect(col2, y, colW, boxH, 'D')
+    let ry = y + 11
+    bookingRows.forEach(([lbl, val], i) => {
+      if (i % 2 === 0) { doc.setFillColor(...LG); doc.rect(col2 + 0.5, ry - 1.5, colW - 1, 8, 'F') }
+      doc.setTextColor(...MG); doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5)
+      doc.text(lbl, col2 + 4, ry + 4)
+      doc.setTextColor(...BK); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5)
+      doc.text(doc.splitTextToSize(String(val), colW - 30)[0], col2 + colW - 3, ry + 4, { align: 'right' })
+      ry += 8
+    })
+    y += boxH + 5
+
+    // Special requests
     if (b.specialRequests) {
-      doc.setFillColor(255, 252, 245); doc.setDrawColor(...BORDER); doc.setLineWidth(0.3)
-      doc.rect(M, y, W - M * 2, 12, 'FD')
-      doc.setTextColor(...GREY); doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5)
-      doc.text('Special Requests:', M + 4, y + 5.5)
-      doc.setTextColor(...DARK); doc.setFont('helvetica', 'bold')
-      doc.text(doc.splitTextToSize(b.specialRequests, W - M * 2 - 46)[0], M + 46, y + 5.5)
-      y += 14
+      doc.setDrawColor(...BK); doc.setLineWidth(0.3)
+      doc.rect(M, y, W - M * 2, 10, 'D')
+      doc.setTextColor(...MG); doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5)
+      doc.text('Special Requests:', M + 4, y + 6.5)
+      doc.setTextColor(...BK); doc.setFont('helvetica', 'bold')
+      doc.text(doc.splitTextToSize(b.specialRequests, W - M * 2 - 46)[0], M + 44, y + 6.5)
+      y += 13
     }
 
-    // ── CHARGES ──────────────────────────────────────────────
-    y = sectionBar('CHARGES', y)
-    doc.setFillColor(50, 30, 15); doc.rect(M, y, W - M * 2, 8, 'F')
-    doc.setTextColor(...WHITE); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5)
+    // ── CHARGES TABLE ─────────────────────────────────────────
+    y = sectionHead('CHARGES', y)
+    // Table header
+    doc.setFillColor(...LG); doc.rect(M, y, W - M * 2, 8, 'F')
+    doc.setTextColor(...MG); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5)
     doc.text('Description', M + 4, y + 5.5)
-    doc.text('Nights', M + 108, y + 5.5, { align: 'center' })
-    doc.text('Rate / Night', M + 136, y + 5.5, { align: 'center' })
-    doc.text('Amount', W - M - 4, y + 5.5, { align: 'right' })
+    doc.text('Qty', M + 110, y + 5.5, { align: 'center' })
+    doc.text('Rate (Rs.)', M + 140, y + 5.5, { align: 'center' })
+    doc.text('Amount (Rs.)', W - M - 4, y + 5.5, { align: 'right' })
+    doc.setDrawColor(...BK); doc.setLineWidth(0.2); doc.line(M, y + 8, W - M, y + 8)
     y += 8
 
-    const roomTotal = (b.pricePerNight || 0) * b.nights
-    doc.setFillColor(...CREAM); doc.rect(M, y, W - M * 2, 10, 'F')
-    doc.setDrawColor(...BORDER); doc.setLineWidth(0.2); doc.line(M, y + 10, W - M, y + 10)
-    doc.setTextColor(...DARK); doc.setFont('helvetica', 'normal'); doc.setFontSize(9)
-    doc.text(b.roomName || 'Accommodation', M + 4, y + 6.5)
-    doc.text(String(b.nights || 1), M + 108, y + 6.5, { align: 'center' })
-    doc.text('Rs.' + (b.pricePerNight || 0).toLocaleString('en-IN'), M + 136, y + 6.5, { align: 'center' })
+    const roomTotal = (b.pricePerNight || 0) * (b.nights || 1)
+    doc.setTextColor(...BK); doc.setFont('helvetica', 'normal'); doc.setFontSize(9)
+    doc.text((b.roomName || 'Accommodation') + ' — Room Charges', M + 4, y + 6.5)
+    doc.text(String(b.nights || 1) + ' Night' + (b.nights > 1 ? 's' : ''), M + 110, y + 6.5, { align: 'center' })
+    doc.text((b.pricePerNight || 0).toLocaleString('en-IN'), M + 140, y + 6.5, { align: 'center' })
     doc.setFont('helvetica', 'bold')
-    doc.text('Rs.' + roomTotal.toLocaleString('en-IN'), W - M - 4, y + 6.5, { align: 'right' })
+    doc.text(roomTotal.toLocaleString('en-IN'), W - M - 4, y + 6.5, { align: 'right' })
+    doc.setDrawColor(...MG); doc.setLineWidth(0.15); doc.line(M, y + 10, W - M, y + 10)
     y += 10
 
     if (b.gstAmount) {
-      doc.setDrawColor(...BORDER); doc.setLineWidth(0.2); doc.line(M, y + 10, W - M, y + 10)
-      doc.setTextColor(...GREY); doc.setFont('helvetica', 'normal'); doc.setFontSize(9)
-      doc.text('GST', M + 4, y + 6.5)
-      doc.setTextColor(...DARK); doc.setFont('helvetica', 'bold')
-      doc.text('Rs.' + b.gstAmount.toLocaleString('en-IN'), W - M - 4, y + 6.5, { align: 'right' })
-      y += 10
+      doc.setFillColor(...LG); doc.rect(M, y, W - M * 2, 8, 'F')
+      doc.setTextColor(...MG); doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5)
+      doc.text('GST', M + 4, y + 5.5)
+      doc.setTextColor(...BK); doc.setFont('helvetica', 'bold')
+      doc.text(b.gstAmount.toLocaleString('en-IN'), W - M - 4, y + 5.5, { align: 'right' })
+      doc.setDrawColor(...MG); doc.setLineWidth(0.15); doc.line(M, y + 8, W - M, y + 8)
+      y += 8
     }
 
-    doc.setFillColor(...BROWN); doc.rect(M, y, W - M * 2, 12, 'F')
-    doc.setTextColor(...WHITE); doc.setFont('helvetica', 'bold'); doc.setFontSize(11)
-    doc.text('TOTAL AMOUNT', M + 4, y + 8.5)
-    doc.text('Rs.' + (b.totalAmount || roomTotal).toLocaleString('en-IN'), W - M - 4, y + 8.5, { align: 'right' })
-    y += 15
+    // Total row
+    doc.setFillColor(...BK); doc.rect(M, y, W - M * 2, 11, 'F')
+    doc.setTextColor(...WH); doc.setFont('helvetica', 'bold'); doc.setFontSize(10)
+    doc.text('TOTAL AMOUNT', M + 4, y + 7.5)
+    doc.text('Rs. ' + (b.totalAmount || roomTotal).toLocaleString('en-IN'), W - M - 4, y + 7.5, { align: 'right' })
+    y += 14
 
-    // ── PAYMENT INFORMATION ──────────────────────────────────
-    y = sectionBar('PAYMENT INFORMATION', y)
+    // ── PAYMENT ───────────────────────────────────────────────
+    y = sectionHead('PAYMENT INFORMATION', y)
     const pmLabel = { razorpay: 'Online — Razorpay', upi: 'UPI Transfer', cash: 'Cash at Hotel' }
-    const payRef = b.paymentId ? b.paymentId.replace('UTR:', 'UTR ') : '—'
-    const payRows = [
-      ['Payment Method',    pmLabel[b.paymentMethod] || (b.paymentMethod || '—'), true],
-      ['Transaction / UTR', payRef, false],
-      ['Payment Status',    isPaid ? 'PAID ✓' : 'PENDING', true],
-    ]
-    payRows.forEach(([lbl, val, shade]) => {
-      if (shade) { doc.setFillColor(...CREAM); doc.rect(M, y, W - M * 2, 8, 'F') }
-      doc.setDrawColor(...BORDER); doc.setLineWidth(0.2); doc.line(M, y + 8, W - M, y + 8)
-      doc.setTextColor(...GREY); doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5)
-      doc.text(lbl, M + 4, y + 5.5)
-      doc.setTextColor(lbl === 'Payment Status' ? (isPaid ? GREEN[0] : AMBER[0]) : DARK[0],
-                       lbl === 'Payment Status' ? (isPaid ? GREEN[1] : AMBER[1]) : DARK[1],
-                       lbl === 'Payment Status' ? (isPaid ? GREEN[2] : AMBER[2]) : DARK[2])
-      doc.setFont('helvetica', 'bold')
-      doc.text(val, W - M - 4, y + 5.5, { align: 'right' })
-      y += 8
-    })
+    const payRef  = b.paymentId ? b.paymentId.replace('UTR:', 'UTR ') : '—'
+    y = row('Payment Method',    pmLabel[b.paymentMethod] || '—',        y, false)
+    y = row('Transaction / UTR', payRef,                                  y, true)
+    y = row('Payment Status',    isPaid ? 'PAID' : 'PENDING',            y, false)
     y += 6
 
-    // ── TERMS & CONDITIONS ───────────────────────────────────
-    doc.setFillColor(248, 245, 240); doc.setDrawColor(...BORDER); doc.setLineWidth(0.3)
-    doc.rect(M, y, W - M * 2, 30, 'FD')
-    doc.setTextColor(...BROWN); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5)
+    // ── TERMS ─────────────────────────────────────────────────
+    doc.setDrawColor(...BK); doc.setLineWidth(0.3)
+    doc.rect(M, y, W - M * 2, 28, 'D')
+    doc.setTextColor(...BK); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5)
     doc.text('TERMS & CONDITIONS', M + 4, y + 6)
-    doc.setTextColor(...GREY); doc.setFont('helvetica', 'normal'); doc.setFontSize(6.8)
-    doc.text('1.  Check-in: 12:00 PM  |  Check-out: 11:00 AM  |  Early check-in subject to availability.', M + 4, y + 12)
-    doc.text('2.  Valid government photo ID (Aadhaar / PAN / Passport) is mandatory at check-in.', M + 4, y + 17)
-    doc.text('3.  This invoice is computer-generated and legally valid without a physical signature.', M + 4, y + 22)
+    doc.setTextColor(...MG); doc.setFont('helvetica', 'normal'); doc.setFontSize(6.8)
+    doc.text('1.  Check-in: 12:00 PM  |  Check-out: 11:00 AM. Early check-in subject to availability.', M + 4, y + 12)
+    doc.text('2.  Valid government photo ID (Aadhaar / PAN / Passport) mandatory at check-in.', M + 4, y + 17)
+    doc.text('3.  This is a computer-generated invoice and is legally valid without a physical signature.', M + 4, y + 22)
     doc.text('4.  For queries: ' + HOTEL.phone + '  |  ' + HOTEL.email, M + 4, y + 27)
-    y += 34
+    y += 32
 
-    // ── FOOTER ───────────────────────────────────────────────
-    const fy = Math.max(y + 4, 266)
-    doc.setDrawColor(...BORDER); doc.setLineWidth(0.4)
-    const sx1 = W - M - 54, sx2 = W - M
-    doc.line(sx1, fy - 10, sx2, fy - 10)
-    doc.setTextColor(...GREY); doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5)
-    doc.text('Authorized Signatory', (sx1 + sx2) / 2, fy - 5, { align: 'center' })
-    doc.text('Hotel Jay Palace', (sx1 + sx2) / 2, fy - 1, { align: 'center' })
+    // ── FOOTER ────────────────────────────────────────────────
+    const fy = Math.max(y, 263)
+    const sx1 = W - M - 52, sx2 = W - M
+    doc.setDrawColor(...BK); doc.setLineWidth(0.3)
+    doc.line(sx1, fy - 8, sx2, fy - 8)
+    doc.setTextColor(...MG); doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5)
+    doc.text('Authorised Signatory', (sx1 + sx2) / 2, fy - 4, { align: 'center' })
+    doc.text('Hotel Jay Palace', (sx1 + sx2) / 2, fy - 0.5, { align: 'center' })
 
-    doc.setDrawColor(...BROWN); doc.setLineWidth(0.8)
-    doc.line(M, fy + 2, W - M, fy + 2)
-    doc.setTextColor(...BROWN); doc.setFont('helvetica', 'bold'); doc.setFontSize(9)
-    doc.text('Thank you for choosing Hotel Jay Palace. We hope to see you again!', W / 2, fy + 8, { align: 'center' })
-    doc.setTextColor(170, 155, 135); doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5)
+    doc.setDrawColor(...BK); doc.setLineWidth(0.6)
+    doc.line(M, fy + 3, W - M, fy + 3)
+    doc.setTextColor(...BK); doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5)
+    doc.text('Thank you for choosing Hotel Jay Palace!', W / 2, fy + 9, { align: 'center' })
+    doc.setTextColor(...MG); doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5)
     doc.text('Booking system powered by OM Technology  ·  omtechnology.online', W / 2, fy + 14, { align: 'center' })
 
     doc.save('Invoice-JP-' + code + '.pdf')
@@ -2223,7 +2187,7 @@
   function paintAdminRooms() {
     const cards = _adminRooms.map(r => `
       <div class="room-admin-card">
-        <div class="room-admin-thumb" style="background:${r.gradient}">${r.emoji}</div>
+        <div class="room-admin-thumb" style="background:${r.gradient};${r.imageUrl ? 'background-image:url(' + r.imageUrl + ');background-size:cover;background-position:center;' : ''}">${r.imageUrl ? '' : r.emoji}</div>
         <div class="room-admin-body">
           <div class="room-admin-name">${r.name}</div>
           <div class="room-admin-price">₹${r.price.toLocaleString('en-IN')} <small>/ night</small></div>
@@ -2244,15 +2208,31 @@
   function openEditModal(id) {
     const room = _adminRooms.find(r => r.id === id)
     if (!room) return
-    document.getElementById('editRoomId').value       = id
+    document.getElementById('editRoomId').value          = id
     document.getElementById('editRoomTitle').textContent = 'Edit: ' + room.name
-    document.getElementById('editRoomPrice').value    = room.price
-    document.getElementById('editRoomMaxGuests').value = room.maxGuests || 2
+    document.getElementById('editRoomPrice').value       = room.price
+    document.getElementById('editRoomMaxGuests').value   = room.maxGuests || 2
     document.getElementById('editRoomNameWrap').style.display  = 'none'
     document.getElementById('editRoomEmojiWrap').style.display = 'none'
-    document.getElementById('btnSaveRoom').textContent = 'Save Changes'
+    document.getElementById('btnSaveRoom').textContent   = 'Save Changes'
+    document.getElementById('editRoomPhoto').value       = ''
+    const preview = document.getElementById('editRoomPhotoPreview')
+    const img     = document.getElementById('editRoomPhotoImg')
+    if (room.imageUrl) { img.src = room.imageUrl; preview.style.display = 'block' }
+    else               { preview.style.display = 'none' }
     renderAmenityChips(room.amenities.slice())
     document.getElementById('editRoomModal').classList.add('open')
+  }
+
+  function previewRoomPhoto(input) {
+    const file = input.files[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = e => {
+      document.getElementById('editRoomPhotoImg').src = e.target.result
+      document.getElementById('editRoomPhotoPreview').style.display = 'block'
+    }
+    reader.readAsDataURL(file)
   }
 
   function openAddRoomModal() {
@@ -2305,33 +2285,62 @@
     const maxGuests = parseInt(document.getElementById('editRoomMaxGuests').value) || 2
     if (!price || price < 100) { showAdminToast('Enter a valid price', 'error'); return }
 
-    if (!id) {
-      // Adding new room
-      const name  = document.getElementById('editRoomName').value.trim()
-      const emoji = document.getElementById('editRoomEmoji').value.trim() || '🛏️'
-      if (!name) { showAdminToast('Enter a room name', 'error'); return }
-      const newId = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
-      const gradients = [
-        'linear-gradient(135deg,#3a1a0a,#6a3018)',
-        'linear-gradient(135deg,#1a2a3a,#2a4a6a)',
-        'linear-gradient(135deg,#1a3a1a,#2a5a2a)',
-        'linear-gradient(135deg,#2a1a3a,#4a2a6a)',
-      ]
-      const gradient = gradients[_adminRooms.length % gradients.length]
-      _adminRooms.push({ id: newId, name, emoji, price, maxGuests, amenities: [..._editAmenities], gradient, desc: name })
-    } else {
-      const idx = _adminRooms.findIndex(r => r.id === id)
-      if (idx < 0) return
-      _adminRooms[idx] = { ..._adminRooms[idx], price, maxGuests, amenities: [..._editAmenities] }
+    const photoFile = document.getElementById('editRoomPhoto').files[0]
+    if (photoFile && photoFile.size > 2 * 1024 * 1024) {
+      showAdminToast('Photo must be under 2 MB', 'error'); return
     }
 
-    db.collection('config').doc('rooms').set({ rooms: _adminRooms })
-      .then(() => {
-        closeEditModal()
-        paintAdminRooms()
-        showAdminToast(!id ? 'New room added! Live on website now.' : 'Room updated! Live on website now.')
-      })
-      .catch(err => showAdminToast('Save failed: ' + err.message, 'error'))
+    const btnSave = document.getElementById('btnSaveRoom')
+    btnSave.disabled = true
+    btnSave.textContent = 'Saving...'
+
+    const doSave = (imageUrl) => {
+      if (!id) {
+        const name  = document.getElementById('editRoomName').value.trim()
+        const emoji = document.getElementById('editRoomEmoji').value.trim() || '🛏️'
+        if (!name) { showAdminToast('Enter a room name', 'error'); btnSave.disabled = false; btnSave.textContent = 'Add Room'; return }
+        const newId = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+        const gradients = [
+          'linear-gradient(135deg,#3a1a0a,#6a3018)',
+          'linear-gradient(135deg,#1a2a3a,#2a4a6a)',
+          'linear-gradient(135deg,#1a3a1a,#2a5a2a)',
+          'linear-gradient(135deg,#2a1a3a,#4a2a6a)',
+        ]
+        const gradient = gradients[_adminRooms.length % gradients.length]
+        _adminRooms.push({ id: newId, name, emoji, price, maxGuests, amenities: [..._editAmenities], gradient, desc: name, imageUrl: imageUrl || '' })
+      } else {
+        const idx = _adminRooms.findIndex(r => r.id === id)
+        if (idx < 0) return
+        _adminRooms[idx] = { ..._adminRooms[idx], price, maxGuests, amenities: [..._editAmenities], ...(imageUrl ? { imageUrl } : {}) }
+      }
+
+      db.collection('config').doc('rooms').set({ rooms: _adminRooms })
+        .then(() => {
+          closeEditModal()
+          paintAdminRooms()
+          btnSave.disabled = false
+          btnSave.textContent = id ? 'Save Changes' : 'Add Room'
+          showAdminToast(id ? 'Room updated! Live on website now.' : 'New room added! Live on website now.')
+        })
+        .catch(err => {
+          showAdminToast('Save failed: ' + err.message, 'error')
+          btnSave.disabled = false; btnSave.textContent = 'Save Changes'
+        })
+    }
+
+    if (photoFile) {
+      const roomId  = id || document.getElementById('editRoomName').value.trim().toLowerCase().replace(/\s+/g, '-')
+      const ref     = storage.ref('rooms/' + roomId + '/photo.' + photoFile.name.split('.').pop())
+      const upload  = ref.put(photoFile)
+      showAdminToast('Uploading photo...')
+      upload.then(snap => snap.ref.getDownloadURL()).then(url => doSave(url))
+        .catch(err => {
+          showAdminToast('Photo upload failed: ' + err.message, 'error')
+          btnSave.disabled = false; btnSave.textContent = 'Save Changes'
+        })
+    } else {
+      doSave(null)
+    }
   }
 
   function deleteRoom(id) {

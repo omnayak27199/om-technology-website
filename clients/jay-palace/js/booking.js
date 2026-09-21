@@ -63,8 +63,8 @@ function renderRooms() {
   if (!grid) return
   grid.innerHTML = ROOMS.map(room => `
     <div class="room-card">
-      <div class="room-thumb" style="background:${room.gradient}">
-        ${room.emoji}
+      <div class="room-thumb" style="background:${room.gradient};${room.imageUrl ? 'background-image:url(' + room.imageUrl + ');background-size:cover;background-position:center;' : ''}">
+        ${room.imageUrl ? '' : room.emoji}
         <div class="room-badge">${room.maxGuests} Guests Max</div>
       </div>
       <div class="room-body">
@@ -202,7 +202,15 @@ function closeBookingModal() {
   document.getElementById('bookingModal').classList.remove('open')
   document.getElementById('bookingForm').reset()
   document.getElementById('priceSummary').style.display = 'none'
+  document.getElementById('gstinWrap').style.display = 'none'
   _pendingBooking = null
+}
+
+function toggleCorporate() {
+  const checked = document.getElementById('isCorporate').checked
+  const wrap    = document.getElementById('gstinWrap')
+  wrap.style.display = checked ? 'block' : 'none'
+  if (!checked) document.getElementById('customerGstin').value = ''
 }
 
 function backToForm()    { showStep('bookingForm') }
@@ -224,6 +232,15 @@ function submitBooking(e) {
   const phone = document.getElementById('guestPhone').value.trim()
   if (!/^\+?[0-9\s\-]{10,15}$/.test(phone)) { showToast('Please enter a valid phone number', true); return }
 
+  const isCorporate = document.getElementById('isCorporate').checked
+  const gstin       = document.getElementById('customerGstin').value.trim().toUpperCase()
+  if (isCorporate) {
+    if (!gstin) { showToast('Please enter your company GSTIN', true); return }
+    if (!/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(gstin)) {
+      showToast('Invalid GSTIN format — must be 15 characters (e.g. 22AAAAA0000A1Z5)', true); return
+    }
+  }
+
   const base  = nights * room.price
   const gst   = HOTEL.gst ? Math.round(base * HOTEL.gst / 100) : 0
   const total = base + gst
@@ -234,6 +251,8 @@ function submitBooking(e) {
     customerName:    document.getElementById('guestName').value.trim(),
     customerPhone:   phone,
     customerEmail:   document.getElementById('guestEmail').value.trim(),
+    isCorporate:     isCorporate,
+    customerGstin:   isCorporate ? gstin : '',
     roomId:          room.id,
     roomName:        room.name,
     pricePerNight:   room.price,
