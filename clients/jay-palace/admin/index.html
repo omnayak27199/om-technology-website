@@ -1672,7 +1672,8 @@
     console.log('[Checkout] booking:', b.id, '| email:', b.customerEmail || '(none)')
 
     if (!b.customerEmail) {
-      showAdminToast(`${b.customerName} checked out. ⚠ No guest email — farewell email skipped.`, 'info')
+      showAdminToast(`${b.customerName} checked out. No email — sending farewell via WhatsApp.`, 'info')
+      sendWhatsAppMsg(b, 'checkout')
       return
     }
 
