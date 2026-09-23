@@ -993,7 +993,7 @@
     const ropeLen = sH * 0.52;
 
     // Ropes
-    ctx.strokeStyle = rgba(lerpRGB([102, 68, 24], [40, 25, 8], nf * 0.70), 0.82);
+    ctx.strokeStyle = rgba(lerpRGB([102, 50, 24], [40, 25, 8], nf * 0.70), 0.82);
     ctx.lineWidth = 1.8; ctx.lineCap = 'round';
     ctx.beginPath();
     ctx.moveTo(-sW * 0.30, 0); ctx.lineTo(-sW * 0.30, ropeLen);
