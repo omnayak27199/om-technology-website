@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice — Hotel Jay Palace</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="js/config.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, Arial, sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #EFF6FF; padding: 24px; }
+    .card { background: #fff; border-radius: 16px; padding: 48px 40px; text-align: center; box-shadow: 0 4px 32px rgba(37,99,235,0.12); max-width: 420px; width: 100%; }
+    .icon { font-size: 52px; margin-bottom: 20px; }
+    h2 { font-size: 21px; color: #1e293b; margin-bottom: 10px; }
+    .sub { color: #64748b; font-size: 14px; line-height: 1.7; }
+    .hotel { margin-top: 28px; padding-top: 20px; border-top: 1px solid #DBEAFE; color: #2563EB; font-weight: 700; font-size: 14px; }
+    .btn { display: inline-block; margin-top: 20px; padding: 12px 28px; background: #2563EB; color: #fff; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; border: none; }
+    .btn:hover { background: #1D4ED8; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon" id="icon">📄</div>
+    <h2 id="title">Preparing your invoice...</h2>
+    <p class="sub" id="sub">Please wait while we generate your invoice PDF.</p>
+    <button class="btn" id="dlBtn" style="display:none" onclick="redownload()">⬇ Download Again</button>
+    <div class="hotel">Hotel Jay Palace &nbsp;·&nbsp; Saraipali, Chhattisgarh</div>
+  </div>
+
+<script>
+let _doc = null, _code = ''
+
+async function main() {
+  try {
+    const params  = new URLSearchParams(window.location.search)
+    const encoded = params.get('d')
+    if (!encoded) throw new Error('No data')
+    const b = JSON.parse(decodeURIComponent(escape(atob(encoded))))
+    _code = b.bookingCode || 'INVOICE'
+
+    let logo = null
+    try {
+      const r = await fetch('assets/images/logo.jpeg')
+      if (r.ok) {
+        const blob = await r.blob()
+        logo = await new Promise(res => { const fr = new FileReader(); fr.onloadend = () => res(fr.result); fr.readAsDataURL(blob) })
+      }
+    } catch(e) {}
+
+    _doc = buildInvoice(b, logo)
+    _doc.save('Invoice-JP-' + _code + '.pdf')
+
+    document.getElementById('icon').textContent  = '✅'
+    document.getElementById('title').textContent = 'Invoice Downloaded!'
+    document.getElementById('sub').textContent   = 'Your invoice for booking ' + _code + ' has been saved to your downloads folder.'
+    document.getElementById('dlBtn').style.display = 'inline-block'
+  } catch(e) {
+    document.getElementById('icon').textContent  = '⚠️'
+    document.getElementById('title').textContent = 'Invalid Link'
+    document.getElementById('sub').textContent   = 'This invoice link is invalid or expired. Please contact Hotel Jay Palace at ' + ((window.HOTEL && window.HOTEL.phone) || '+91 75877 80043') + ' for your invoice.'
+  }
+}
+
+function redownload() { if (_doc) _doc.save('Invoice-JP-' + _code + '.pdf') }
+
+function fmtDate(d) {
+  return d ? new Date(d).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'}) : '—'
+}
+
+function buildInvoice(b, logoBase64) {
+  const H      = window.HOTEL || {}
+  const isPaid = b.paymentStatus === 'paid' || (b.paymentId && b.paymentMethod === 'razorpay')
+  const { jsPDF } = window.jspdf
+  const doc    = new jsPDF({ unit:'mm', format:'a4' })
+
+  const PW = 210, M = 12, IW = 186
+  const BK = [0,0,0], MG = [100,100,100]
+
+  function rs(n) {
+    return '₹ ' + Number(n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})
+  }
+
+  function amountInWords(n) {
+    const o=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen']
+    const t=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety']
+    function w(n){if(!n)return'';if(n<20)return o[n];if(n<100)return t[~~(n/10)]+(n%10?' '+o[n%10]:'');if(n<1000)return o[~~(n/100)]+' Hundred'+(n%100?' '+w(n%100):'');if(n<1e5)return w(~~(n/1000))+' Thousand'+(n%1000?' '+w(n%1000):'');if(n<1e7)return w(~~(n/1e5))+' Lakh'+(n%1e5?' '+w(n%1e5):'');return w(~~(n/1e7))+' Crore'+(n%1e7?' '+w(n%1e7):'')}
+    const i=Math.floor(n),d=Math.round((n-i)*100)
+    return (w(i)||'Zero')+' Rupees'+(d?' and '+w(d)+' Paise':'')+' Only'
+  }
+
+  const total    = b.totalAmount || 0
+  const gstRate  = H.gstRate || 0
+  let taxable = total, gstAmt = 0
+  if (H.gstIncluded && gstRate > 0) { taxable = Math.round(total * 100 / (100 + gstRate)); gstAmt = total - taxable }
+  const nights        = b.nights || 1
+  const pricePerNight = Math.round(taxable / nights)
+  const received      = isPaid ? total : 0
+  const balance       = total - received
+  const pmLabel       = {razorpay:'Online (Razorpay)', upi:'UPI', cash:'Cash at Hotel'}
+  const code          = b.bookingCode || 'INV'
+  const now           = new Date()
+  const invDate       = now.toLocaleDateString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric'}).replace(/\//g,'-')
+  const invTime       = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})
+
+  let y = 10
+
+  // Page title
+  doc.setFont('helvetica','bold'); doc.setFontSize(15); doc.setTextColor(...BK)
+  doc.text('Invoice', PW/2, y+2, {align:'center'})
+  y += 8
+  const BORDER_TOP = y
+
+  // Hotel header
+  if (logoBase64) {
+    doc.addImage(logoBase64, 'JPEG', M+1, y+1, 28, 27)
+  } else {
+    doc.setFillColor(20,20,20); doc.rect(M+1,y+1,28,27,'F')
+    doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.setTextColor(200,160,50)
+    doc.text('JP', M+15, y+16, {align:'center'})
+  }
+  const HX = M+33
+  doc.setFont('helvetica','bold'); doc.setFontSize(17); doc.setTextColor(...BK)
+  doc.text('Hotel Jay Palace', HX, y+9)
+  doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(...MG)
+  doc.text(H.address||'Main Road, Saraipali, Chhattisgarh 493558', HX, y+15)
+  doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...BK)
+  const el = 'Email: '
+  doc.text(el, HX, y+21); doc.setFont('helvetica','normal')
+  doc.text(H.email||'thehoteljaypalace@gmail.com', HX+doc.getTextWidth(el), y+21)
+  doc.setFont('helvetica','bold')
+  doc.text('GSTIN: '+(H.gstin||'22BBHPP6396R1ZQ'), M+IW-2, y+21, {align:'right'})
+  doc.text('State: 22-Chhattisgarh', HX, y+27)
+  y += 32
+
+  // Separator
+  doc.setDrawColor(...BK); doc.setLineWidth(0.5); doc.line(M,y,M+IW,y); y += 3
+
+  // 3-column section
+  const C1W=60, C2W=52, X2=M+C1W, X3=X2+C2W
+  const INFO_Y=y, INFO_H=50
+  doc.setDrawColor(...BK); doc.setLineWidth(0.3)
+  doc.line(X2,INFO_Y,X2,INFO_Y+INFO_H); doc.line(X3,INFO_Y,X3,INFO_Y+INFO_H)
+
+  // Col 1 — Bill To
+  doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...BK)
+  doc.text('Bill To:', M+2, y+5)
+  doc.setFont('helvetica','bold'); doc.setFontSize(8.5)
+  doc.text(b.customerName||'—', M+2, y+12)
+  doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...BK)
+  doc.text('State: 22-Chhattisgarh', M+2, y+37)
+  if (b.customerGstin) { doc.text('GSTIN: '+b.customerGstin, M+2, y+43) }
+
+  // Col 2 — Invoice Details
+  doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...BK)
+  doc.text('Invoice Details:', X2+2, y+5)
+  let idy = y+12
+  ;[['No:', code],['Date:', invDate],['Time:', invTime],['Place of Supply:','22-Chhattisgarh']].forEach(([lbl,val]) => {
+    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...MG)
+    doc.text(lbl, X2+2, idy)
+    doc.setFont('helvetica','normal'); doc.setTextColor(...BK)
+    const lns = doc.splitTextToSize(val, C2W-22)
+    lns.forEach((l,i) => doc.text(l, X2+20, idy+i*4.5))
+    idy += lns.length>1 ? 4.5*lns.length+1 : 6
+  })
+
+  // Col 3 — Guest Info
+  doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...BK)
+  doc.text('Guest Name: '+(b.customerName||'—'), X3+2, y+5)
+  doc.setFont('helvetica','normal'); doc.setFontSize(7)
+  doc.text('Check In time & Date: '+(H.checkIn||'12:00 PM'), X3+2, y+14)
+  doc.text('& '+fmtDate(b.checkIn), X3+2, y+19)
+  doc.text('Check Out time & Date:', X3+2, y+28)
+  doc.text((H.checkOut||'11:00 AM')+' & '+fmtDate(b.checkOut), X3+2, y+33)
+  y = INFO_Y + INFO_H
+
+  // Items table
+  doc.setLineWidth(0.4); doc.line(M,y,M+IW,y); y += 2
+  const tCols = [
+    {w:8,  lbl:'#',          al:'center'},
+    {w:58, lbl:'Item Name',  al:'left'},
+    {w:16, lbl:'Quantity',   al:'center'},
+    {w:16, lbl:'Unit',       al:'center'},
+    {w:26, lbl:'Price/ Unit',al:'center'},
+    {w:28, lbl:'GST',        al:'center'},
+    {w:0,  lbl:'Amount',     al:'center'},
+  ]
+  tCols[6].w = IW - tCols.slice(0,-1).reduce((s,c)=>s+c.w,0)
+
+  let tx = M
+  tCols.forEach(c => {
+    doc.setDrawColor(...BK); doc.setLineWidth(0.2); doc.rect(tx,y,c.w,8,'D')
+    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...BK)
+    doc.text(c.lbl, c.al==='center'?tx+c.w/2:tx+2, y+5.5, {align:c.al==='center'?'center':'left'})
+    tx += c.w
+  })
+  y += 8
+
+  const IRH=16
+  const gstLabel = gstAmt>0 ? rs(gstAmt)+'\n('+gstRate.toFixed(1)+'%)' : 'Nil'
+  const rowVals = ['1',null,String(nights),nights>1?'Nights':'Night',rs(pricePerNight),gstLabel,rs(total)]
+  tx = M
+  tCols.forEach((c,ci) => {
+    doc.setDrawColor(...BK); doc.setLineWidth(0.15); doc.rect(tx,y,c.w,IRH,'D')
+    if (ci===1) {
+      doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...BK)
+      doc.text('Room Charges', tx+2, y+5.5)
+      doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(...MG)
+      doc.text(b.roomName||'Accommodation', tx+2, y+11)
+    } else {
+      const lns = rowVals[ci].split('\n'), lx = c.al==='center'?tx+c.w/2:tx+2, al = c.al==='center'?'center':'left'
+      doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...BK)
+      if (lns.length===1) { doc.text(lns[0],lx,y+IRH/2+2,{align:al}) }
+      else { lns.forEach((l,li) => doc.text(l,lx,y+5+li*5.5,{align:al})) }
+    }
+    tx += c.w
+  })
+  y += IRH
+
+  // Summary
+  const SUMX = M+IW-tCols[5].w-tCols[6].w
+  const sumRows = [
+    ['Sub Total', rs(total), false, 7],
+    ['Total',     rs(total), true,  8],
+  ]
+  sumRows.forEach(([lbl,val,bold,rh]) => {
+    doc.setLineWidth(0.15); doc.line(M,y,M+IW,y)
+    doc.setFont('helvetica',bold?'bold':'normal'); doc.setFontSize(bold?8.5:7.5)
+    doc.setTextColor(bold?BK:MG)
+    doc.text(lbl, SUMX+2, y+rh/2+2); doc.text(':', SUMX+23, y+rh/2+2)
+    doc.setTextColor(...BK); doc.text(val, M+IW-2, y+rh/2+2, {align:'right'}); y += rh
+  })
+
+  doc.setLineWidth(0.15); doc.line(M,y,M+IW,y)
+  doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...BK)
+  doc.text('Invoice Amount In Words :', SUMX+2, y+5)
+  const wLines = doc.splitTextToSize(amountInWords(total), tCols[5].w+tCols[6].w-4)
+  doc.setFont('helvetica','normal'); doc.setTextColor(...MG)
+  wLines.forEach((l,i) => doc.text(l, SUMX+2, y+5+4.5*(i+1)))
+  y += 5+wLines.length*4.5+2
+
+  ;[['Received', rs(received)],['Balance', rs(balance)]].forEach(([lbl,val]) => {
+    doc.setLineWidth(0.15); doc.line(M,y,M+IW,y)
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...MG)
+    doc.text(lbl, SUMX+2, y+5.5); doc.text(':', SUMX+23, y+5.5)
+    doc.setTextColor(...BK); doc.text(val, M+IW-2, y+5.5, {align:'right'}); y += 7
+  })
+
+  // Payment Mode
+  doc.setLineWidth(0.5); doc.line(M,y,M+IW,y); y += 3
+  doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...BK)
+  doc.text('Payment Mode:', M+2, y+5)
+  doc.setFont('helvetica','normal')
+  doc.text(pmLabel[b.paymentMethod]||b.paymentMethod||'—', M+2, y+12)
+  y += 19
+
+  // Description
+  doc.setLineWidth(0.3); doc.line(M,y,M+IW,y); y += 3
+  doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...BK)
+  doc.text('Description:', M+2, y+5)
+  doc.setFont('helvetica','normal')
+  doc.text('Thank You !!', M+2, y+12)
+  doc.text('Visit again..', M+2, y+17)
+  y += 22
+
+  // Bank Details + Signature
+  doc.setLineWidth(0.3); doc.line(M,y,M+IW,y); y += 3
+  const BDW = IW*0.52, SX = M+BDW+5
+  doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...BK)
+  doc.text('Bank Details:', M+2, y+5)
+  doc.setFont('helvetica','bold'); doc.setFontSize(6.8)
+  doc.text('Name: Indian Overseas Bank, Sacb Saraipali', M+2, y+11)
+  doc.setFont('helvetica','normal')
+  doc.text('Account No.: 309402000000309', M+2, y+16)
+  doc.text('IFSC code: IOBA0003094', M+2, y+21)
+  doc.text("Account Holder's Name: HOTEL JAY PALACE", M+2, y+26)
+  doc.setLineWidth(0.3); doc.line(SX,y,SX,y+33)
+  doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...BK)
+  doc.text('For Hotel Jay Palace:', SX+3, y+5)
+  doc.setLineWidth(0.3); doc.line(SX+8,y+27,M+IW-5,y+27)
+  doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(...MG)
+  doc.text('Authorized Signatory', (SX+8+M+IW-5)/2, y+32, {align:'center'})
+  y += 36
+
+  // Outer border
+  doc.setDrawColor(...BK); doc.setLineWidth(0.6)
+  doc.rect(M, BORDER_TOP, IW, y-BORDER_TOP+2, 'D')
+
+  return doc
+}
+
+main()
+</script>
+</body>
+</html>

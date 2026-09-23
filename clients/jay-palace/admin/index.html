@@ -1689,16 +1689,33 @@
     }
 
     const code = b.bookingCode || b.id.slice(0,8).toUpperCase()
+
+    // Build a self-contained invoice URL — no Firebase Storage upload, no CORS issues
     let invoiceUrl = ''
     try {
-      const doc  = buildInvoiceDoc(b)
-      const blob = doc.output('blob')
-      const ref  = storage.ref('invoices/' + code + '.pdf')
-      await ref.put(blob, { contentType: 'application/pdf' })
-      invoiceUrl = await ref.getDownloadURL()
-      console.log('[Checkout] Invoice uploaded:', invoiceUrl)
+      const invoiceData = {
+        bookingCode:   code,
+        customerName:  b.customerName  || '',
+        customerEmail: b.customerEmail || '',
+        customerPhone: b.customerPhone || '',
+        customerGstin: b.customerGstin || '',
+        roomName:      b.roomName      || '',
+        checkIn:       b.checkIn,
+        checkOut:      b.checkOut,
+        nights:        b.nights        || 1,
+        guests:        b.guestsAtCheckin || b.guests || 1,
+        totalAmount:   b.totalAmount   || 0,
+        pricePerNight: b.pricePerNight || 0,
+        paymentMethod: b.paymentMethod || 'cash',
+        paymentId:     b.paymentId     || '',
+        paymentStatus: b.paymentStatus || '',
+        status:        b.status        || 'checked_out',
+      }
+      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(invoiceData))))
+      invoiceUrl = 'https://jaypalace.online/clients/jay-palace/invoice.html?d=' + encoded
+      console.log('[Checkout] Invoice URL generated')
     } catch(e) {
-      console.warn('[Checkout] Invoice upload failed (email will send without link):', e.message)
+      console.warn('[Checkout] Invoice URL generation failed:', e.message)
     }
 
     const subject = 'Thank You for Your Stay — Invoice ' + code + ' | Hotel Jay Palace'
