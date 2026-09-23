@@ -119,8 +119,8 @@ window.EMAILJS = {
   publicKey:  'YqOr5ZG5kqiKobusi',
   serviceId:  'service_bq58pgv',
   templates: {
-    confirmation: 'template_54l0vg7',
-    checkout:     'YOUR_TEMPLATE_ID_CHECKOUT', // TODO: create a separate checkout template in EmailJS and paste its ID here
+    confirmation: 'template_zhfd4j8',
+    checkout:     'template_54l0vg7', // TODO: create a separate checkout template in EmailJS and paste its ID here
   },
   reviewUrl: 'https://www.google.com/search?q=hoteljaypalace+saraipali',
   // TODO: Replace reviewUrl with the direct Google Maps review link for better UX:
