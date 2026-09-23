@@ -1746,10 +1746,7 @@
         paymentStatus: b.paymentStatus || '',
         status:        b.status        || 'checked_out',
       }
-      // base64url: replace + → - and / → _ and strip = padding so the URL never breaks
-      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))))
-        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
-      return 'https://jaypalace.online/invoice.html?d=' + encoded
+      return 'https://jaypalace.online/invoice.html?d=' + encodeURIComponent(JSON.stringify(data))
     } catch(e) {
       console.warn('[Invoice URL] Failed:', e.message)
       return ''
