@@ -1189,14 +1189,20 @@
       if (x >= b.rooms.l && x <= b.rooms.r && y >= b.rooms.t && y <= b.rooms.b) return 'rooms';
       return null;
     }
+    function fireHit(cx, cy) {
+      const hit = hitSign(cx, cy);
+      if (hit === 'book'  && typeof openBookingModal === 'function') openBookingModal();
+      if (hit === 'rooms') { const el = document.getElementById('rooms'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }
+    }
     canvas.addEventListener('mousemove', function(e) {
       canvas.style.cursor = hitSign(e.clientX, e.clientY) ? 'pointer' : 'default';
     });
-    canvas.addEventListener('click', function(e) {
-      const hit = hitSign(e.clientX, e.clientY);
-      if (hit === 'book'  && typeof openBookingModal === 'function') openBookingModal();
-      if (hit === 'rooms') document.querySelector('#rooms').scrollIntoView({ behavior: 'smooth' });
-    });
+    canvas.addEventListener('click', function(e) { fireHit(e.clientX, e.clientY); });
+    canvas.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      const t = e.changedTouches[0];
+      fireHit(t.clientX, t.clientY);
+    }, { passive: false });
 
     let start = null;
     function frame(ts) {
