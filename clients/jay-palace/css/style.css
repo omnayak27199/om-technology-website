@@ -76,43 +76,32 @@ input, select, textarea { font-family: inherit; }
 }
 .hero {
   min-height: 88vh;
-  background: linear-gradient(-45deg, #1E40AF, #2563EB, #1D6FD8, #1E3A8A, #2563EB);
-  background-size: 400% 400%;
-  animation: heroGradient 14s ease infinite;
+  background: #0c1b33;
   display: flex; align-items: center; justify-content: center;
   padding: 80px 24px;
   position: relative; overflow: hidden;
 }
-.hero::before {
-  content: '';
-  position: absolute; inset: 0;
-  background:
-    radial-gradient(ellipse at 12% 65%, rgba(255,255,255,.14) 0%, transparent 46%),
-    radial-gradient(ellipse at 88% 18%, rgba(147,197,253,.22) 0%, transparent 46%),
-    radial-gradient(ellipse at 50% 95%, rgba(255,255,255,.10) 0%, transparent 40%);
-  pointer-events: none;
-}
-.hero-star {
-  position: absolute; border-radius: 50%; background: #fff; pointer-events: none;
-}
-.hero-star:nth-child(odd)  { animation: starTwinkle 2.8s ease-in-out infinite; }
-.hero-star:nth-child(even) { animation: starTwinkle 4.2s ease-in-out infinite 1s; }
+.hero::before { display: none; }
 .hero-inner {
   position: relative; z-index: 1;
   display: flex; align-items: center; gap: 52px;
   max-width: 1140px; width: 100%;
 }
-.hero-content { flex: 1; text-align: left; }
+.hero-content {
+  flex: 1; text-align: left;
+  background: rgba(8, 18, 45, 0.58);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 20px;
+  padding: 36px 40px;
+  max-width: 540px;
+}
 .hero-mascot-wrap {
   flex-shrink: 0; width: 260px;
-  animation: mascotFloat 3.4s ease-in-out infinite;
-  filter: drop-shadow(0 24px 50px rgba(0,0,0,.5));
+  /* mascot is hidden — spacer only */
 }
-.mascot-wave-arm {
-  transform-box: fill-box;
-  transform-origin: 15% 40%;
-  animation: mascotWaveArm .9s ease-in-out infinite;
-}
+.mascot-wave-arm { display: none; }
 .hero-badge {
   display: inline-block;
   background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.28);

@@ -57,25 +57,7 @@
 
 <!-- ── HERO ───────────────────────────────────────────────── -->
 <section class="hero">
-  <!-- Twinkling star particles -->
-  <div class="hero-star" style="width:3px;height:3px;top:12%;left:7%;animation-delay:0s"></div>
-  <div class="hero-star" style="width:2px;height:2px;top:25%;left:15%;animation-delay:.55s"></div>
-  <div class="hero-star" style="width:4px;height:4px;top:8%;left:30%;animation-delay:1.2s"></div>
-  <div class="hero-star" style="width:2px;height:2px;top:40%;left:4%;animation-delay:.85s"></div>
-  <div class="hero-star" style="width:3px;height:3px;top:17%;left:44%;animation-delay:.3s"></div>
-  <div class="hero-star" style="width:2px;height:2px;top:56%;left:11%;animation-delay:1.55s"></div>
-  <div class="hero-star" style="width:3px;height:3px;top:7%;left:60%;animation-delay:.7s"></div>
-  <div class="hero-star" style="width:4px;height:4px;top:32%;left:70%;animation-delay:1.05s"></div>
-  <div class="hero-star" style="width:2px;height:2px;top:20%;left:78%;animation-delay:.25s"></div>
-  <div class="hero-star" style="width:3px;height:3px;top:46%;left:85%;animation-delay:1.4s"></div>
-  <div class="hero-star" style="width:2px;height:2px;top:11%;left:92%;animation-delay:.9s"></div>
-  <div class="hero-star" style="width:3px;height:3px;top:62%;left:58%;animation-delay:1.85s"></div>
-  <div class="hero-star" style="width:2px;height:2px;top:74%;left:23%;animation-delay:.45s"></div>
-  <div class="hero-star" style="width:3px;height:3px;top:82%;left:42%;animation-delay:2.1s"></div>
-  <div class="hero-star" style="width:2px;height:2px;top:70%;left:75%;animation-delay:1.15s"></div>
-  <div class="hero-star" style="width:4px;height:4px;top:86%;left:90%;animation-delay:.6s"></div>
-  <div class="hero-star" style="width:2px;height:2px;top:50%;left:96%;animation-delay:1.75s"></div>
-  <div class="hero-star" style="width:3px;height:3px;top:78%;left:6%;animation-delay:2.35s"></div>
+  <!-- Animated scene canvas injected by hero-anim.js -->
 
   <div class="hero-inner">
     <!-- Left: text content -->
@@ -100,8 +82,8 @@
       </div>
     </div>
 
-    <!-- Right: animated mascot character -->
-    <div class="hero-mascot-wrap" aria-hidden="true">
+    <!-- Right: scene animation canvas fills background; spacer keeps layout balanced -->
+    <div class="hero-mascot-wrap" aria-hidden="true" style="visibility:hidden">
       <svg viewBox="0 0 200 260" fill="none" xmlns="http://www.w3.org/2000/svg">
         <!-- Shadow -->
         <ellipse cx="100" cy="254" rx="48" ry="7" fill="rgba(0,0,0,.28)"/>
@@ -928,6 +910,7 @@ function bookFromBar() {
   }
 })();
 </script>
+<script src="js/hero-anim.js" defer></script>
 
 </body>
 </html>
