@@ -57,24 +57,61 @@ input, select, textarea { font-family: inherit; }
 .btn-book-header:hover { opacity: .88; transform: translateY(-1px); }
 
 /* ── HERO ────────────────────────────────────────────────── */
+@keyframes heroGradient {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+@keyframes starTwinkle {
+  0%, 100% { opacity: .1; transform: scale(.65); }
+  50%       { opacity: .95; transform: scale(1.35); }
+}
+@keyframes mascotFloat {
+  0%, 100% { transform: translateY(0) rotate(-.6deg); }
+  50%       { transform: translateY(-14px) rotate(.6deg); }
+}
+@keyframes mascotWaveArm {
+  0%, 100% { transform: rotate(-10deg); }
+  50%       { transform: rotate(14deg); }
+}
 .hero {
   min-height: 88vh;
-  background: url('../assets/images/hotel-exterior.jpg') center center / cover no-repeat;
+  background: linear-gradient(-45deg, #04091a, #0d1640, #1a0d35, #04101a, #140a2e);
+  background-size: 400% 400%;
+  animation: heroGradient 14s ease infinite;
   display: flex; align-items: center; justify-content: center;
-  text-align: center; padding: 80px 24px;
+  padding: 80px 24px;
   position: relative; overflow: hidden;
 }
 .hero::before {
   content: '';
   position: absolute; inset: 0;
-  background: linear-gradient(
-    160deg,
-    rgba(0,0,0,.55) 0%,
-    rgba(0,0,0,.25) 45%,
-    rgba(0,0,0,.68) 100%
-  );
+  background:
+    radial-gradient(ellipse at 12% 65%, rgba(184,137,26,.20) 0%, transparent 46%),
+    radial-gradient(ellipse at 88% 18%, rgba(120,60,200,.22) 0%, transparent 46%),
+    radial-gradient(ellipse at 50% 95%, rgba(10,80,180,.15) 0%, transparent 40%);
+  pointer-events: none;
 }
-.hero-content { position: relative; z-index: 1; max-width: 700px; }
+.hero-star {
+  position: absolute; border-radius: 50%; background: #fff; pointer-events: none;
+}
+.hero-star:nth-child(odd)  { animation: starTwinkle 2.8s ease-in-out infinite; }
+.hero-star:nth-child(even) { animation: starTwinkle 4.2s ease-in-out infinite 1s; }
+.hero-inner {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; gap: 52px;
+  max-width: 1140px; width: 100%;
+}
+.hero-content { flex: 1; text-align: left; }
+.hero-mascot-wrap {
+  flex-shrink: 0; width: 260px;
+  animation: mascotFloat 3.4s ease-in-out infinite;
+  filter: drop-shadow(0 24px 50px rgba(0,0,0,.5));
+}
+.mascot-wave-arm {
+  transform-box: fill-box;
+  transform-origin: 15% 40%;
+  animation: mascotWaveArm .9s ease-in-out infinite;
+}
 .hero-badge {
   display: inline-block;
   background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.28);
@@ -88,8 +125,8 @@ input, select, textarea { font-family: inherit; }
   margin-bottom: 18px; color: #FFFFFF;
 }
 .hero h1 em { font-style: normal; color: #F5D060; }
-.hero p { font-size: 1.0625rem; color: rgba(255,255,255,.75); margin-bottom: 36px; max-width: 480px; margin-inline: auto; }
-.hero-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.hero p { font-size: 1.0625rem; color: rgba(255,255,255,.75); margin-bottom: 36px; max-width: 480px; }
+.hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
 @keyframes btn-glow {
   0%, 100% {
     box-shadow: 0 4px 22px rgba(22,163,74,.50),
@@ -494,7 +531,7 @@ input, select, textarea { font-family: inherit; }
 /* ── HERO TRUST STRIP ────────────────────────────────────── */
 .hero-trust {
   display: flex; align-items: center; gap: 14px;
-  margin-top: 18px; flex-wrap: wrap; justify-content: center;
+  margin-top: 18px; flex-wrap: wrap;
 }
 .hero-trust-item { font-size: .8rem; color: rgba(255,255,255,.75); font-weight: 500; }
 .hero-trust-sep { width: 4px; height: 4px; background: rgba(255,255,255,.35); border-radius: 50%; flex-shrink: 0; }
@@ -732,6 +769,11 @@ input, select, textarea { font-family: inherit; }
   .btn-book-header { display: none; }
   .header-hamburger { display: flex; }
   .hero { min-height: 75vh; }
+  .hero-inner { flex-direction: column-reverse; gap: 28px; }
+  .hero-content { text-align: center; }
+  .hero-mascot-wrap { width: 170px; }
+  .hero-btns { justify-content: center; }
+  .hero-trust { justify-content: center; }
   .rooms-grid { grid-template-columns: 1fr; }
   .form-grid { grid-template-columns: 1fr; }
   .modal { padding: 24px 18px; }
