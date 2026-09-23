@@ -1669,13 +1669,25 @@
   }
 
   async function sendCheckoutEmailWithPDF(b) {
-    if (!b.customerEmail) { showAdminToast(`${b.customerName} checked out.`, 'success'); return }
+    console.log('[Checkout] booking:', b.id, '| email:', b.customerEmail || '(none)')
+
+    if (!b.customerEmail) {
+      showAdminToast(`${b.customerName} checked out. ⚠ No guest email — farewell email skipped.`, 'info')
+      return
+    }
+
     const cfg = window.EMAILJS
     if (!cfg?.publicKey || cfg.publicKey === 'YOUR_PUBLIC_KEY') {
-      showAdminToast(`${b.customerName} checked out. (Configure EmailJS to send farewell email)`, 'info'); return
+      showAdminToast(`${b.customerName} checked out. ⚠ EmailJS not configured.`, 'info')
+      return
     }
+
+    if (!cfg.templates?.checkout || cfg.templates.checkout.startsWith('YOUR_')) {
+      showAdminToast(`${b.customerName} checked out. ⚠ Checkout template ID missing in config.js.`, 'info')
+      return
+    }
+
     const code = b.bookingCode || b.id.slice(0,8).toUpperCase()
-    // Generate invoice PDF and upload to Firebase Storage
     let invoiceUrl = ''
     try {
       const doc  = buildInvoiceDoc(b)
@@ -1683,17 +1695,22 @@
       const ref  = storage.ref('invoices/' + code + '.pdf')
       await ref.put(blob, { contentType: 'application/pdf' })
       invoiceUrl = await ref.getDownloadURL()
+      console.log('[Checkout] Invoice uploaded:', invoiceUrl)
     } catch(e) {
-      console.warn('Invoice PDF/upload failed — email will still send without link:', e.message)
+      console.warn('[Checkout] Invoice upload failed (email will send without link):', e.message)
     }
+
     const subject = 'Thank You for Your Stay — Invoice ' + code + ' | Hotel Jay Palace'
+    console.log('[Checkout] Sending email to:', b.customerEmail, '| template:', cfg.templates.checkout)
     try {
       await emailjs.send(cfg.serviceId, cfg.templates.checkout, {
         ...emailVars(b), subject, invoice_url: invoiceUrl,
       })
-      showAdminToast(`${b.customerName} checked out. Farewell email with invoice link sent ✓`, 'success')
+      showAdminToast(`${b.customerName} checked out. Farewell email sent to ${b.customerEmail} ✓`, 'success')
     } catch(e) {
-      showAdminToast(`${b.customerName} checked out. Email failed: ` + (e.text || e.message), 'error')
+      const reason = e.text || e.message || JSON.stringify(e)
+      console.error('[Checkout] EmailJS failed:', e)
+      showAdminToast(`${b.customerName} checked out. Email failed: ` + reason, 'error')
     }
   }
 
