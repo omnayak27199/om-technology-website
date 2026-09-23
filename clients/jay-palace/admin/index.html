@@ -1104,7 +1104,9 @@
       await emailjs.send(cfg.serviceId, tid, { ...emailVars(b), subject })
       showAdminToast('Email sent to ' + b.customerEmail + ' ✓')
     } catch(e) {
-      showAdminToast('Email failed: ' + (e.text || e.message || 'check EmailJS dashboard'), 'error')
+      const reason = e.text || e.message || JSON.stringify(e)
+      console.error('EmailJS send failed:', e)
+      showAdminToast('Email failed: ' + reason, 'error')
     }
   }
 
@@ -1673,17 +1675,16 @@
       showAdminToast(`${b.customerName} checked out. (Configure EmailJS to send farewell email)`, 'info'); return
     }
     const code = b.bookingCode || b.id.slice(0,8).toUpperCase()
-    // Generate invoice PDF blob
-    const doc  = buildInvoiceDoc(b)
-    const blob = doc.output('blob')
-    // Upload to Firebase Storage and get shareable URL
+    // Generate invoice PDF and upload to Firebase Storage
     let invoiceUrl = ''
     try {
-      const ref = storage.ref('invoices/' + code + '.pdf')
+      const doc  = buildInvoiceDoc(b)
+      const blob = doc.output('blob')
+      const ref  = storage.ref('invoices/' + code + '.pdf')
       await ref.put(blob, { contentType: 'application/pdf' })
       invoiceUrl = await ref.getDownloadURL()
     } catch(e) {
-      console.warn('Invoice upload to Storage failed:', e.message)
+      console.warn('Invoice PDF/upload failed — email will still send without link:', e.message)
     }
     const subject = 'Thank You for Your Stay — Invoice ' + code + ' | Hotel Jay Palace'
     try {
