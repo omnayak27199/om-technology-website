@@ -579,30 +579,30 @@ section#contact::before { background: linear-gradient(180deg, #EFF6FF, #F0F7FF);
 .hero-trust-sep { width: 4px; height: 4px; background: rgba(255,255,255,.35); border-radius: 50%; flex-shrink: 0; }
 
 /* ── BOOKING STEP INDICATOR ──────────────────────────────── */
-.booking-steps { display: flex; align-items: center; padding: 16px 32px; background: rgba(255,255,255,.05); border-bottom: 1px solid rgba(255,255,255,.08); }
+.booking-steps { display: flex; align-items: center; padding: 16px 32px; background: #1a44c8; border-bottom: 1px solid rgba(255,255,255,.12); }
 .bstep { display: flex; align-items: center; gap: 9px; }
 .bstep-num {
   width: 32px; height: 32px; border-radius: 50%;
-  background: rgba(255,255,255,.15); border: 2px solid rgba(255,255,255,.35);
-  color: rgba(255,255,255,.70); font-size: .8rem; font-weight: 800;
+  background: rgba(255,255,255,.18); border: 2px solid rgba(255,255,255,.40);
+  color: rgba(255,255,255,.80); font-size: .8rem; font-weight: 800;
   display: flex; align-items: center; justify-content: center;
   transition: background .3s, border-color .3s;
 }
 .bstep.active .bstep-num { background: #FFFFFF; color: #2563EB; border-color: #FFFFFF; box-shadow: 0 0 0 4px rgba(255,255,255,.25); }
 .bstep.done .bstep-num { background: #16a34a; border-color: #16a34a; color: #fff; }
-.bstep-label { font-size: .78rem; font-weight: 700; color: rgba(255,255,255,.60); transition: color .3s; }
+.bstep-label { font-size: .78rem; font-weight: 700; color: rgba(255,255,255,.70); transition: color .3s; }
 .bstep.active .bstep-label { color: #FFFFFF; }
-.bstep.done .bstep-label { color: rgba(255,255,255,.80); }
-.bstep-line { flex: 1; height: 2px; background: rgba(255,255,255,.20); margin: 0 12px; }
+.bstep.done .bstep-label { color: rgba(255,255,255,.90); }
+.bstep-line { flex: 1; height: 2px; background: rgba(255,255,255,.25); margin: 0 12px; }
 
 /* ── MODAL TRUST BADGES ──────────────────────────────────── */
 .modal-trust-row {
   display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 32px;
-  background: rgba(255,255,255,.04); border-bottom: 1px solid rgba(255,255,255,.07);
+  background: #163ba8; border-bottom: 1px solid rgba(255,255,255,.10);
 }
 .mtrust-badge {
-  font-size: .67rem; font-weight: 700; color: rgba(255,255,255,.70);
-  background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.14);
+  font-size: .67rem; font-weight: 700; color: rgba(255,255,255,.85);
+  background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.22);
   padding: 4px 10px; border-radius: 9999px; letter-spacing: .02em;
 }
 
