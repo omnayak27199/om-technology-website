@@ -403,6 +403,29 @@
       .admin-body { padding: 12px; }
     }
 
+    /* CHECKOUT SHARE MODAL */
+    .share-overlay { display:none; position:fixed; inset:0; z-index:600; background:rgba(0,0,0,.55); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:16px; }
+    .share-overlay.open { display:flex; }
+    .share-card { background:var(--surface); border:1px solid var(--border); border-radius:22px; padding:28px; width:100%; max-width:440px; box-shadow:0 24px 64px rgba(0,0,0,.22); }
+    .share-hdr { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; }
+    .share-badge { font-size:.72rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--success); background:rgba(21,128,61,.10); border:1px solid rgba(21,128,61,.25); border-radius:9999px; padding:3px 12px; margin-bottom:8px; display:inline-block; }
+    .share-title { font-size:1.15rem; font-weight:800; color:var(--text); margin:0; }
+    .share-code { font-size:.78rem; font-weight:700; color:var(--muted); }
+    .share-close { background:none; border:none; font-size:1.1rem; color:var(--muted); cursor:pointer; padding:4px; line-height:1; flex-shrink:0; }
+    .share-close:hover { color:var(--text); }
+    .share-desc { font-size:.85rem; color:var(--muted); margin-bottom:16px; }
+    .share-url-row { display:flex; gap:8px; margin-bottom:18px; }
+    .share-url-input { flex:1; background:var(--bg); border:1.5px solid var(--border); border-radius:10px; padding:10px 13px; font-size:.82rem; color:var(--text); outline:none; font-family:monospace; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+    .share-copy-btn { flex-shrink:0; background:var(--accent); color:#fff; border:none; border-radius:10px; padding:10px 18px; font-size:.85rem; font-weight:700; cursor:pointer; white-space:nowrap; transition:background .15s; }
+    .share-copy-btn:hover { background:var(--accent-dark,#b8860b); }
+    .share-copy-btn.copied { background:var(--success); }
+    .share-btns { display:flex; gap:10px; flex-wrap:wrap; }
+    .share-btn { display:inline-flex; align-items:center; gap:7px; padding:11px 18px; border-radius:11px; font-size:.88rem; font-weight:700; cursor:pointer; text-decoration:none; border:none; font-family:inherit; transition:opacity .15s; flex:1; justify-content:center; white-space:nowrap; }
+    .share-btn:hover { opacity:.85; }
+    .share-wa   { background:#25D366; color:#fff; }
+    .share-mail { background:#2563EB; color:#fff; }
+    .share-dl   { background:var(--bg); color:var(--text); border:1.5px solid var(--border); }
+
     /* MARK PAID MODAL */
     .mpaid-overlay { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(26,15,8,.55); backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 16px; }
     .mpaid-overlay.open { display: flex; }
@@ -1026,6 +1049,39 @@
 </div>
 
 <!-- WALK-IN BOOKING MODAL -->
+
+<!-- CHECKOUT SHARE MODAL -->
+<div class="share-overlay" id="shareModal" onclick="if(event.target===this)closeShareModal()">
+  <div class="share-card">
+    <div class="share-hdr">
+      <div>
+        <div class="share-badge">Checkout Complete ✓</div>
+        <h3 class="share-title" id="shareName">Guest Name</h3>
+        <span class="share-code" id="shareCode"></span>
+      </div>
+      <button class="share-close" onclick="closeShareModal()">✕</button>
+    </div>
+    <p class="share-desc">Share the invoice link with the guest via WhatsApp or email, or copy the link.</p>
+    <div class="share-url-row">
+      <input id="shareUrlInput" class="share-url-input" readonly type="text" placeholder="Invoice link…" />
+      <button class="share-copy-btn" id="shareCopyBtn" onclick="copyShareUrl()">Copy</button>
+    </div>
+    <div class="share-btns">
+      <a id="shareWaBtn" href="#" target="_blank" class="share-btn share-wa">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="18"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a13 13 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>
+        WhatsApp
+      </a>
+      <a id="shareMailBtn" href="#" class="share-btn share-mail">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
+        Email
+      </a>
+      <button class="share-btn share-dl" onclick="shareDownloadInvoice()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18"><path d="M12 3v13M5 13l7 7 7-7"/><path d="M3 20h18"/></svg>
+        Download PDF
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- Admin toast -->
 <div class="a-toast" id="adminToast"></div>
@@ -1668,32 +1724,11 @@
       })
   }
 
-  async function sendCheckoutEmailWithPDF(b) {
-    console.log('[Checkout] booking:', b.id, '| email:', b.customerEmail || '(none)')
-
-    if (!b.customerEmail) {
-      showAdminToast(`${b.customerName} checked out. No email — sending farewell via WhatsApp.`, 'info')
-      sendWhatsAppMsg(b, 'checkout')
-      return
-    }
-
-    const cfg = window.EMAILJS
-    if (!cfg?.publicKey || cfg.publicKey === 'YOUR_PUBLIC_KEY') {
-      showAdminToast(`${b.customerName} checked out. ⚠ EmailJS not configured.`, 'info')
-      return
-    }
-
-    if (!cfg.templates?.checkout || cfg.templates.checkout.startsWith('YOUR_')) {
-      showAdminToast(`${b.customerName} checked out. ⚠ Checkout template ID missing in config.js.`, 'info')
-      return
-    }
-
-    const code = b.bookingCode || b.id.slice(0,8).toUpperCase()
-
-    // Build a self-contained invoice URL — no Firebase Storage upload, no CORS issues
-    let invoiceUrl = ''
+  // Build a URL-safe invoice link (base64url — no +/= chars that break URLs)
+  function buildInvoiceUrl(b) {
     try {
-      const invoiceData = {
+      const code = b.bookingCode || b.id.slice(0,8).toUpperCase()
+      const data = {
         bookingCode:   code,
         customerName:  b.customerName  || '',
         customerEmail: b.customerEmail || '',
@@ -1711,11 +1746,92 @@
         paymentStatus: b.paymentStatus || '',
         status:        b.status        || 'checked_out',
       }
-      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(invoiceData))))
-      invoiceUrl = 'https://jaypalace.online/invoice.html?d=' + encoded
-      console.log('[Checkout] Invoice URL generated')
+      // base64url: replace + → - and / → _ and strip = padding so the URL never breaks
+      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))))
+        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+      return 'https://jaypalace.online/invoice.html?d=' + encoded
     } catch(e) {
-      console.warn('[Checkout] Invoice URL generation failed:', e.message)
+      console.warn('[Invoice URL] Failed:', e.message)
+      return ''
+    }
+  }
+
+  // Share modal helpers
+  let _shareCurrentBooking = null
+  function showCheckoutSharePanel(b, invoiceUrl) {
+    _shareCurrentBooking = b
+    const code = b.bookingCode || b.id.slice(0,8).toUpperCase()
+    document.getElementById('shareName').textContent = b.customerName || 'Guest'
+    document.getElementById('shareCode').textContent = 'Booking ' + code
+    document.getElementById('shareUrlInput').value   = invoiceUrl
+
+    // WhatsApp — send to guest phone if available, else hotel WhatsApp
+    const waNum = (b.customerPhone || '').replace(/\D/g, '') || (HOTEL.whatsapp || '')
+    const waMsg = `Dear ${b.customerName},\n\nThank you for staying at *Hotel Jay Palace*, Saraipali! 🙏\n\n📄 Your invoice: ${invoiceUrl}\n\nWe hope to see you again soon!\n\n– Hotel Jay Palace`
+    document.getElementById('shareWaBtn').href = 'https://wa.me/' + waNum + '?text=' + encodeURIComponent(waMsg)
+
+    // Email mailto
+    const mailSub = encodeURIComponent('Invoice ' + code + ' — Hotel Jay Palace')
+    const mailBody = encodeURIComponent(
+      'Dear ' + (b.customerName || 'Guest') + ',\n\n' +
+      'Thank you for your stay at Hotel Jay Palace, Saraipali.\n\n' +
+      'Please find your invoice here:\n' + invoiceUrl + '\n\n' +
+      'Best regards,\nHotel Jay Palace\n' + (HOTEL.phone || '')
+    )
+    document.getElementById('shareMailBtn').href = 'mailto:' + (b.customerEmail || '') + '?subject=' + mailSub + '&body=' + mailBody
+
+    document.getElementById('shareModal').classList.add('open')
+  }
+
+  function closeShareModal() {
+    document.getElementById('shareModal').classList.remove('open')
+    _shareCurrentBooking = null
+  }
+
+  function copyShareUrl() {
+    const inp = document.getElementById('shareUrlInput')
+    inp.select()
+    document.execCommand('copy')
+    const btn = document.getElementById('shareCopyBtn')
+    btn.textContent = 'Copied ✓'
+    btn.classList.add('copied')
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied') }, 2000)
+  }
+
+  function shareDownloadInvoice() {
+    if (!_shareCurrentBooking) return
+    try {
+      const doc = buildInvoiceDoc(_shareCurrentBooking)
+      const code = _shareCurrentBooking.bookingCode || _shareCurrentBooking.id.slice(0,8).toUpperCase()
+      doc.save('Invoice-JP-' + code + '.pdf')
+    } catch(e) {
+      showAdminToast('PDF download failed: ' + e.message, 'error')
+    }
+  }
+
+  async function sendCheckoutEmailWithPDF(b) {
+    console.log('[Checkout] booking:', b.id, '| email:', b.customerEmail || '(none)')
+
+    const code = b.bookingCode || b.id.slice(0,8).toUpperCase()
+    const invoiceUrl = buildInvoiceUrl(b)
+
+    // Always show the share panel so admin can manually forward
+    showCheckoutSharePanel(b, invoiceUrl)
+
+    if (!b.customerEmail) {
+      showAdminToast(`${b.customerName} checked out. Share the invoice via the panel ↗`, 'info')
+      return
+    }
+
+    const cfg = window.EMAILJS
+    if (!cfg?.publicKey || cfg.publicKey === 'YOUR_PUBLIC_KEY') {
+      showAdminToast(`${b.customerName} checked out. ⚠ EmailJS not configured — share manually.`, 'info')
+      return
+    }
+
+    if (!cfg.templates?.checkout || cfg.templates.checkout.startsWith('YOUR_')) {
+      showAdminToast(`${b.customerName} checked out. ⚠ Checkout template missing — share manually.`, 'info')
+      return
     }
 
     const subject = 'Thank You for Your Stay — Invoice ' + code + ' | Hotel Jay Palace'
@@ -1724,11 +1840,11 @@
       await emailjs.send(cfg.serviceId, cfg.templates.checkout, {
         ...emailVars(b), subject, invoice_url: invoiceUrl,
       })
-      showAdminToast(`${b.customerName} checked out. Farewell email sent to ${b.customerEmail} ✓`, 'success')
+      showAdminToast(`Farewell email sent to ${b.customerEmail} ✓`, 'success')
     } catch(e) {
       const reason = e.text || e.message || JSON.stringify(e)
       console.error('[Checkout] EmailJS failed:', e)
-      showAdminToast(`${b.customerName} checked out. Email failed: ` + reason, 'error')
+      showAdminToast(`Email failed: ${reason} — share manually via the panel`, 'error')
     }
   }
 

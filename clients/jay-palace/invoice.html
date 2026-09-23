@@ -32,9 +32,12 @@ let _doc = null, _code = ''
 
 async function main() {
   try {
-    const params  = new URLSearchParams(window.location.search)
-    const encoded = params.get('d')
+    const params = new URLSearchParams(window.location.search)
+    let encoded  = params.get('d')
     if (!encoded) throw new Error('No data')
+    // Restore base64url → standard base64 (admin encodes with - _ and no = padding)
+    encoded = encoded.replace(/-/g, '+').replace(/_/g, '/')
+    while (encoded.length % 4) encoded += '='
     const b = JSON.parse(decodeURIComponent(escape(atob(encoded))))
     _code = b.bookingCode || 'INVOICE'
 
