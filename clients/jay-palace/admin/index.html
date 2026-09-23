@@ -37,7 +37,7 @@
     .login-wrap {
       display: flex; align-items: center; justify-content: center;
       min-height: 100vh; padding: 24px;
-      background: linear-gradient(-45deg, #04091a, #0d1640, #1a0d35, #04101a, #140a2e);
+      background: linear-gradient(-45deg, #040c1c, #0a1628, #061322, #0a1832, #040c1c);
       background-size: 400% 400%;
       animation: adminGradient 14s ease infinite;
       position: relative; overflow: hidden;
@@ -76,7 +76,7 @@
     }
     .admin-header::before {
       content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, #B8891A, #D4A530, #7c3aed, #0369a1);
+      background: linear-gradient(90deg, #B8891A, #D4A530, #0ea5e9, #0369a1);
     }
     .admin-logo { font-size: 1rem; font-weight: 900; color: var(--gold); }
     .admin-logo span { font-weight: 400; color: var(--muted); font-size: .8rem; }
@@ -96,7 +96,7 @@
     .stat-card.confirmed::before { background: linear-gradient(90deg, #16a34a, #22c55e); }
     .stat-card.inhouse::before  { background: linear-gradient(90deg, #0369a1, #0ea5e9); }
     .stat-card.paid::before     { background: linear-gradient(90deg, #B8891A, #D4A530); }
-    .stat-card.total::before    { background: linear-gradient(90deg, #7c3aed, #a855f7); }
+    .stat-card.total::before    { background: linear-gradient(90deg, #0369a1, #0ea5e9); }
     .stat-icon { font-size: 1.5rem; line-height: 1; margin-bottom: 10px; }
     .stat-label { font-size: .72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
     .stat-value { font-size: 1.85rem; font-weight: 900; }
@@ -104,7 +104,7 @@
     .stat-card.confirmed .stat-value { color: var(--success); }
     .stat-card.inhouse .stat-value  { color: #0369a1; }
     .stat-card.paid .stat-value     { color: #B8891A; }
-    .stat-card.total .stat-value    { color: #7c3aed; }
+    .stat-card.total .stat-value    { color: #0369a1; }
 
     /* FILTER TABS */
     .filter-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
@@ -138,7 +138,7 @@
     .bc-booked-at { margin-left: auto; font-size: .7rem; color: var(--muted); white-space: nowrap; }
     .bc-source { font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; padding: 2px 7px; border-radius: 9999px; border: 1px solid; }
     .bc-source.walkin { background: rgba(3,105,161,.1); color: #0369a1; border-color: rgba(3,105,161,.3); }
-    .bc-source.online { background: rgba(124,58,237,.08); color: #7c3aed; border-color: rgba(124,58,237,.25); }
+    .bc-source.online { background: rgba(3,105,161,.08); color: #0369a1; border-color: rgba(3,105,161,.28); }
     .bc-source.corp   { background: rgba(28,21,16,.1); color: var(--text); border-color: rgba(28,21,16,.25); }
 
     /* Card body */
