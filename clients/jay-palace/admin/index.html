@@ -444,9 +444,7 @@
     .btn-wi-book { background: linear-gradient(135deg, #3B82F6, #2563EB); color: #fff; border: none; padding: 13px 44px; border-radius: 9999px; font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 8px; box-shadow: 0 4px 14px rgba(37,99,235,.50); }
     .btn-wi-book:hover { opacity: .88; }
     @media (max-width: 800px) { .wi-fp-grid { grid-template-columns: 1fr; } .wi-panel { padding: 18px 16px; } }
-    .gmail-connect-btn { background: linear-gradient(135deg, #EA4335, #C5382B); color: #fff; border: none; padding: 7px 16px; border-radius: 9999px; font-size: .8rem; font-weight: 700; cursor: pointer; margin-left: 8px; transition: opacity .2s; }
-    .gmail-connect-btn:hover { opacity: .88; }
-    .gmail-status { font-size: .75rem; color: rgba(255,255,255,.65); margin-left: 6px; }
+
     .admin-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
     .admin-section-title { font-size: 1.1rem; font-weight: 800; color: #1C1510; }
     .view-header { background: #FFFFFF; border-radius: 14px; padding: 20px 24px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
@@ -530,8 +528,7 @@
   <header class="admin-header">
     <div class="admin-logo">✦ Jay Palace <span>· Admin</span></div>
     <div class="admin-header-right">
-      <button id="gmailConnectBtn" onclick="connectGmail()" style="background:#EA4335;color:#fff;border:none;padding:6px 14px;border-radius:9999px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap;" title="Connect Gmail to enable automatic guest emails">📧 Connect Gmail</button>
-      <span id="gmailStatus" style="font-size:.8rem;color:#16a34a;font-weight:700;"></span>
+      <span id="emailStatus" style="font-size:.8rem;font-weight:700;"></span>
       <span class="admin-user" id="adminUser"></span>
       <button class="btn-logout" onclick="doLogout()">Logout</button>
     </div>
@@ -1041,7 +1038,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
 <script>
   firebase.initializeApp(window.FIREBASE_CONFIG)
@@ -1049,103 +1046,66 @@
   const db      = firebase.firestore()
   const storage = firebase.storage()
 
-  // ── Gmail OAuth ──────────────────────────────────────────────
-  let _gmailTokenClient = null
-  let _gmailToken       = null
-
-  function initGmail() {
-    if (!window.GMAIL_CLIENT_ID || window.GMAIL_CLIENT_ID === 'YOUR_OAUTH_CLIENT_ID.apps.googleusercontent.com') return
-    _gmailTokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: window.GMAIL_CLIENT_ID,
-      scope:     'https://www.googleapis.com/auth/gmail.send',
-      callback:  (resp) => {
-        if (resp.access_token) {
-          _gmailToken = resp.access_token
-          document.getElementById('gmailConnectBtn').style.display = 'none'
-          document.getElementById('gmailStatus').textContent        = '📧 Gmail ✓'
-          showAdminToast('Gmail connected — emails will now send automatically.')
-        }
-      },
-    })
-  }
-  window.onGoogleLibraryLoad = initGmail
-
-  function connectGmail() {
-    if (_gmailTokenClient) _gmailTokenClient.requestAccessToken()
-    else showAdminToast('Gmail client ID not set in config.js', 'error')
-  }
-
-  async function buildEmailBody(templateName, vars) {
-    const url  = '../email-templates/template_' + templateName + '.html'
-    const html = await fetch(url).then(r => r.text())
-    return html.replace(/\{\{(\w+)\}\}/g, (_, k) => vars[k] !== undefined ? vars[k] : '')
-  }
-
-  async function sendEmailViaGmail(toEmail, toName, subject, htmlBody) {
-    if (!_gmailToken) {
-      showAdminToast('Gmail not connected — click "Connect Gmail" first.', 'info')
+  // ── EmailJS ──────────────────────────────────────────────────
+  ;(function initEmailJS() {
+    const cfg = window.EMAILJS
+    if (!cfg?.publicKey || cfg.publicKey === 'YOUR_PUBLIC_KEY') {
+      document.getElementById('emailStatus').textContent = '⚠ Email not configured'
+      document.getElementById('emailStatus').style.color = '#D97706'
       return
     }
-    const mime = [
-      'From: Hotel Jay Palace <' + HOTEL.email + '>',
-      'To: ' + toName + ' <' + toEmail + '>',
-      'Subject: =?UTF-8?B?' + btoa(unescape(encodeURIComponent(subject))) + '?=',
-      'MIME-Version: 1.0',
-      'Content-Type: text/html; charset=utf-8',
-      '',
-      htmlBody,
-    ].join('\r\n')
-    const raw = btoa(unescape(encodeURIComponent(mime)))
-      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
-    try {
-      const r = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
-        method:  'POST',
-        headers: { 'Authorization': 'Bearer ' + _gmailToken, 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ raw }),
-      })
-      if (r.status === 401) {
-        _gmailToken = null
-        document.getElementById('gmailConnectBtn').style.display = ''
-        document.getElementById('gmailStatus').textContent = ''
-        showAdminToast('Gmail session expired — please reconnect.', 'error')
-      } else if (!r.ok) {
-        showAdminToast('Email failed (Gmail API error ' + r.status + ').', 'error')
-      } else {
-        showAdminToast('Email sent to ' + toEmail + ' ✓')
-      }
-    } catch {
-      showAdminToast('Email failed — check internet connection.', 'error')
-    }
-  }
+    emailjs.init(cfg.publicKey)
+    document.getElementById('emailStatus').textContent = '📧 Email ready ✓'
+    document.getElementById('emailStatus').style.color = '#16a34a'
+  })()
 
-  function emailVars(b, extraStatus) {
-    const code = b.bookingCode || b.id.slice(0,8).toUpperCase()
+  function emailVars(b) {
+    const code   = b.bookingCode || b.id.slice(0,8).toUpperCase()
+    const isPaid = getPaymentStatus(b) === 'paid'
+    const method = b.paymentMethod === 'razorpay' ? 'Online Payment (Razorpay)'
+                 : b.paymentMethod === 'upi'      ? 'UPI Transfer'
+                 : 'Cash'
+    const payment_info = isPaid
+      ? 'Payment Received ✓\nAmount: Rs. ' + (b.totalAmount||0).toLocaleString('en-IN') +
+        '\nMethod: ' + method +
+        (b.paymentId ? '\nReference: ' + b.paymentId : '')
+      : 'Payment Pending at Hotel\nAmount: Rs. ' + (b.totalAmount||0).toLocaleString('en-IN') +
+        '\nPlease pay at the time of check-in.'
     return {
-      to_name:        b.customerName,
-      to_email:       b.customerEmail || '',
-      booking_id:     code,
-      room_name:      b.roomName,
-      check_in:       fmtDate(b.checkIn)  + ' (' + HOTEL.checkIn  + ')',
-      check_out:      fmtDate(b.checkOut) + ' (' + HOTEL.checkOut + ')',
-      nights:         b.nights,
-      guests:         b.guestsAtCheckin || b.guests,
-      total_amount:   'Rs.' + (b.totalAmount || 0).toLocaleString('en-IN'),
-      payment_method: b.paymentMethod === 'razorpay' ? 'Online (Razorpay)'
-                    : b.paymentMethod === 'upi'      ? 'UPI Transfer'
-                    : 'Cash at Hotel',
-      payment_status: extraStatus || '',
-      special_req:    b.specialRequests || 'None',
-      hotel_phone:    HOTEL.phone,
-      hotel_email:    HOTEL.email,
-      hotel_address:  HOTEL.address,
+      to_name:      b.customerName,
+      to_email:     b.customerEmail || '',
+      booking_id:   code,
+      room_name:    b.roomName,
+      check_in:     fmtDate(b.checkIn)  + ' (' + HOTEL.checkIn  + ')',
+      check_out:    fmtDate(b.checkOut) + ' (' + HOTEL.checkOut + ')',
+      nights:       b.nights,
+      guests:       b.guestsAtCheckin || b.guests,
+      total_amount: 'Rs. ' + (b.totalAmount || 0).toLocaleString('en-IN'),
+      payment_info,
+      special_req:  b.specialRequests || 'None',
+      hotel_phone:  HOTEL.phone,
+      hotel_email:  HOTEL.email,
+      hotel_address: HOTEL.address,
+      review_url:   (window.EMAILJS && window.EMAILJS.reviewUrl) || 'https://jaypalace.online',
     }
   }
 
   async function sendGuestEmail(templateName, subject, b) {
     if (!b.customerEmail) { showAdminToast('No email address for this guest.', 'info'); return }
-    const vars = emailVars(b, '')
-    const html = await buildEmailBody(templateName, vars)
-    await sendEmailViaGmail(b.customerEmail, b.customerName, subject, html)
+    const cfg = window.EMAILJS
+    if (!cfg?.publicKey || cfg.publicKey === 'YOUR_PUBLIC_KEY') {
+      showAdminToast('EmailJS not configured — fill EMAILJS in config.js', 'info'); return
+    }
+    const tid = cfg.templates[templateName]
+    if (!tid || tid.startsWith('YOUR_')) {
+      showAdminToast('EmailJS template ID missing for "' + templateName + '" in config.js', 'info'); return
+    }
+    try {
+      await emailjs.send(cfg.serviceId, tid, { ...emailVars(b), subject })
+      showAdminToast('Email sent to ' + b.customerEmail + ' ✓')
+    } catch(e) {
+      showAdminToast('Email failed: ' + (e.text || e.message || 'check EmailJS dashboard'), 'error')
+    }
   }
 
   let allBookings       = []
@@ -1389,8 +1349,7 @@
       return `
         <button class="btn-ac-primary blue" onclick="openCheckinModal('${id}')">🏨 Check In</button>
         <div class="bc-actions-right">
-          <button class="btn-ac-icon wa" onclick="sendWhatsApp('${id}')">💬 Receipt</button>
-          ${b.customerEmail ? `<button class="btn-ac-icon" onclick="sendEmailToGuest('receipt', allBookings.find(x=>x.id==='${id}'))">📧 Email</button>` : ''}
+          <button class="btn-ac-icon wa" onclick="sendWhatsApp('${id}')">💬 WhatsApp</button>
           <button class="btn-ac-icon invoice" onclick="downloadInvoice('${id}')">📄 Invoice</button>
         </div>`
     }
@@ -1498,10 +1457,8 @@
     if (discount) updates.discountNote = discount
 
     db.collection('bookings').doc(id).update(updates).then(() => {
-      const paid = { ...b, ...updates, totalAmount: amt }
-      sendEmailToGuest('receipt', paid)
       closeMpaidModal()
-      showAdminToast(`Rs. ${amt.toLocaleString('en-IN')} collected ✓  Receipt email sent.`, 'success')
+      showAdminToast(`Rs. ${amt.toLocaleString('en-IN')} collected ✓`, 'success')
     }).catch(err => showAdminToast('Failed: ' + err.message, 'error'))
   }
 
@@ -1672,16 +1629,8 @@
       mobileAtCheckin: mobile,
     }).then(() => {
       closeCheckinModal()
-      const checkedIn = { ...b, status: 'checked_in', roomNumber, aadharNumber: aadhar, guestsAtCheckin: guests, genderAtCheckin: gender }
-      sendCheckinMessages(checkedIn, mobile)
       showAdminToast(`${b.customerName} checked in to Room ${roomNumber}!`, 'success')
     }).catch(err => showAdminToast('Check-in failed: ' + err.message, 'error'))
-  }
-
-  function sendCheckinMessages(b, mobile) {
-    sendGuestEmail('checkin',
-      'Welcome! You\'re Checked In — ' + b.roomName + ' | Hotel Jay Palace',
-      b)
   }
 
   // ── Stay Timer ────────────────────────────────────────────────
@@ -1711,20 +1660,43 @@
     const b = allBookings.find(x => x.id === id)
     if (!confirm(`Mark checkout for ${b.customerName}?\nThis will deactivate their booking tracker.`)) return
     db.collection('bookings').doc(id).update({ status: 'checked_out', checkedOutAt: firebase.firestore.FieldValue.serverTimestamp() })
-      .then(() => {
+      .then(async () => {
         const checkedOut = { ...b, status: 'checked_out' }
-        sendCheckoutEmail(checkedOut)
-        showAdminToast(`${b.customerName} checked out. Farewell email sent.`, 'success')
+        await sendCheckoutEmailWithPDF(checkedOut)
       })
   }
 
-  function sendCheckoutEmail(b) {
-    sendGuestEmail('checkout',
-      'Thank You for Your Stay — Invoice ' + (b.bookingCode || b.id.slice(0,8).toUpperCase()) + ' | Hotel Jay Palace',
-      b)
+  async function sendCheckoutEmailWithPDF(b) {
+    if (!b.customerEmail) { showAdminToast(`${b.customerName} checked out.`, 'success'); return }
+    const cfg = window.EMAILJS
+    if (!cfg?.publicKey || cfg.publicKey === 'YOUR_PUBLIC_KEY') {
+      showAdminToast(`${b.customerName} checked out. (Configure EmailJS to send farewell email)`, 'info'); return
+    }
+    const code = b.bookingCode || b.id.slice(0,8).toUpperCase()
+    // Generate invoice PDF blob
+    const doc  = buildInvoiceDoc(b)
+    const blob = doc.output('blob')
+    // Upload to Firebase Storage and get shareable URL
+    let invoiceUrl = ''
+    try {
+      const ref = storage.ref('invoices/' + code + '.pdf')
+      await ref.put(blob, { contentType: 'application/pdf' })
+      invoiceUrl = await ref.getDownloadURL()
+    } catch(e) {
+      console.warn('Invoice upload to Storage failed:', e.message)
+    }
+    const subject = 'Thank You for Your Stay — Invoice ' + code + ' | Hotel Jay Palace'
+    try {
+      await emailjs.send(cfg.serviceId, cfg.templates.checkout, {
+        ...emailVars(b), subject, invoice_url: invoiceUrl,
+      })
+      showAdminToast(`${b.customerName} checked out. Farewell email with invoice link sent ✓`, 'success')
+    } catch(e) {
+      showAdminToast(`${b.customerName} checked out. Email failed: ` + (e.text || e.message), 'error')
+    }
   }
 
-  // ── Email to Guest (Gmail API) ───────────────────────────
+  // ── Email to Guest (EmailJS) ────────────────────────────
   function sendEmailToGuest(type, b) {
     if (type === 'receipt') {
       sendGuestEmail('receipt',
@@ -1884,10 +1856,7 @@
           paymentId: response.razorpay_payment_id,
         })
         closePayModal()
-        // Send receipt to customer
-        const paid = { ...b, status: 'paid', paymentId: response.razorpay_payment_id }
-        sendWhatsAppMsg(paid, 'paid')
-        alert(`✅ Payment successful!\nID: ${response.razorpay_payment_id}\nReceipt sent to customer via WhatsApp.`)
+        alert(`✅ Payment successful!\nID: ${response.razorpay_payment_id}`)
       },
     }
     const rzp = new Razorpay(options)
@@ -1895,11 +1864,9 @@
     rzp.open()
   }
 
-  // ── Download Invoice PDF ─────────────────────────────────
-  function downloadInvoice(id) {
-    const b = allBookings.find(x => x.id === id)
-    if (!b) return
-    const code   = b.bookingCode || id.slice(0, 8).toUpperCase()
+  // ── Invoice PDF Builder ───────────────────────────────────
+  function buildInvoiceDoc(b) {
+    const code   = b.bookingCode || b.id.slice(0, 8).toUpperCase()
     const isCorp = !!b.isCorporate
     const isPaid = getPaymentStatus(b) === 'paid'
     const { jsPDF } = window.jspdf
@@ -2200,7 +2167,14 @@
     doc.text('Authorised Signatory', (sx1+sx2)/2, y+8, {align:'center'})
     doc.text('Hotel Jay Palace', (sx1+sx2)/2, y+12, {align:'center'})
 
-    doc.save('Invoice-JP-'+code+'.pdf')
+    return doc
+  }
+
+  function downloadInvoice(id) {
+    const b = allBookings.find(x => x.id === id)
+    if (!b) return
+    const code = b.bookingCode || id.slice(0, 8).toUpperCase()
+    buildInvoiceDoc(b).save('Invoice-JP-'+code+'.pdf')
   }
 
   // ── Helpers ──────────────────────────────────────────────

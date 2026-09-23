@@ -102,18 +102,31 @@ window.RAZORPAY_KEY  = 'rzp_test_XXXXXXXXXXXXXXXX'  // use rzp_live_xxx for prod
 window.ADMIN_EMAIL = 'omnayak27199@gmail.com'
 
 // ─── EmailJS Config ──────────────────────────────────────────
-// Used to send booking confirmation + receipt emails to guests
-// Setup: https://www.emailjs.com → free account → 200 emails/month
-// TODO: Fill after creating EmailJS account (see setup guide)
-// ─── Gmail API Config ─────────────────────────────────────────
-// Enables sending emails directly from thehoteljaypalace@gmail.com — no third-party service.
-// Setup (5 min): https://console.cloud.google.com
-//   1. Select project hotel-jay-palace
-//   2. APIs & Services → Library → search "Gmail API" → Enable
-//   3. APIs & Services → Credentials → Create → OAuth 2.0 Client ID
-//      Type: Web application · Authorised origin: https://jaypalace.online
-//   4. Copy the Client ID and paste it below
-window.GMAIL_CLIENT_ID = '612198957262-6t06s6dipmkvqbsbb32jepldddupdfhs.apps.googleusercontent.com'
+// Sends guest emails (confirmation, receipt, check-in, checkout) from the admin panel.
+// Free plan: 200 emails/month — no Google verification needed.
+//
+// Setup steps (one-time, ~10 minutes):
+//   1. Sign up at https://www.emailjs.com (free)
+//   2. Email Services → Add New Service → Gmail → connect thehoteljaypalace@gmail.com
+//      Copy the Service ID (looks like "service_abc1234")
+//   3. Email Templates → Create 4 templates (see EMAILJS_SETUP.md for content)
+//      Copy each Template ID (looks like "template_abc1234")
+//   4. Account → API Keys → copy your Public Key
+//   5. Paste all values below and run: firebase deploy --only hosting
+//
+// TODO: Fill in all values below after completing setup
+window.EMAILJS = {
+  publicKey:  'YqOr5ZG5kqiKobusi',
+  serviceId:  'service_bq58pgv',
+  templates: {
+    confirmation: 'template_54l0vg7',
+    checkout:     'YOUR_TEMPLATE_ID_CHECKOUT', // TODO: create a separate checkout template in EmailJS and paste its ID here
+  },
+  reviewUrl: 'https://www.google.com/search?q=hoteljaypalace+saraipali',
+  // TODO: Replace reviewUrl with the direct Google Maps review link for better UX:
+  // Go to Google Maps → search "Hotel Jay Palace Saraipali" → Share → Copy link
+  // Or: https://search.google.com/local/writereview?placeid=YOUR_PLACE_ID
+}
 
 // ─── WhatsApp Business Cloud API Config ──────────────────────
 // Optional: enables fully automatic (zero-click) WhatsApp messages from admin panel.
