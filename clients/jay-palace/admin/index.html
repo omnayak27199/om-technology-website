@@ -172,6 +172,8 @@
     .btn-ac-icon.wa:hover { background: #1db954; border-color: #1db954; }
     .btn-ac-icon.invoice { background: #0369a1; border-color: #0369a1; color: #fff; }
     .btn-ac-icon.invoice:hover { background: #025585; border-color: #025585; }
+    .btn-ac-icon.share { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+    .btn-ac-icon.share:hover { background: #6d28d9; border-color: #6d28d9; }
 
     .badge {
       display: inline-block; padding: 2px 9px; border-radius: 9999px;
@@ -1387,6 +1389,7 @@
         <button class="btn-ac-primary danger" onclick="rejectBooking('${id}')">✗ Reject</button>
         <div class="bc-actions-right">
           <button class="btn-ac-icon wa" onclick="sendWhatsApp('${id}')">💬 WhatsApp</button>
+          <button class="btn-ac-icon share" onclick="openSharePanel('${id}')">📤 Share</button>
         </div>`
     }
     if (b.status === 'approved') {
@@ -1401,6 +1404,7 @@
         <div class="bc-actions-right">
           <button class="btn-ac-icon wa" onclick="sendWhatsApp('${id}')">💬</button>
           <button class="btn-ac-icon invoice" onclick="downloadInvoice('${id}')">📄 Invoice</button>
+          <button class="btn-ac-icon share" onclick="openSharePanel('${id}')">📤 Share</button>
         </div>`
     }
     if (b.status === 'paid') {
@@ -1409,6 +1413,7 @@
         <div class="bc-actions-right">
           <button class="btn-ac-icon wa" onclick="sendWhatsApp('${id}')">💬 WhatsApp</button>
           <button class="btn-ac-icon invoice" onclick="downloadInvoice('${id}')">📄 Invoice</button>
+          <button class="btn-ac-icon share" onclick="openSharePanel('${id}')">📤 Share</button>
         </div>`
     }
     if (b.status === 'checked_in') {
@@ -1424,6 +1429,7 @@
         <div class="bc-actions-right">
           <button class="btn-ac-icon wa" onclick="sendWhatsApp('${id}')">💬</button>
           <button class="btn-ac-icon invoice" onclick="downloadInvoice('${id}')">📄 Invoice</button>
+          <button class="btn-ac-icon share" onclick="openSharePanel('${id}')">📤 Share</button>
         </div>`
     }
     if (b.status === 'checked_out') {
@@ -1431,6 +1437,7 @@
         <span style="font-size:.78rem;color:var(--success);font-weight:600">✅ Checked out</span>
         <div class="bc-actions-right">
           <button class="btn-ac-icon invoice" onclick="downloadInvoice('${id}')">📄 Invoice</button>
+          <button class="btn-ac-icon share" onclick="openSharePanel('${id}')">📤 Share</button>
         </div>`
     }
     if (b.status === 'rejected') {
@@ -1783,6 +1790,13 @@
   function closeShareModal() {
     document.getElementById('shareModal').classList.remove('open')
     _shareCurrentBooking = null
+  }
+
+  // Open share panel from any booking card's Share button
+  function openSharePanel(id) {
+    const b = allBookings.find(x => x.id === id)
+    if (!b) return
+    showCheckoutSharePanel(b, buildInvoiceUrl(b))
   }
 
   function copyShareUrl() {
