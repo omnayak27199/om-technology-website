@@ -1156,7 +1156,7 @@
 
     const canvas = document.createElement('canvas');
     canvas.id = 'heroScene';
-    canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;';
+    canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:0;cursor:default;';
     hero.insertBefore(canvas, hero.firstChild);
 
     const ctx = canvas.getContext('2d');
@@ -1168,6 +1168,35 @@
     }
     resize();
     new ResizeObserver(resize).observe(hero);
+
+    // ── Sign hit-testing (matches drawMonkeyTree sign positions) ──────
+    function signBounds() {
+      const tx      = W * 0.46;
+      const branchY = H * 0.70 - H * 0.48 * 0.28 - H * 0.02; // = H * 0.5456
+      const s1cy = branchY + H * 0.008, s1sH = H * 0.062;
+      const s2cy = branchY + H * 0.066, s2sH = H * 0.055;
+      return {
+        book:  { l: tx + W*0.084, r: tx + W*0.232, t: s1cy + s1sH*0.52, b: s1cy + s1sH*1.52 },
+        rooms: { l: tx + W*0.058, r: tx + W*0.186, t: s2cy + s2sH*0.52, b: s2cy + s2sH*1.52 },
+      };
+    }
+    function hitSign(ex, ey) {
+      const rect = canvas.getBoundingClientRect();
+      const x = (ex - rect.left) * (W / rect.width);
+      const y = (ey - rect.top)  * (H / rect.height);
+      const b = signBounds();
+      if (x >= b.book.l  && x <= b.book.r  && y >= b.book.t  && y <= b.book.b)  return 'book';
+      if (x >= b.rooms.l && x <= b.rooms.r && y >= b.rooms.t && y <= b.rooms.b) return 'rooms';
+      return null;
+    }
+    canvas.addEventListener('mousemove', function(e) {
+      canvas.style.cursor = hitSign(e.clientX, e.clientY) ? 'pointer' : 'default';
+    });
+    canvas.addEventListener('click', function(e) {
+      const hit = hitSign(e.clientX, e.clientY);
+      if (hit === 'book'  && typeof openBookingModal === 'function') openBookingModal();
+      if (hit === 'rooms') document.querySelector('#rooms').scrollIntoView({ behavior: 'smooth' });
+    });
 
     let start = null;
     function frame(ts) {
