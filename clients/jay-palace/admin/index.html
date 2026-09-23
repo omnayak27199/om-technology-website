@@ -1712,7 +1712,7 @@
         status:        b.status        || 'checked_out',
       }
       const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(invoiceData))))
-      invoiceUrl = 'https://jaypalace.online/clients/jay-palace/invoice.html?d=' + encoded
+      invoiceUrl = 'https://jaypalace.online/invoice.html?d=' + encoded
       console.log('[Checkout] Invoice URL generated')
     } catch(e) {
       console.warn('[Checkout] Invoice URL generation failed:', e.message)
