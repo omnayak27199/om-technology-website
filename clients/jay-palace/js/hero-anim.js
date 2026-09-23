@@ -215,7 +215,7 @@
   function drawTrees(ctx, t, W, H) {
     const gY = H * 0.70;
     const nf = nightF(t);
-    [[0.04, 1.0], [0.10, 1.2], [0.17, 0.85]].forEach(([fx, sc]) => {
+    [[0.10, 1.2], [0.17, 0.85]].forEach(([fx, sc]) => {
       const tx = fx * W, bY = gY, tH = H * 0.16 * sc, trH = tH * 0.30, trW = W * 0.011;
       ctx.fillStyle = rgb(lerpRGB([110, 75, 32], [50, 32, 12], nf));
       ctx.fillRect(tx - trW/2, bY - trH, trW, trH);
@@ -671,6 +671,484 @@
     }
   }
 
+  // ── Draw: Inn Sign Post with Hanging Board ──────────────────────────
+  function drawHangingBoard(ctx, t, W, H) {
+    const gY      = H * 0.70;
+    const nf      = nightF(t);
+    const postX   = W * 0.26;
+    const barTop  = gY - H * 0.40;
+    const armLen  = W * 0.14;
+    const armEndX = postX + armLen;
+    const postW   = W * 0.013;
+
+    // Post shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.09)';
+    ctx.fillRect(postX + 3, barTop + 3, postW, gY - barTop);
+
+    // Vertical post
+    ctx.fillStyle = rgb(lerpRGB([126, 82, 32], [50, 31, 11], nf * 0.70));
+    ctx.beginPath();
+    ctx.roundRect(postX - postW / 2, barTop, postW, gY - barTop, 3);
+    ctx.fill();
+
+    // Horizontal arm
+    const armH = postW * 0.75;
+    ctx.fillStyle = rgb(lerpRGB([115, 75, 28], [44, 27, 9], nf * 0.70));
+    ctx.fillRect(postX - postW / 2, barTop, armLen + postW / 2, armH);
+
+    // Cap on post top
+    ctx.fillStyle = rgb(lerpRGB([92, 58, 22], [36, 22, 7], nf * 0.70));
+    ctx.beginPath();
+    ctx.roundRect(postX - postW * 1.2, barTop - postW * 0.85, postW * 2.4, postW * 0.75, 2);
+    ctx.fill();
+
+    // Cap at arm end
+    ctx.beginPath();
+    ctx.roundRect(armEndX - armH, barTop - postW * 0.25, armH * 1.1, postW * 1.1, 2);
+    ctx.fill();
+
+    // Board pivot at arm end
+    const bW      = W * 0.18;
+    const bH      = H * 0.26;
+    const ropeLen = H * 0.036;
+    const rSpan   = bW * 0.68;
+    const swing   = Math.sin(Date.now() * 0.00065) * 0.022;
+
+    ctx.save();
+    ctx.translate(armEndX, barTop + armH);
+    ctx.rotate(swing);
+
+    // Ropes
+    ctx.strokeStyle = rgba(lerpRGB([88, 58, 22], [36, 22, 7], nf * 0.70), 0.88);
+    ctx.lineWidth = 2.0; ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-rSpan / 2, 0); ctx.lineTo(-rSpan / 2, ropeLen);
+    ctx.moveTo( rSpan / 2, 0); ctx.lineTo( rSpan / 2, ropeLen);
+    ctx.stroke();
+
+    // Board shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    ctx.beginPath();
+    ctx.roundRect(-bW / 2 + 3, ropeLen + 3, bW, bH, 9);
+    ctx.fill();
+
+    // Board body gradient
+    const wg = ctx.createLinearGradient(0, ropeLen, 0, ropeLen + bH);
+    wg.addColorStop(0, rgb(lerpRGB([170, 120, 52], [70, 44, 16], nf * 0.68)));
+    wg.addColorStop(1, rgb(lerpRGB([145, 100, 40], [56, 35, 11], nf * 0.68)));
+    ctx.fillStyle = wg;
+    ctx.beginPath();
+    ctx.roundRect(-bW / 2, ropeLen, bW, bH, 9);
+    ctx.fill();
+
+    // Wood grain lines
+    ctx.strokeStyle = rgba(lerpRGB([118, 80, 28], [46, 29, 9], nf * 0.5), 0.18);
+    ctx.lineWidth = 0.7;
+    for (let i = 1; i <= 7; i++) {
+      const ly = ropeLen + bH * i / 8;
+      ctx.beginPath();
+      ctx.moveTo(-bW / 2 + 9, ly); ctx.lineTo(bW / 2 - 9, ly);
+      ctx.stroke();
+    }
+
+    // Outer border
+    ctx.strokeStyle = rgba(lerpRGB([80, 50, 16], [30, 18, 5], nf * 0.60), 0.90);
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.roundRect(-bW / 2, ropeLen, bW, bH, 9);
+    ctx.stroke();
+
+    // Inner decorative frame
+    ctx.strokeStyle = rgba(lerpRGB([80, 50, 16], [30, 18, 5], nf * 0.50), 0.30);
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(-bW / 2 + 8, ropeLen + 8, bW - 16, bH - 16, 5);
+    ctx.stroke();
+
+    // Corner nails
+    const nc = rgba(lerpRGB([168, 168, 168], [68, 68, 68], nf * 0.40), 0.70);
+    [[-bW/2+10, ropeLen+10],[bW/2-10, ropeLen+10],[-bW/2+10, ropeLen+bH-10],[bW/2-10, ropeLen+bH-10]].forEach(([nx, ny]) => {
+      ctx.fillStyle = nc; ctx.beginPath(); ctx.arc(nx, ny, 3, 0, Math.PI * 2); ctx.fill();
+    });
+
+    // Text alpha (dim at night)
+    const ta = Math.max(0.18, 0.95 - nf * 0.64);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+
+    // Top ornament line
+    ctx.strokeStyle = rgba(lerpRGB([212, 162, 70], [118, 86, 28], nf * 0.40), ta * 0.55);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-bW / 2 + 16, ropeLen + 20); ctx.lineTo(bW / 2 - 16, ropeLen + 20);
+    ctx.stroke();
+
+    // "Your Perfect Stay at"
+    ctx.fillStyle = rgba(lerpRGB([240, 215, 165], [152, 122, 78], nf * 0.50), ta);
+    ctx.font = `italic ${Math.round(bH * 0.090)}px Georgia, serif`;
+    ctx.fillText('Your Perfect Stay at', 0, ropeLen + 24);
+
+    // "Hotel Jay Palace"
+    ctx.fillStyle = rgba(lerpRGB([255, 210, 58], [175, 140, 38], nf * 0.40), ta);
+    ctx.font = `bold ${Math.round(bH * 0.150)}px Georgia, serif`;
+    ctx.fillText('Hotel Jay Palace', 0, ropeLen + bH * 0.188);
+
+    // Middle divider
+    ctx.strokeStyle = rgba(lerpRGB([195, 150, 56], [92, 70, 20], nf * 0.40), ta * 0.45);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-bW / 2 + 24, ropeLen + bH * 0.385); ctx.lineTo(bW / 2 - 24, ropeLen + bH * 0.385);
+    ctx.stroke();
+
+    // Description lines
+    ctx.fillStyle = rgba(lerpRGB([226, 202, 156], [135, 106, 66], nf * 0.40), ta * 0.90);
+    ctx.font = `${Math.round(bH * 0.078)}px Arial, sans-serif`;
+    ['Experience warm hospitality,', 'comfortable rooms &', 'world-class service', 'in the heart of Saraipali.'].forEach((ln, i) => {
+      ctx.fillText(ln, 0, ropeLen + bH * 0.402 + i * bH * 0.115);
+    });
+
+    // Bottom ornament line
+    ctx.strokeStyle = rgba(lerpRGB([212, 162, 70], [118, 86, 28], nf * 0.40), ta * 0.55);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-bW / 2 + 16, ropeLen + bH - 15); ctx.lineTo(bW / 2 - 16, ropeLen + bH - 15);
+    ctx.stroke();
+
+    ctx.textBaseline = 'alphabetic';
+
+    // Bird on top-right corner of board
+    drawBirdOnBoard(ctx, nf, bW, ropeLen, H);
+    ctx.restore();
+  }
+
+  function drawBirdOnBoard(ctx, nf, bW, ropeLen, H) {
+    const bx  = bW * 0.28;
+    const by  = ropeLen - H * 0.027;
+    const bs  = H * 0.030;
+    const wUp = Math.sin(Date.now() * 0.007) > 0.65;
+
+    if (nf > 0.72) {
+      // Sleeping — puffed ball, head tucked
+      const sa = Math.max(0.20, 0.88 - nf * 0.55);
+      ctx.fillStyle = rgba(lerpRGB([70, 115, 192], [34, 56, 96], nf * 0.5), sa);
+      ctx.beginPath();
+      ctx.ellipse(bx, by + bs * 0.25, bs * 0.72, bs * 0.58, 0.3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = rgba(lerpRGB([52, 95, 175], [26, 48, 88], nf * 0.5), sa);
+      ctx.beginPath();
+      ctx.arc(bx - bs * 0.30, by + bs * 0.36, bs * 0.35, 0, Math.PI * 2);
+      ctx.fill();
+      return;
+    }
+
+    const a = Math.max(0.55, 0.98 - nf * 0.40);
+
+    // Wings
+    [[-bs*0.12, -0.28, wUp ? -0.52 : -0.12], [bs*0.12, 0.28, wUp ? 0.52 : 0.12]].forEach(([dx, ex, rot]) => {
+      ctx.save();
+      ctx.translate(bx + dx, by);
+      ctx.rotate(rot);
+      ctx.fillStyle = rgba(lerpRGB([46, 96, 186], [20, 46, 92], nf * 0.40), a);
+      ctx.beginPath();
+      ctx.ellipse(Math.sign(ex) * bs * 0.38, 0, bs * 0.60, bs * 0.20, Math.sign(ex) * 0.25, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
+
+    // Body
+    ctx.fillStyle = rgba(lerpRGB([62, 125, 205], [30, 62, 102], nf * 0.40), a);
+    ctx.beginPath();
+    ctx.ellipse(bx, by + bs * 0.08, bs * 0.50, bs * 0.40, -0.12, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Breast — warm orange
+    ctx.fillStyle = rgba(lerpRGB([250, 138, 46], [155, 76, 17], nf * 0.40), a * 0.92);
+    ctx.beginPath();
+    ctx.ellipse(bx + bs * 0.10, by + bs * 0.22, bs * 0.30, bs * 0.26, 0.18, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Head
+    ctx.fillStyle = rgba(lerpRGB([50, 100, 190], [24, 50, 94], nf * 0.40), a);
+    ctx.beginPath();
+    ctx.arc(bx + bs * 0.40, by - bs * 0.16, bs * 0.34, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Eye
+    ctx.fillStyle = 'white';
+    ctx.beginPath(); ctx.arc(bx + bs * 0.55, by - bs * 0.23, bs * 0.12, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#0a0a18';
+    ctx.beginPath(); ctx.arc(bx + bs * 0.57, by - bs * 0.24, bs * 0.06, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.beginPath(); ctx.arc(bx + bs * 0.60, by - bs * 0.26, bs * 0.03, 0, Math.PI * 2); ctx.fill();
+
+    // Beak
+    ctx.fillStyle = rgba(lerpRGB([250, 206, 46], [155, 126, 26], nf * 0.30), a);
+    ctx.beginPath();
+    ctx.moveTo(bx + bs * 0.70, by - bs * 0.18);
+    ctx.lineTo(bx + bs * 1.00, by - bs * 0.24);
+    ctx.lineTo(bx + bs * 0.70, by - bs * 0.10);
+    ctx.closePath(); ctx.fill();
+
+    // Feet
+    ctx.strokeStyle = rgba(lerpRGB([92, 70, 28], [42, 32, 11], nf * 0.40), a * 0.80);
+    ctx.lineWidth = 1.2; ctx.lineCap = 'round';
+    ctx.beginPath();
+    // left foot
+    ctx.moveTo(bx - bs*0.08, by+bs*0.42); ctx.lineTo(bx - bs*0.08, by+bs*0.58);
+    ctx.moveTo(bx - bs*0.08, by+bs*0.58); ctx.lineTo(bx - bs*0.28, by+bs*0.70);
+    ctx.moveTo(bx - bs*0.08, by+bs*0.58); ctx.lineTo(bx - bs*0.04, by+bs*0.73);
+    ctx.moveTo(bx - bs*0.08, by+bs*0.58); ctx.lineTo(bx + bs*0.10, by+bs*0.68);
+    // right foot
+    ctx.moveTo(bx + bs*0.12, by+bs*0.42); ctx.lineTo(bx + bs*0.12, by+bs*0.58);
+    ctx.moveTo(bx + bs*0.12, by+bs*0.58); ctx.lineTo(bx - bs*0.06, by+bs*0.70);
+    ctx.moveTo(bx + bs*0.12, by+bs*0.58); ctx.lineTo(bx + bs*0.18, by+bs*0.73);
+    ctx.moveTo(bx + bs*0.12, by+bs*0.58); ctx.lineTo(bx + bs*0.30, by+bs*0.66);
+    ctx.stroke();
+  }
+
+  // ── Draw: Monkey Tree with Signs ────────────────────────────────────
+  function drawMonkeyTree(ctx, t, W, H) {
+    const gY  = H * 0.70;
+    const nf  = nightF(t);
+    const tx  = W * 0.055;
+    const tH  = H * 0.48;
+    const trH = tH * 0.28;
+    const trW = W * 0.013;
+
+    // Trunk shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.09)';
+    ctx.beginPath();
+    ctx.moveTo(tx + 3, gY);
+    ctx.quadraticCurveTo(tx + 4, gY - trH * 0.5, tx + trW * 0.5 + 3, gY - trH);
+    ctx.quadraticCurveTo(tx + trW * 0.8 + 3, gY - trH, tx + trW + 3, gY);
+    ctx.closePath(); ctx.fill();
+
+    // Trunk
+    ctx.fillStyle = rgb(lerpRGB([106, 68, 24], [40, 25, 8], nf * 0.72));
+    ctx.beginPath();
+    ctx.moveTo(tx - trW, gY);
+    ctx.quadraticCurveTo(tx - trW * 0.4, gY - trH * 0.55, tx - trW * 0.3, gY - trH);
+    ctx.quadraticCurveTo(tx,              gY - trH * 1.04,  tx + trW * 0.3, gY - trH);
+    ctx.quadraticCurveTo(tx + trW * 0.4,  gY - trH * 0.55, tx + trW, gY);
+    ctx.closePath(); ctx.fill();
+
+    const branchY = gY - trH - H * 0.02;
+
+    // Main branch right (monkey sits here)
+    ctx.strokeStyle = rgb(lerpRGB([96, 60, 20], [36, 23, 7], nf * 0.72));
+    ctx.lineWidth = W * 0.013; ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(tx + trW * 0.3, branchY + H * 0.02);
+    ctx.quadraticCurveTo(tx + W * 0.07, branchY - H * 0.015, tx + W * 0.16, branchY + H * 0.008);
+    ctx.stroke();
+
+    // Lower branch (for second sign)
+    ctx.lineWidth = W * 0.009;
+    ctx.beginPath();
+    ctx.moveTo(tx + trW * 0.3, branchY + H * 0.06);
+    ctx.quadraticCurveTo(tx + W * 0.055, branchY + H * 0.048, tx + W * 0.125, branchY + H * 0.066);
+    ctx.stroke();
+
+    // Small branch upper-left (decorative)
+    ctx.lineWidth = W * 0.007;
+    ctx.beginPath();
+    ctx.moveTo(tx - trW * 0.3, branchY + H * 0.02);
+    ctx.quadraticCurveTo(tx - W * 0.042, branchY - H * 0.022, tx - W * 0.075, branchY - H * 0.010);
+    ctx.stroke();
+
+    // Foliage — layered circles
+    const lc1 = lerpRGB([40, 136, 38], [13, 48, 12], nf * 0.88);
+    const lc2 = lerpRGB([26, 105, 24], [9, 34, 9],   nf * 0.88);
+    [
+      [tx,            gY - tH,           W * 0.075],
+      [tx + W * 0.050, gY - tH + H*0.055, W * 0.060],
+      [tx - W * 0.055, gY - tH + H*0.062, W * 0.055],
+      [tx + W * 0.020, gY - tH + H*0.118, W * 0.052],
+      [tx - W * 0.025, gY - tH + H*0.105, W * 0.048],
+      [tx - W * 0.074, gY - tH + H*0.022, W * 0.038], // left-branch bunch
+    ].forEach(([lx, ly, lr]) => {
+      ctx.fillStyle = rgb(lc1);
+      ctx.beginPath(); ctx.arc(lx, ly, lr, 0, Math.PI * 2); ctx.fill();
+    });
+    [[tx + W*0.018, gY - tH + H*0.058, W*0.030],[tx - W*0.022, gY - tH + H*0.085, W*0.026]].forEach(([lx, ly, lr]) => {
+      ctx.fillStyle = rgb(lc2);
+      ctx.beginPath(); ctx.arc(lx, ly, lr, 0, Math.PI * 2); ctx.fill();
+    });
+
+    // "Book Your Stay!" sign at end of upper branch
+    drawHangingSign(ctx, nf, tx + W*0.158, branchY + H*0.008, 'Book Your Stay!', W*0.148, H*0.062, [37, 99, 235], 0.83);
+
+    // "View Rooms" sign at end of lower branch
+    drawHangingSign(ctx, nf, tx + W*0.122, branchY + H*0.066, 'View Rooms →', W*0.128, H*0.055, [124, 58, 237], 1.55);
+
+    // Monkey on upper branch
+    drawMonkey(ctx, nf, tx + W * 0.064, branchY + H * 0.008, H);
+  }
+
+  function drawHangingSign(ctx, nf, cx, cy, text, sW, sH, colorArr, phaseOff) {
+    const swing = Math.sin(Date.now() * 0.00085 + phaseOff) * 0.030;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(swing);
+
+    const ropeLen = sH * 0.52;
+
+    // Ropes
+    ctx.strokeStyle = rgba(lerpRGB([102, 68, 24], [40, 25, 8], nf * 0.70), 0.82);
+    ctx.lineWidth = 1.8; ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-sW * 0.30, 0); ctx.lineTo(-sW * 0.30, ropeLen);
+    ctx.moveTo( sW * 0.30, 0); ctx.lineTo( sW * 0.30, ropeLen);
+    ctx.stroke();
+
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.14)';
+    ctx.beginPath();
+    ctx.roundRect(-sW / 2 + 3, ropeLen + 3, sW, sH, 6);
+    ctx.fill();
+
+    // Board wood
+    ctx.fillStyle = rgb(lerpRGB([188, 140, 65], [74, 46, 17], nf * 0.65));
+    ctx.beginPath();
+    ctx.roundRect(-sW / 2, ropeLen, sW, sH, 6);
+    ctx.fill();
+
+    // Color header strip
+    ctx.fillStyle = rgba(colorArr, Math.max(0.10, 0.85 - nf * 0.56));
+    ctx.beginPath();
+    ctx.roundRect(-sW / 2, ropeLen, sW, sH * 0.28, 6);
+    ctx.fill();
+
+    // Border
+    ctx.strokeStyle = rgba(lerpRGB([102, 68, 24], [40, 25, 8], nf * 0.65), 0.72);
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.roundRect(-sW / 2, ropeLen, sW, sH, 6);
+    ctx.stroke();
+
+    // Text
+    const ta = Math.max(0.20, 0.92 - nf * 0.58);
+    ctx.fillStyle = rgba(lerpRGB([255, 250, 226], [176, 150, 106], nf * 0.45), ta);
+    ctx.font = `bold ${Math.round(sH * 0.33)}px Arial, sans-serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(text, 0, ropeLen + sH * 0.60);
+    ctx.textBaseline = 'alphabetic';
+    ctx.restore();
+  }
+
+  function drawMonkey(ctx, nf, mx, my, H) {
+    const mS    = H * 0.080;
+    const bob   = Math.sin(Date.now() * 0.0022) * H * 0.006;
+    const scr   = Math.sin(Date.now() * 0.003) > 0.65;
+    my += bob;
+
+    // Tail
+    ctx.save();
+    ctx.strokeStyle = rgba(lerpRGB([130, 82, 38], [50, 31, 12], nf * 0.55), 0.92);
+    ctx.lineWidth = mS * 0.19; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(mx - mS*0.20, my + mS*0.58);
+    ctx.bezierCurveTo(mx - mS*0.82, my + mS*1.05, mx - mS*1.05, my + mS*0.28, mx - mS*0.72, my - mS*0.08);
+    ctx.stroke();
+    ctx.restore();
+
+    // Body
+    ctx.fillStyle = rgb(lerpRGB([150, 100, 50], [62, 40, 15], nf * 0.55));
+    ctx.beginPath();
+    ctx.ellipse(mx, my + mS*0.20, mS*0.47, mS*0.58, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Belly cream patch
+    ctx.fillStyle = rgba(lerpRGB([220, 178, 125], [110, 78, 40], nf * 0.50), 0.70);
+    ctx.beginPath();
+    ctx.ellipse(mx, my + mS*0.28, mS*0.28, mS*0.38, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Arms
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+
+    // Left arm — gripping branch
+    ctx.strokeStyle = rgb(lerpRGB([140, 92, 44], [56, 34, 13], nf * 0.55));
+    ctx.lineWidth = mS * 0.21;
+    ctx.beginPath();
+    ctx.moveTo(mx - mS*0.38, my - mS*0.05);
+    ctx.quadraticCurveTo(mx - mS*0.68, my - mS*0.30, mx - mS*0.60, my - mS*0.62);
+    ctx.stroke();
+
+    // Right arm — scratching head or waving
+    ctx.lineWidth = mS * 0.19;
+    ctx.beginPath();
+    ctx.moveTo(mx + mS*0.38, my - mS*0.05);
+    if (scr) {
+      ctx.quadraticCurveTo(mx + mS*0.75, my - mS*0.40, mx + mS*0.28, my - mS*0.80);
+    } else {
+      ctx.quadraticCurveTo(mx + mS*0.78, my - mS*0.25, mx + mS*0.75, my + mS*0.25);
+    }
+    ctx.stroke();
+
+    // Head
+    ctx.fillStyle = rgb(lerpRGB([150, 100, 50], [62, 40, 15], nf * 0.55));
+    ctx.beginPath();
+    ctx.arc(mx, my - mS*0.58, mS*0.45, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Ears
+    ctx.fillStyle = rgb(lerpRGB([150, 100, 50], [62, 40, 15], nf * 0.55));
+    ctx.beginPath();
+    ctx.arc(mx - mS*0.43, my - mS*0.56, mS*0.18, 0, Math.PI * 2);
+    ctx.arc(mx + mS*0.43, my - mS*0.56, mS*0.18, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = rgba(lerpRGB([220, 175, 120], [96, 62, 30], nf * 0.45), 0.62);
+    ctx.beginPath();
+    ctx.arc(mx - mS*0.43, my - mS*0.56, mS*0.10, 0, Math.PI * 2);
+    ctx.arc(mx + mS*0.43, my - mS*0.56, mS*0.10, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Face patch
+    ctx.fillStyle = rgba(lerpRGB([220, 175, 120], [96, 62, 30], nf * 0.45), 0.78);
+    ctx.beginPath();
+    ctx.ellipse(mx, my - mS*0.52, mS*0.28, mS*0.32, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Eyes
+    if (nf > 0.72) {
+      ctx.strokeStyle = rgba([52, 32, 14], 0.80);
+      ctx.lineWidth = mS * 0.085; ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.arc(mx - mS*0.155, my - mS*0.62, mS*0.10, Math.PI, 0, true);
+      ctx.arc(mx + mS*0.155, my - mS*0.62, mS*0.10, Math.PI, 0, true);
+      ctx.stroke();
+    } else {
+      ctx.fillStyle = '#180800';
+      ctx.beginPath();
+      ctx.arc(mx - mS*0.155, my - mS*0.62, mS*0.095, 0, Math.PI * 2);
+      ctx.arc(mx + mS*0.155, my - mS*0.62, mS*0.095, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.68)';
+      ctx.beginPath();
+      ctx.arc(mx - mS*0.125, my - mS*0.65, mS*0.040, 0, Math.PI * 2);
+      ctx.arc(mx + mS*0.185, my - mS*0.65, mS*0.040, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Nose
+    ctx.fillStyle = rgba([100, 58, 24], 0.84);
+    ctx.beginPath();
+    ctx.ellipse(mx, my - mS*0.46, mS*0.088, mS*0.065, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Mouth
+    ctx.strokeStyle = rgba([72, 40, 14], 0.82);
+    ctx.lineWidth = mS * 0.062; ctx.lineCap = 'round';
+    ctx.beginPath();
+    if (nf < 0.65) {
+      ctx.arc(mx, my - mS*0.34, mS*0.14, 0.12, Math.PI - 0.12, false);
+    } else {
+      ctx.moveTo(mx - mS*0.10, my - mS*0.37);
+      ctx.lineTo(mx + mS*0.10, my - mS*0.37);
+    }
+    ctx.stroke();
+  }
+
   // ── Main ─────────────────────────────────────────────────────────────
   function init() {
     const hero = document.querySelector('.hero');
@@ -702,7 +1180,9 @@
       drawSun(ctx, t, W, H);
       drawMoon(ctx, t, W, H);
       drawGround(ctx, t, W, H);
+      drawMonkeyTree(ctx, t, W, H);
       drawTrees(ctx, t, W, H);
+      drawHangingBoard(ctx, t, W, H);
 
       const moving = t < 0.18 || t > 0.90;
       drawRoad(ctx, t, W, H, null, moving);
