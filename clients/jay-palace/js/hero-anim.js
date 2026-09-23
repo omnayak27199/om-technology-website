@@ -909,7 +909,7 @@
   function drawMonkeyTree(ctx, t, W, H) {
     const gY  = H * 0.70;
     const nf  = nightF(t);
-    const tx  = W * 0.055;
+    const tx  = W * 0.46;
     const tH  = H * 0.48;
     const trH = tH * 0.28;
     const trW = W * 0.013;
