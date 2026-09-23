@@ -15,7 +15,7 @@ window.HOTEL = {
   checkIn:     '12:00 PM',
   checkOut:    '11:00 AM',
   gst:         0,                       // Keep 0 — prices are GST-inclusive (back-calculated in invoice)
-  gstRate:     12,                      // GST % included in the displayed price (12% for tariff ≤ ₹7500)
+  gstRate:     5,                       // GST % included in the displayed price (5% for hotel tariff)
   gstIncluded: true,                    // true = displayed price already includes GST
   gstin:       '22BBHPP6396R1ZQ',       // Hotel GST Identification Number
   upiId:       'HOTELJAYPALACE309@iob',

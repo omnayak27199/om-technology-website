@@ -2171,15 +2171,19 @@
     y += termsH+4
 
     // ── PAYMENT DETAILS ───────────────────────────────────────
-    const payH = 20
+    const payH = 38
     doc.setDrawColor(...BK); doc.setLineWidth(0.2); doc.rect(M, y, IW, payH, 'D')
     doc.setLineWidth(0.15); doc.line(M, y+7, M+IW, y+7)
     doc.setTextColor(...BK); doc.setFont('helvetica','bold'); doc.setFontSize(7.5)
     doc.text('Payment Details', M+3, y+5)
     doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...BK)
     doc.text('UPI ID: '+(HOTEL.upiId||'HOTELJAYPALACE309@iob'), M+4, y+13)
-    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(...MG)
-    doc.text('Bank: Indian Overseas Bank, Saraipali Branch', M+4, y+18.5)
+    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...MG)
+    doc.text('Bank Transfer:', M+4, y+20)
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(...BK)
+    doc.text('Account Holder : HOTEL JAY PALACE', M+4, y+25.5)
+    doc.text('Account No.    : 309402000000309', M+4, y+30.5)
+    doc.text('IFSC Code      : IOBA0003094   |   Indian Overseas Bank, Saraipali', M+4, y+35.5)
     y += payH+5
 
     // ── FOOTER ────────────────────────────────────────────────
