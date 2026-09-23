@@ -1926,7 +1926,7 @@
     const BK = [0,0,0], MG = [100,100,100]
 
     function rs(n) {
-      return '₹ ' + Number(n).toLocaleString('en-IN', {minimumFractionDigits:2,maximumFractionDigits:2})
+      return 'Rs. ' + Number(n).toLocaleString('en-IN', {minimumFractionDigits:2,maximumFractionDigits:2})
     }
 
     function amountInWords(n) {
@@ -2016,16 +2016,20 @@
     // Col 2 — Invoice Details
     doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...BK)
     doc.text('Invoice Details:', X2+2, y+5)
-    const invRows = [['No:', code],['Date:', invDate],['Time:', invTime],['Place of Supply:', '22-Chhattisgarh']]
+    const invRows = [['No:', code],['Date:', invDate],['Time:', invTime]]
     let idy = y+12
     invRows.forEach(([lbl,val]) => {
       doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...MG)
       doc.text(lbl, X2+2, idy)
       doc.setFont('helvetica','normal'); doc.setTextColor(...BK)
-      const lns = doc.splitTextToSize(val, C2W-22)
-      lns.forEach((l,i) => doc.text(l, X2+20, idy+i*4.5))
-      idy += lns.length>1 ? 4.5*lns.length+1 : 6
+      doc.text(val, X2+16, idy)
+      idy += 6
     })
+    // "Place of Supply" on two lines to avoid overlap
+    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...MG)
+    doc.text('Place of Supply:', X2+2, idy)
+    doc.setFont('helvetica','normal'); doc.setTextColor(...BK)
+    doc.text('22-Chhattisgarh', X2+2, idy+5)
 
     // Col 3 — Guest Info
     doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...BK)
