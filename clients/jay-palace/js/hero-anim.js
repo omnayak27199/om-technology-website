@@ -213,11 +213,12 @@
 
   // ── Draw: Trees (pine + round lollipop) ────────────────────────────
   function drawTrees(ctx, t, W, H) {
-    const gY = H * 0.70;
+    const gY  = H * 0.70;
+    const ref = Math.min(H, W * 0.75); // cap heights on portrait/mobile canvases
     const nf = nightF(t);
 
     function drawPine(tx, sc) {
-      const tH = H * 0.22 * sc, trH = tH * 0.28, trW = W * 0.010;
+      const tH = ref * 0.22 * sc, trH = tH * 0.28, trW = W * 0.010;
       ctx.fillStyle = rgb(lerpRGB([82, 58, 20], [32, 20, 7], nf));
       ctx.fillRect(tx - trW/2, gY - trH, trW, trH);
       ctx.fillStyle = rgb(lerpRGB([28, 95, 26], [10, 35, 9], nf));
@@ -231,7 +232,7 @@
     }
 
     function drawLollipop(tx, sc, cr) {
-      const tH = H * 0.36 * sc, trH = tH * 0.45, trW = W * 0.010;
+      const tH = ref * 0.36 * sc, trH = tH * 0.45, trW = W * 0.010;
       ctx.fillStyle = rgb(lerpRGB([100, 65, 20], [40, 24, 7], nf));
       ctx.fillRect(tx - trW/2, gY - trH, trW, trH);
       ctx.fillStyle = rgba(lerpRGB([30, 100, 28], [10, 38, 10], nf), 0.30);
@@ -283,8 +284,9 @@
   // ── Draw: Hotel (ornate 3-story colonial) ───────────────────────────
   function drawHotel(ctx, t, W, H) {
     const gY    = H * 0.70;
+    const ref   = Math.min(H, W * 0.75); // cap heights on portrait/mobile canvases
     const nf    = nightF(t);
-    const HW    = W * 0.28, HH = H * 0.44;
+    const HW    = W * 0.28, HH = ref * 0.44;
     const HX    = W * 0.67, HY = gY - HH;
     const wallC = lerpRGB([238, 222, 188], [82, 68, 50], nf * 0.75);
     const trimC = lerpRGB([215, 195, 158], [68, 56, 40], nf * 0.75);
@@ -308,7 +310,7 @@
     ctx.fillRect(HX - 4, HY + roofBH - 8, HW + 8, 8);
 
     // Crown / finial
-    const crH = H * 0.052, crW = HW * 0.38;
+    const crH = ref * 0.052, crW = HW * 0.38;
     const crX = HX + (HW - crW) / 2, crY = HY - crH + 2;
     ctx.fillStyle = rgb(goldC);
     ctx.beginPath(); ctx.roundRect(crX, crY, crW, crH * 0.55, 3); ctx.fill();
@@ -460,7 +462,7 @@
 
     // Topiary pots flanking entrance
     [dX - HW*0.090, dX + dW + HW*0.020].forEach(px => {
-      const potW = W*0.030, potH = H*0.050;
+      const potW = W*0.030, potH = ref*0.050;
       ctx.fillStyle = rgb(lerpRGB([172, 84, 40], [65, 30, 14], nf*0.65));
       ctx.beginPath();
       ctx.moveTo(px - potW*0.36, gY); ctx.lineTo(px - potW*0.50, gY - potH*0.58);
@@ -470,12 +472,12 @@
       ctx.fillRect(px - potW*0.50, gY - potH*0.58 - 3, potW, 6);
       ctx.strokeStyle = rgb(lerpRGB([88, 58, 26], [36, 22, 9], nf*0.5));
       ctx.lineWidth = 2.5;
-      ctx.beginPath(); ctx.moveTo(px, gY - potH*0.55); ctx.lineTo(px, gY - potH*0.55 - H*0.038); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(px, gY - potH*0.55); ctx.lineTo(px, gY - potH*0.55 - ref*0.038); ctx.stroke();
       const br = W*0.024;
       ctx.fillStyle = rgb(lerpRGB([46, 145, 42], [17, 55, 15], nf*0.85));
-      ctx.beginPath(); ctx.arc(px, gY - potH*0.55 - H*0.038 - br*0.60, br, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(px, gY - potH*0.55 - ref*0.038 - br*0.60, br, 0, Math.PI*2); ctx.fill();
       ctx.fillStyle = rgba(lerpRGB([70, 182, 65], [25, 70, 22], nf*0.5), 0.46);
-      ctx.beginPath(); ctx.arc(px - br*0.22, gY - potH*0.55 - H*0.038 - br*0.78, br*0.50, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(px - br*0.22, gY - potH*0.55 - ref*0.038 - br*0.78, br*0.50, 0, Math.PI*2); ctx.fill();
     });
   }
 
@@ -774,9 +776,10 @@
   // ── Draw: Inn Sign Post with Hanging Board ──────────────────────────
   function drawHangingBoard(ctx, t, W, H) {
     const gY      = H * 0.70;
+    const ref     = Math.min(H, W * 0.75); // cap heights on portrait/mobile canvases
     const nf      = nightF(t);
     const postX   = W * 0.19;
-    const barTop  = gY - H * 0.40;
+    const barTop  = gY - ref * 0.40;
     const armLen  = W * 0.14;
     const armEndX = postX + armLen;
     const postW   = W * 0.013;
@@ -809,8 +812,8 @@
 
     // Board pivot at arm end
     const bW      = W * 0.18;
-    const bH      = H * 0.26;
-    const ropeLen = H * 0.036;
+    const bH      = ref * 0.26;
+    const ropeLen = ref * 0.036;
     const rSpan   = bW * 0.68;
     const swing   = Math.sin(Date.now() * 0.00065) * 0.022;
 
@@ -884,12 +887,12 @@
 
     // "Your Perfect Stay at"
     ctx.fillStyle = rgba(lerpRGB([240, 215, 165], [152, 122, 78], nf * 0.50), ta);
-    ctx.font = `italic ${Math.round(bH * 0.090)}px Georgia, serif`;
+    ctx.font = `italic ${Math.max(9, Math.round(bH * 0.090))}px Georgia, serif`;
     ctx.fillText('Your Perfect Stay at', 0, ropeLen + 24);
 
     // "Hotel Jay Palace"
     ctx.fillStyle = rgba(lerpRGB([255, 210, 58], [175, 140, 38], nf * 0.40), ta);
-    ctx.font = `bold ${Math.round(bH * 0.150)}px Georgia, serif`;
+    ctx.font = `bold ${Math.max(13, Math.round(bH * 0.150))}px Georgia, serif`;
     ctx.fillText('Hotel Jay Palace', 0, ropeLen + bH * 0.188);
 
     // Middle divider
@@ -899,12 +902,19 @@
     ctx.moveTo(-bW / 2 + 24, ropeLen + bH * 0.385); ctx.lineTo(bW / 2 - 24, ropeLen + bH * 0.385);
     ctx.stroke();
 
-    // Description lines
-    ctx.fillStyle = rgba(lerpRGB([226, 202, 156], [135, 106, 66], nf * 0.40), ta * 0.90);
-    ctx.font = `${Math.round(bH * 0.078)}px Arial, sans-serif`;
-    ['Experience warm hospitality,', 'comfortable rooms &', 'world-class service', 'in the heart of Saraipali.'].forEach((ln, i) => {
-      ctx.fillText(ln, 0, ropeLen + bH * 0.402 + i * bH * 0.115);
-    });
+    // Description lines — skip when board is too small (mobile)
+    if (bH >= 90) {
+      ctx.fillStyle = rgba(lerpRGB([226, 202, 156], [135, 106, 66], nf * 0.40), ta * 0.90);
+      ctx.font = `${Math.max(8, Math.round(bH * 0.078))}px Arial, sans-serif`;
+      ['Experience warm hospitality,', 'comfortable rooms &', 'world-class service', 'in the heart of Saraipali.'].forEach((ln, i) => {
+        ctx.fillText(ln, 0, ropeLen + bH * 0.402 + i * bH * 0.115);
+      });
+    } else {
+      // Compact mobile label — just location
+      ctx.fillStyle = rgba(lerpRGB([226, 202, 156], [135, 106, 66], nf * 0.40), ta * 0.80);
+      ctx.font = `${Math.max(9, Math.round(bH * 0.095))}px Arial, sans-serif`;
+      ctx.fillText('Saraipali, Chhattisgarh', 0, ropeLen + bH * 0.62);
+    }
 
     // Bottom ornament line
     ctx.strokeStyle = rgba(lerpRGB([212, 162, 70], [118, 86, 28], nf * 0.40), ta * 0.55);
@@ -916,14 +926,14 @@
     ctx.textBaseline = 'alphabetic';
 
     // Bird on top-right corner of board
-    drawBirdOnBoard(ctx, nf, bW, ropeLen, H);
+    drawBirdOnBoard(ctx, nf, bW, ropeLen, ref);
     ctx.restore();
   }
 
   function drawBirdOnBoard(ctx, nf, bW, ropeLen, H) {
     const bx  = 0;             // centred on arm end = sitting on crossbar
     const by  = -(H * 0.034); // above board pivot = on the arm
-    const bs  = H * 0.030;
+    const bs  = Math.max(12, H * 0.030);
     const wUp = Math.sin(Date.now() * 0.007) > 0.65;
 
     if (nf > 0.72) {
@@ -1008,11 +1018,12 @@
   // ── Draw: Monkey with Rock Signs ────────────────────────────────────
   function drawMonkeyRock(ctx, t, W, H) {
     const gY  = H * 0.70;
+    const ref = Math.min(H, W * 0.75); // cap heights on portrait/mobile canvases
     const nf  = nightF(t);
     const rCX = W * 0.50;
     const rRX = W * 0.112;
     const bY  = gY - H * 0.004;
-    const rH  = H * 0.245;       // total rock height
+    const rH  = ref * 0.245;      // total rock height
 
     // Boulder silhouette — mix of lineTo (flat planes) + small curves (worn edges)
     // This combination is what makes it read as "rock" rather than a blob.
@@ -1149,7 +1160,7 @@
     ctx.textBaseline = 'alphabetic';
 
     // Monkey beside rock
-    drawMonkeyAtRock(ctx, nf, rCX + rRX * 1.10, gY, H);
+    drawMonkeyAtRock(ctx, nf, rCX + rRX * 1.10, gY, ref);
   }
 
   function drawMonkeyAtRock(ctx, nf, mx, gY, H) {
