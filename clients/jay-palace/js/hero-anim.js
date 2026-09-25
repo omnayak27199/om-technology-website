@@ -211,172 +211,272 @@
     }
   }
 
-  // ── Draw: Trees (left scenery) ──────────────────────────────────────
+  // ── Draw: Trees (pine + round lollipop) ────────────────────────────
   function drawTrees(ctx, t, W, H) {
     const gY = H * 0.70;
     const nf = nightF(t);
-    [[0.10, 1.2], [0.17, 0.85]].forEach(([fx, sc]) => {
-      const tx = fx * W, bY = gY, tH = H * 0.16 * sc, trH = tH * 0.30, trW = W * 0.011;
-      ctx.fillStyle = rgb(lerpRGB([110, 75, 32], [50, 32, 12], nf));
-      ctx.fillRect(tx - trW/2, bY - trH, trW, trH);
-      ctx.fillStyle = rgb(lerpRGB([50, 140, 48], [18, 50, 15], nf));
-      ctx.beginPath();
-      ctx.moveTo(tx, bY - tH);
-      ctx.lineTo(tx - W*0.032, bY - trH);
-      ctx.lineTo(tx + W*0.032, bY - trH);
+
+    function drawPine(tx, sc) {
+      const tH = H * 0.22 * sc, trH = tH * 0.28, trW = W * 0.010;
+      ctx.fillStyle = rgb(lerpRGB([82, 58, 20], [32, 20, 7], nf));
+      ctx.fillRect(tx - trW/2, gY - trH, trW, trH);
+      ctx.fillStyle = rgb(lerpRGB([28, 95, 26], [10, 35, 9], nf));
+      ctx.beginPath(); ctx.moveTo(tx, gY - tH);
+      ctx.lineTo(tx - W*0.028, gY - trH); ctx.lineTo(tx + W*0.028, gY - trH);
       ctx.closePath(); ctx.fill();
-      // second tier
-      ctx.beginPath();
-      ctx.moveTo(tx, bY - tH * 0.72);
-      ctx.lineTo(tx - W*0.040, bY - trH * 0.7);
-      ctx.lineTo(tx + W*0.040, bY - trH * 0.7);
+      ctx.fillStyle = rgb(lerpRGB([38, 112, 35], [14, 42, 12], nf));
+      ctx.beginPath(); ctx.moveTo(tx, gY - tH * 0.66);
+      ctx.lineTo(tx - W*0.038, gY - trH * 0.65); ctx.lineTo(tx + W*0.038, gY - trH * 0.65);
       ctx.closePath(); ctx.fill();
-    });
-  }
-
-  // ── Draw: Hotel ─────────────────────────────────────────────────────
-  function drawHotel(ctx, t, W, H) {
-    const gY = H * 0.70;
-    const nf = nightF(t);
-    const HW = W * 0.22, HH = H * 0.38;
-    const HX = W * 0.72, HY = gY - HH;
-
-    // Main building
-    ctx.fillStyle = rgb(lerpRGB([230, 215, 195], [80, 65, 50], nf * 0.75));
-    ctx.beginPath();
-    ctx.roundRect(HX, HY, HW, HH, [4, 4, 0, 0]);
-    ctx.fill();
-    ctx.strokeStyle = rgba([100, 80, 55], 0.4);
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.roundRect(HX, HY, HW, HH, [4, 4, 0, 0]);
-    ctx.stroke();
-
-    // Roof / triangle top
-    ctx.fillStyle = rgb(lerpRGB([180, 60, 40], [60, 18, 10], nf * 0.75));
-    ctx.beginPath();
-    ctx.moveTo(HX - 4, HY);
-    ctx.lineTo(HX + HW / 2, HY - H * 0.065);
-    ctx.lineTo(HX + HW + 4, HY);
-    ctx.closePath(); ctx.fill();
-
-    // Columns at base
-    [0.18, 0.50, 0.82].forEach(cx => {
-      ctx.fillStyle = rgb(lerpRGB([210, 200, 185], [60, 50, 38], nf * 0.6));
-      ctx.fillRect(HX + cx*HW - 4, gY - HH*0.30, 8, HH*0.30);
-    });
-
-    // Windows — 3 col × 2 row
-    const wW = HW * 0.18, wH = HH * 0.14;
-    const padX = (HW - 3*wW) / 4, padY = HH*0.07;
-    const rowSpY = (HH*0.55 - 2*wH) / 3;
-
-    for (let r = 0; r < 2; r++) {
-      for (let c = 0; c < 3; c++) {
-        const wx = HX + padX + c*(wW + padX);
-        const wy = HY + padY + r*(wH + rowSpY);
-        const isMidTop = (r===0 && c===1); // special person window
-
-        // Night glow
-        if (nf > 0.1) {
-          const glowColor = [255, 220, 80];
-          const glow = ctx.createRadialGradient(wx+wW/2, wy+wH/2, 0, wx+wW/2, wy+wH/2, wW);
-          glow.addColorStop(0, rgba(glowColor, nf * 0.5));
-          glow.addColorStop(1, rgba(glowColor, 0));
-          ctx.fillStyle = glow;
-          ctx.fillRect(wx - wW*0.5, wy - wH*0.5, wW*2, wH*2);
-        }
-
-        // Window pane
-        if (nf > 0) {
-          ctx.fillStyle = rgba([255, 230, 100], Math.min(1, nf * 1.2));
-        } else if (isMidTop && t > 0.76 && t < 0.86) {
-          // Window opens in morning — sky blue
-          ctx.fillStyle = rgba([135, 206, 235], 0.9);
-        } else {
-          ctx.fillStyle = rgba([130, 180, 210], 0.7);
-        }
-        ctx.beginPath();
-        ctx.roundRect(wx, wy, wW, wH, 2);
-        ctx.fill();
-
-        // Window frame
-        ctx.strokeStyle = rgba([80, 60, 40], 0.55);
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.roundRect(wx, wy, wW, wH, 2);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(wx + wW/2, wy); ctx.lineTo(wx + wW/2, wy + wH);
-        ctx.moveTo(wx, wy + wH*0.45); ctx.lineTo(wx + wW, wy + wH*0.45);
-        ctx.stroke();
-
-        // Person peeking at window during morning
-        if (isMidTop && t > 0.76 && t < 0.86) {
-          const wpa = Math.min(1, norm(t, 0.76, 0.79)) * Math.max(0, 1 - norm(t, 0.83, 0.86));
-          ctx.globalAlpha = wpa;
-          ctx.fillStyle = '#FDBCB4';
-          ctx.beginPath();
-          ctx.arc(wx + wW/2, wy + wH*0.5, wW*0.26, 0, Math.PI*2);
-          ctx.fill();
-          // wave hand
-          ctx.strokeStyle = '#FDBCB4';
-          ctx.lineWidth = 2;
-          const handAngle = Math.sin(Date.now() * 0.006) * 0.5;
-          ctx.beginPath();
-          ctx.moveTo(wx + wW*0.70, wy + wH*0.42);
-          ctx.lineTo(wx + wW*0.70 + Math.cos(handAngle)*wW*0.18, wy + wH*0.30 + Math.sin(handAngle)*wH*0.15);
-          ctx.stroke();
-          ctx.globalAlpha = 1;
-        }
-
-        // ZZZ from window at night
-        if (isMidTop && nf > 0.6) {
-          const zAlpha = clamp(nf - 0.2) * 0.9;
-          const zt = (Date.now() % 3000) / 3000;
-          ctx.globalAlpha = zAlpha * clamp(1 - zt);
-          ctx.fillStyle = 'white';
-          ctx.font = `bold ${Math.round(H*0.025)}px Arial`;
-          ctx.textAlign = 'center';
-          ctx.fillText('z', wx + wW/2 + wW*0.4, wy - H*0.02 - zt * H*0.06);
-          ctx.font = `bold ${Math.round(H*0.018)}px Arial`;
-          ctx.fillText('z', wx + wW/2 + wW*0.65, wy - H*0.05 - zt * H*0.05);
-          ctx.font = `bold ${Math.round(H*0.013)}px Arial`;
-          ctx.fillText('z', wx + wW/2 + wW*0.85, wy - H*0.08 - zt * H*0.04);
-          ctx.globalAlpha = 1;
-        }
-      }
     }
 
-    // Door
-    const dW = HW*0.20, dH = HH*0.24;
-    const dX = HX + (HW - dW)/2, dY = gY - dH;
+    function drawLollipop(tx, sc, cr) {
+      const tH = H * 0.36 * sc, trH = tH * 0.45, trW = W * 0.010;
+      ctx.fillStyle = rgb(lerpRGB([100, 65, 20], [40, 24, 7], nf));
+      ctx.fillRect(tx - trW/2, gY - trH, trW, trH);
+      ctx.fillStyle = rgba(lerpRGB([30, 100, 28], [10, 38, 10], nf), 0.30);
+      ctx.beginPath(); ctx.arc(tx + cr*0.12, gY - tH + cr*0.42, cr*0.80, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = rgb(lerpRGB([45, 145, 42], [16, 55, 15], nf));
+      ctx.beginPath(); ctx.arc(tx, gY - tH + cr*0.32, cr, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = rgba(lerpRGB([72, 178, 68], [26, 68, 24], nf*0.5), 0.48);
+      ctx.beginPath(); ctx.arc(tx - cr*0.20, gY - tH - cr*0.06, cr*0.52, 0, Math.PI*2); ctx.fill();
+    }
+
+    // Far-left pine trees
+    [[0.025, 1.0], [0.075, 1.25], [0.132, 0.90]].forEach(([fx, sc]) => drawPine(fx * W, sc));
+    // Centre-left lollipop round trees
+    [[0.215, 1.0, W*0.068], [0.285, 0.88, W*0.058], [0.355, 0.95, W*0.063]].forEach(([fx, sc, cr]) => drawLollipop(fx * W, sc, cr));
+    // Far-right pine trees
+    [[0.965, 0.85], [1.005, 1.02]].forEach(([fx, sc]) => drawPine(fx * W, sc));
+  }
+
+  // ── Hotel window helper (arched frame + glass) ───────────────────────
+  function drawHotelWindow(ctx, wx, wy, wW, wH, nf) {
+    const archH = wW * 0.38;
+    ctx.fillStyle = rgb(lerpRGB([195, 178, 145], [65, 55, 38], nf*0.65));
+    ctx.beginPath();
+    ctx.moveTo(wx - 3, wy + archH); ctx.lineTo(wx - 3, wy + wH + 3);
+    ctx.lineTo(wx + wW + 3, wy + wH + 3); ctx.lineTo(wx + wW + 3, wy + archH);
+    ctx.quadraticCurveTo(wx + wW + 3, wy - 3, wx + wW/2, wy - 3);
+    ctx.quadraticCurveTo(wx - 3, wy - 3, wx - 3, wy + archH);
+    ctx.closePath(); ctx.fill();
+    if (nf > 0) {
+      const gl = ctx.createRadialGradient(wx+wW/2, wy+wH/2, 0, wx+wW/2, wy+wH/2, wW*0.9);
+      gl.addColorStop(0, rgba([255, 218, 70], nf * 0.40)); gl.addColorStop(1, rgba([255, 218, 70], 0));
+      ctx.fillStyle = gl; ctx.fillRect(wx - wW*0.6, wy - wH*0.5, wW*2.2, wH*2.2);
+    }
+    ctx.fillStyle = nf > 0 ? rgba([255, 222, 80], Math.min(1, nf * 1.1)) : rgba([125, 185, 215], 0.72);
+    ctx.beginPath();
+    ctx.moveTo(wx, wy + archH); ctx.lineTo(wx, wy + wH);
+    ctx.lineTo(wx + wW, wy + wH); ctx.lineTo(wx + wW, wy + archH);
+    ctx.quadraticCurveTo(wx + wW, wy, wx + wW/2, wy);
+    ctx.quadraticCurveTo(wx, wy, wx, wy + archH);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = rgba(lerpRGB([85, 65, 38], [35, 28, 18], nf*0.5), 0.52);
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(wx + wW/2, wy); ctx.lineTo(wx + wW/2, wy + wH);
+    ctx.moveTo(wx, wy + wH*0.50); ctx.lineTo(wx + wW, wy + wH*0.50);
+    ctx.stroke();
+  }
+
+  // ── Draw: Hotel (ornate 3-story colonial) ───────────────────────────
+  function drawHotel(ctx, t, W, H) {
+    const gY    = H * 0.70;
+    const nf    = nightF(t);
+    const HW    = W * 0.28, HH = H * 0.44;
+    const HX    = W * 0.67, HY = gY - HH;
+    const wallC = lerpRGB([238, 222, 188], [82, 68, 50], nf * 0.75);
+    const trimC = lerpRGB([215, 195, 158], [68, 56, 40], nf * 0.75);
+    const goldC = lerpRGB([200, 158, 52], [88, 68, 22], nf * 0.60);
+    const roofC = lerpRGB([158, 88, 42], [55, 30, 14], nf * 0.70);
+    const colC  = lerpRGB([225, 208, 175], [78, 64, 46], nf * 0.65);
+
+    // Building shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.10)';
+    ctx.beginPath(); ctx.roundRect(HX + 6, HY + 6, HW, HH, [5, 5, 0, 0]); ctx.fill();
+
+    // Main facade
+    ctx.fillStyle = rgb(wallC);
+    ctx.beginPath(); ctx.roundRect(HX, HY, HW, HH, [5, 5, 0, 0]); ctx.fill();
+
+    // Roofline band (terracotta)
+    const roofBH = HH * 0.105;
+    ctx.fillStyle = rgb(roofC);
+    ctx.beginPath(); ctx.roundRect(HX, HY, HW, roofBH, [5, 5, 0, 0]); ctx.fill();
+    ctx.fillStyle = rgb(lerpRGB([148, 82, 38], [50, 28, 12], nf * 0.70));
+    ctx.fillRect(HX - 4, HY + roofBH - 8, HW + 8, 8);
+
+    // Crown / finial
+    const crH = H * 0.052, crW = HW * 0.38;
+    const crX = HX + (HW - crW) / 2, crY = HY - crH + 2;
+    ctx.fillStyle = rgb(goldC);
+    ctx.beginPath(); ctx.roundRect(crX, crY, crW, crH * 0.55, 3); ctx.fill();
+    [-1, 0, 1].forEach(i => {
+      ctx.beginPath();
+      ctx.moveTo(HX + HW*0.50 + i*crW*0.30, crY);
+      ctx.lineTo(HX + HW*0.50 + i*crW*0.30 - crW*0.072, crY - crH*0.54);
+      ctx.lineTo(HX + HW*0.50 + i*crW*0.30 + crW*0.072, crY - crH*0.54);
+      ctx.closePath(); ctx.fill();
+    });
+    ctx.fillRect(crX, crY + crH*0.55 - 4, crW, 4);
+
+    // Sign band — "Hotel Jay Palace"
+    const sgnH = HH * 0.068, sgnY = HY + roofBH;
+    ctx.fillStyle = rgb(lerpRGB([178, 138, 48], [68, 52, 18], nf*0.60));
+    ctx.fillRect(HX + HW*0.04, sgnY, HW*0.92, sgnH);
+    ctx.fillStyle = rgba(lerpRGB([255, 255, 255], [192, 168, 112], nf*0.50), 0.96);
+    ctx.font = `bold ${Math.round(sgnH * 0.62)}px Georgia, serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('✦ Hotel Jay Palace ✦', HX + HW/2, sgnY + sgnH/2);
+    ctx.textBaseline = 'alphabetic';
+
+    // Floor layout
+    const bodyTop = sgnY + sgnH, bodyH = gY - bodyTop;
+    const bandH   = bodyH * 0.030;
+    const f3H     = bodyH * 0.290, f2H = bodyH * 0.290;
+    const f1H     = bodyH - f3H - f2H - 2 * bandH;
+    const f3Top   = bodyTop, sep1Y = f3Top + f3H;
+    const f2Top   = sep1Y + bandH, sep2Y = f2Top + f2H;
+    const f1Top   = sep2Y + bandH;
+
+    // Floor separator bands
+    ctx.fillStyle = rgb(lerpRGB([195, 175, 138], [65, 55, 38], nf*0.65));
+    ctx.fillRect(HX, sep1Y, HW, bandH); ctx.fillRect(HX, sep2Y, HW, bandH);
+
+    // 3rd floor — 4 arched windows
+    const w3W = HW * 0.155, w3H = f3H * 0.72;
+    const w3xs = [0.085, 0.285, 0.535, 0.735].map(fx => HX + fx * HW);
+    const w3y  = f3Top + (f3H - w3H) * 0.50;
+    w3xs.forEach(wx => drawHotelWindow(ctx, wx, w3y, w3W, w3H, nf));
+
+    // ZZZ at night from 2nd window
+    if (nf > 0.60) {
+      const zAlpha = clamp(nf - 0.20) * 0.88;
+      const zt = (Date.now() % 3000) / 3000;
+      ctx.globalAlpha = zAlpha * clamp(1 - zt);
+      ctx.fillStyle = 'white'; ctx.font = `bold ${Math.round(H*0.024)}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.fillText('z', w3xs[1] + w3W*0.60 + zt*w3W*0.10, w3y - H*0.018 - zt * H*0.06);
+      ctx.font = `bold ${Math.round(H*0.016)}px Arial`;
+      ctx.fillText('z', w3xs[1] + w3W*0.88 + zt*w3W*0.08, w3y - H*0.048 - zt * H*0.05);
+      ctx.globalAlpha = 1;
+    }
+    // Morning person at 2nd window
+    if (t > 0.76 && t < 0.86) {
+      const wpa = Math.min(1, norm(t, 0.76, 0.79)) * Math.max(0, 1 - norm(t, 0.83, 0.86));
+      ctx.globalAlpha = wpa;
+      ctx.fillStyle = '#FDBCB4';
+      ctx.beginPath(); ctx.arc(w3xs[1] + w3W/2, w3y + w3H*0.48, w3W*0.26, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#FDBCB4'; ctx.lineWidth = 2;
+      const ha = Math.sin(Date.now() * 0.006) * 0.5;
+      ctx.beginPath();
+      ctx.moveTo(w3xs[1] + w3W*0.70, w3y + w3H*0.40);
+      ctx.lineTo(w3xs[1] + w3W*0.70 + Math.cos(ha)*w3W*0.18, w3y + w3H*0.28 + Math.sin(ha)*w3H*0.18);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+
+    // 2nd floor — 4 arched windows + flower boxes
+    const w2W = HW * 0.155, w2H = f2H * 0.68;
+    const w2xs = [0.085, 0.285, 0.535, 0.735].map(fx => HX + fx * HW);
+    const w2y  = f2Top + (f2H - w2H) * 0.35;
+    w2xs.forEach((wx, i) => {
+      drawHotelWindow(ctx, wx, w2y, w2W, w2H, nf);
+      ctx.fillStyle = rgb(lerpRGB([155, 58, 28], [58, 22, 9], nf*0.60));
+      ctx.fillRect(wx - 3, w2y + w2H, w2W + 6, H*0.016);
+      if (nf < 0.50) {
+        const fCols = [[218,72,72],[255,175,48],[172,218,72],[218,72,218]];
+        for (let f = 0; f < 3; f++) {
+          ctx.fillStyle = rgba(fCols[(i+f) % 4], 0.88);
+          ctx.beginPath(); ctx.arc(wx + w2W*(0.20 + f*0.30), w2y + w2H + H*0.006, H*0.007, 0, Math.PI*2); ctx.fill();
+        }
+      }
+      ctx.fillStyle = rgb(trimC); ctx.fillRect(wx - 3, f2Top, w2W + 6, 4);
+    });
+
+    // Ground floor — corner pilasters
+    ctx.fillStyle = rgb(colC);
+    ctx.fillRect(HX, f1Top, HW*0.075, f1H);
+    ctx.fillRect(HX + HW - HW*0.075, f1Top, HW*0.075, f1H);
+    ctx.fillStyle = rgba([0,0,0], 0.06);
+    ctx.fillRect(HX + HW*0.075, f1Top, 4, f1H);
+    ctx.fillRect(HX + HW - HW*0.075 - 4, f1Top, 4, f1H);
+
+    // Centre columns flanking entrance
+    const colW = HW * 0.050, colH = f1H;
+    [[HX + HW*0.200], [HX + HW*0.750 - colW]].forEach(([cx]) => {
+      ctx.fillStyle = rgb(colC); ctx.fillRect(cx, f1Top, colW, colH);
+      ctx.fillStyle = rgb(lerpRGB([228, 212, 178], [80, 66, 48], nf*0.65));
+      ctx.fillRect(cx - 4, f1Top, colW + 8, H*0.014);
+      ctx.fillRect(cx - 4, gY - H*0.014, colW + 8, H*0.014);
+    });
+
+    // Side windows on ground floor
+    const wgW = HW * 0.132, wgH = f1H * 0.68;
+    const wgy = f1Top + (f1H - wgH) * 0.25;
+    [[HX + HW*0.085], [HX + HW*0.783]].forEach(([wx]) => drawHotelWindow(ctx, wx, wgy, wgW, wgH, nf));
+
+    // Grand arched entrance
+    const dW = HW * 0.26, dH = f1H * 0.92;
+    const dX  = HX + (HW - dW) / 2, dY = gY - dH;
+    const archR = dW / 2;
     const enterT = eOut(norm(t, 0.44, 0.50));
     const exitT  = eOut(norm(t, 0.83, 0.89));
     const openF  = Math.max(enterT, exitT);
 
-    // Door frame
-    ctx.fillStyle = rgb(lerpRGB([120, 85, 50], [45, 28, 14], nf*0.7));
-    ctx.fillRect(dX - 3, dY - 3, dW + 6, dH + 3);
-
-    // Door panels (split open)
-    const half = dW / 2;
-    ctx.fillStyle = rgb(lerpRGB([170, 120, 75], [60, 40, 20], nf*0.7));
-    ctx.fillRect(dX,                dY, half * (1-openF), dH);  // left leaf
-    ctx.fillRect(dX + half + half*openF, dY, half * (1-openF), dH);  // right leaf
-
-    // Hotel name sign above door
-    const signH = H * 0.035, signY = HY - H * 0.005;
-    ctx.fillStyle = rgb(lerpRGB([30, 80, 200], [10, 28, 80], nf*0.5));
+    ctx.fillStyle = rgb(lerpRGB([128, 92, 48], [46, 32, 16], nf*0.70));
     ctx.beginPath();
-    ctx.roundRect(HX, signY - signH, HW, signH, [3,3,0,0]);
-    ctx.fill();
-    ctx.fillStyle = rgba([255,255,255], 0.95);
-    ctx.font = `bold ${Math.round(signH * 0.55)}px Arial`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('Hotel Jay Palace', HX + HW/2, signY - signH/2);
-    ctx.textBaseline = 'alphabetic';
+    ctx.moveTo(dX - 6, gY); ctx.lineTo(dX - 6, dY + archR);
+    ctx.quadraticCurveTo(dX - 6, dY - 6, dX + archR, dY - 6);
+    ctx.quadraticCurveTo(dX + dW + 6, dY - 6, dX + dW + 6, dY + archR);
+    ctx.lineTo(dX + dW + 6, gY); ctx.closePath(); ctx.fill();
+
+    ctx.fillStyle = rgb(lerpRGB([38, 28, 18], [15, 10, 6], nf*0.5));
+    ctx.beginPath();
+    ctx.moveTo(dX, gY); ctx.lineTo(dX, dY + archR);
+    ctx.quadraticCurveTo(dX, dY, dX + archR, dY);
+    ctx.quadraticCurveTo(dX + dW, dY, dX + dW, dY + archR);
+    ctx.lineTo(dX + dW, gY); ctx.closePath(); ctx.fill();
+
+    const leafW = dW * 0.495, leafH = dH * 0.86;
+    ctx.fillStyle = rgb(lerpRGB([162, 112, 62], [58, 38, 18], nf*0.70));
+    ctx.fillRect(dX, dY + dH - leafH, leafW * (1-openF), leafH);
+    ctx.fillRect(dX + dW - leafW*(1-openF), dY + dH - leafH, leafW*(1-openF), leafH);
+
+    // Arch top stained glass
+    ctx.fillStyle = nf > 0 ? rgba([255, 210, 70], Math.min(1, nf * 1.1)) : rgba([125, 188, 225], 0.62);
+    ctx.beginPath();
+    ctx.moveTo(dX, dY + archR);
+    ctx.quadraticCurveTo(dX, dY, dX + archR, dY);
+    ctx.quadraticCurveTo(dX + dW, dY, dX + dW, dY + archR);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = rgba([80, 55, 28], 0.52); ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(dX + archR, dY); ctx.lineTo(dX + archR, dY + archR);
+    ctx.moveTo(dX + archR*0.50, dY + archR*0.28); ctx.lineTo(dX + archR, dY + archR);
+    ctx.moveTo(dX + archR*1.50, dY + archR*0.28); ctx.lineTo(dX + archR, dY + archR);
+    ctx.stroke();
+
+    // Topiary pots flanking entrance
+    [dX - HW*0.090, dX + dW + HW*0.020].forEach(px => {
+      const potW = W*0.030, potH = H*0.050;
+      ctx.fillStyle = rgb(lerpRGB([172, 84, 40], [65, 30, 14], nf*0.65));
+      ctx.beginPath();
+      ctx.moveTo(px - potW*0.36, gY); ctx.lineTo(px - potW*0.50, gY - potH*0.58);
+      ctx.lineTo(px + potW*0.50, gY - potH*0.58); ctx.lineTo(px + potW*0.36, gY);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = rgb(lerpRGB([88, 58, 26], [36, 22, 9], nf*0.5));
+      ctx.fillRect(px - potW*0.50, gY - potH*0.58 - 3, potW, 6);
+      ctx.strokeStyle = rgb(lerpRGB([88, 58, 26], [36, 22, 9], nf*0.5));
+      ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.moveTo(px, gY - potH*0.55); ctx.lineTo(px, gY - potH*0.55 - H*0.038); ctx.stroke();
+      const br = W*0.024;
+      ctx.fillStyle = rgb(lerpRGB([46, 145, 42], [17, 55, 15], nf*0.85));
+      ctx.beginPath(); ctx.arc(px, gY - potH*0.55 - H*0.038 - br*0.60, br, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = rgba(lerpRGB([70, 182, 65], [25, 70, 22], nf*0.5), 0.46);
+      ctx.beginPath(); ctx.arc(px - br*0.22, gY - potH*0.55 - H*0.038 - br*0.78, br*0.50, 0, Math.PI*2); ctx.fill();
+    });
   }
 
   // ── Draw: Car ───────────────────────────────────────────────────────
@@ -546,7 +646,7 @@
     const nf   = nightF(t);
 
     const parkX    = W * 0.535;
-    const hotelDX  = W * 0.72 + W*0.22*0.50; // hotel door center
+    const hotelDX  = W * 0.67 + W*0.28*0.50; // hotel door centre
     const cW       = W * 0.145;
 
     let px, alpha = 1, visible = false;
@@ -648,7 +748,7 @@
 
   function drawPopups(ctx, t, W, H) {
     const gY = H * 0.70;
-    const hotelCX = W*0.72 + W*0.22*0.5;
+    const hotelCX = W*0.67 + W*0.28*0.5;
 
     // Hotel Jay Palace popup
     if (t > 0.18 && t < 0.42) {
@@ -821,8 +921,8 @@
   }
 
   function drawBirdOnBoard(ctx, nf, bW, ropeLen, H) {
-    const bx  = bW * 0.28;
-    const by  = ropeLen - H * 0.027;
+    const bx  = 0;             // centred on arm end = sitting on crossbar
+    const by  = -(H * 0.034); // above board pivot = on the arm
     const bs  = H * 0.030;
     const wUp = Math.sin(Date.now() * 0.007) > 0.65;
 
@@ -905,248 +1005,210 @@
     ctx.stroke();
   }
 
-  // ── Draw: Monkey Tree with Signs ────────────────────────────────────
-  function drawMonkeyTree(ctx, t, W, H) {
+  // ── Draw: Monkey with Rock Signs ────────────────────────────────────
+  function drawMonkeyRock(ctx, t, W, H) {
     const gY  = H * 0.70;
     const nf  = nightF(t);
-    const tx  = W * 0.46;
-    const tH  = H * 0.48;
-    const trH = tH * 0.28;
-    const trW = W * 0.013;
+    const rCX = W * 0.50;
+    const rCY = gY - H * 0.092;
+    const rRX = W * 0.092;
+    const rRY = H * 0.100;
 
-    // Trunk shadow
-    ctx.fillStyle = 'rgba(0,0,0,0.09)';
+    // Rock shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.16)';
     ctx.beginPath();
-    ctx.moveTo(tx + 3, gY);
-    ctx.quadraticCurveTo(tx + 4, gY - trH * 0.5, tx + trW * 0.5 + 3, gY - trH);
-    ctx.quadraticCurveTo(tx + trW * 0.8 + 3, gY - trH, tx + trW + 3, gY);
-    ctx.closePath(); ctx.fill();
-
-    // Trunk
-    ctx.fillStyle = rgb(lerpRGB([106, 68, 24], [40, 25, 8], nf * 0.72));
-    ctx.beginPath();
-    ctx.moveTo(tx - trW, gY);
-    ctx.quadraticCurveTo(tx - trW * 0.4, gY - trH * 0.55, tx - trW * 0.3, gY - trH);
-    ctx.quadraticCurveTo(tx,              gY - trH * 1.04,  tx + trW * 0.3, gY - trH);
-    ctx.quadraticCurveTo(tx + trW * 0.4,  gY - trH * 0.55, tx + trW, gY);
-    ctx.closePath(); ctx.fill();
-
-    const branchY = gY - trH - H * 0.02;
-
-    // Main branch right (monkey sits here)
-    ctx.strokeStyle = rgb(lerpRGB([96, 60, 20], [36, 23, 7], nf * 0.72));
-    ctx.lineWidth = W * 0.013; ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(tx + trW * 0.3, branchY + H * 0.02);
-    ctx.quadraticCurveTo(tx + W * 0.07, branchY - H * 0.015, tx + W * 0.16, branchY + H * 0.008);
-    ctx.stroke();
-
-    // Lower branch (for second sign)
-    ctx.lineWidth = W * 0.009;
-    ctx.beginPath();
-    ctx.moveTo(tx + trW * 0.3, branchY + H * 0.06);
-    ctx.quadraticCurveTo(tx + W * 0.055, branchY + H * 0.048, tx + W * 0.125, branchY + H * 0.066);
-    ctx.stroke();
-
-    // Small branch upper-left (decorative)
-    ctx.lineWidth = W * 0.007;
-    ctx.beginPath();
-    ctx.moveTo(tx - trW * 0.3, branchY + H * 0.02);
-    ctx.quadraticCurveTo(tx - W * 0.042, branchY - H * 0.022, tx - W * 0.075, branchY - H * 0.010);
-    ctx.stroke();
-
-    // Foliage — layered circles
-    const lc1 = lerpRGB([40, 136, 38], [13, 48, 12], nf * 0.88);
-    const lc2 = lerpRGB([26, 105, 24], [9, 34, 9],   nf * 0.88);
-    [
-      [tx,            gY - tH,           W * 0.075],
-      [tx + W * 0.050, gY - tH + H*0.055, W * 0.060],
-      [tx - W * 0.055, gY - tH + H*0.062, W * 0.055],
-      [tx + W * 0.020, gY - tH + H*0.118, W * 0.052],
-      [tx - W * 0.025, gY - tH + H*0.105, W * 0.048],
-      [tx - W * 0.074, gY - tH + H*0.022, W * 0.038], // left-branch bunch
-    ].forEach(([lx, ly, lr]) => {
-      ctx.fillStyle = rgb(lc1);
-      ctx.beginPath(); ctx.arc(lx, ly, lr, 0, Math.PI * 2); ctx.fill();
-    });
-    [[tx + W*0.018, gY - tH + H*0.058, W*0.030],[tx - W*0.022, gY - tH + H*0.085, W*0.026]].forEach(([lx, ly, lr]) => {
-      ctx.fillStyle = rgb(lc2);
-      ctx.beginPath(); ctx.arc(lx, ly, lr, 0, Math.PI * 2); ctx.fill();
-    });
-
-    // "Book Your Stay!" sign at end of upper branch
-    drawHangingSign(ctx, nf, tx + W*0.158, branchY + H*0.008, 'Book Your Stay!', W*0.148, H*0.062, [37, 99, 235], 0.83);
-
-    // "View Rooms" sign at end of lower branch
-    drawHangingSign(ctx, nf, tx + W*0.122, branchY + H*0.066, 'View Rooms →', W*0.128, H*0.055, [124, 58, 237], 1.55);
-
-    // Monkey on upper branch
-    drawMonkey(ctx, nf, tx + W * 0.064, branchY + H * 0.008, H);
-  }
-
-  function drawHangingSign(ctx, nf, cx, cy, text, sW, sH, colorArr, phaseOff) {
-    const swing = Math.sin(Date.now() * 0.00085 + phaseOff) * 0.030;
-    ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(swing);
-
-    const ropeLen = sH * 0.52;
-
-    // Ropes
-    ctx.strokeStyle = rgba(lerpRGB([102, 50, 24], [40, 25, 8], nf * 0.70), 0.82);
-    ctx.lineWidth = 1.8; ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(-sW * 0.30, 0); ctx.lineTo(-sW * 0.30, ropeLen);
-    ctx.moveTo( sW * 0.30, 0); ctx.lineTo( sW * 0.30, ropeLen);
-    ctx.stroke();
-
-    // Shadow
-    ctx.fillStyle = 'rgba(0,0,0,0.14)';
-    ctx.beginPath();
-    ctx.roundRect(-sW / 2 + 3, ropeLen + 3, sW, sH, 6);
+    ctx.ellipse(rCX + W*0.010, gY - 3, rRX * 0.90, H * 0.020, 0, 0, Math.PI*2);
     ctx.fill();
 
-    // Board wood
-    ctx.fillStyle = rgb(lerpRGB([188, 140, 65], [74, 46, 17], nf * 0.65));
+    // Rock gradient fill
+    const rg = ctx.createLinearGradient(rCX - rRX, rCY - rRY, rCX + rRX*0.22, rCY + rRY);
+    rg.addColorStop(0,   rgb(lerpRGB([172, 175, 180], [70, 73, 78], nf*0.68)));
+    rg.addColorStop(0.5, rgb(lerpRGB([152, 155, 160], [60, 63, 68], nf*0.68)));
+    rg.addColorStop(1,   rgb(lerpRGB([128, 130, 136], [48, 50, 55], nf*0.68)));
+    ctx.fillStyle = rg;
+    ctx.beginPath(); ctx.ellipse(rCX, rCY, rRX, rRY, 0.06, 0, Math.PI*2); ctx.fill();
+
+    // Rock highlight
+    ctx.fillStyle = rgba(lerpRGB([212, 215, 220], [85, 88, 95], nf*0.50), 0.36);
     ctx.beginPath();
-    ctx.roundRect(-sW / 2, ropeLen, sW, sH, 6);
+    ctx.ellipse(rCX - rRX*0.26, rCY - rRY*0.28, rRX*0.40, rRY*0.28, -0.25, 0, Math.PI*2);
     ctx.fill();
 
-    // Color header strip
-    ctx.fillStyle = rgba(colorArr, Math.max(0.10, 0.85 - nf * 0.56));
-    ctx.beginPath();
-    ctx.roundRect(-sW / 2, ropeLen, sW, sH * 0.28, 6);
-    ctx.fill();
+    // Rock border
+    ctx.strokeStyle = rgba(lerpRGB([102, 105, 110], [40, 42, 47], nf*0.65), 0.48);
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.ellipse(rCX, rCY, rRX, rRY, 0.06, 0, Math.PI*2); ctx.stroke();
 
-    // Border
-    ctx.strokeStyle = rgba(lerpRGB([102, 68, 24], [40, 25, 8], nf * 0.65), 0.72);
-    ctx.lineWidth = 1.8;
+    // Texture cracks
+    ctx.strokeStyle = rgba(lerpRGB([102, 105, 110], [40, 42, 47], nf*0.50), 0.24);
+    ctx.lineWidth = 1; ctx.lineCap = 'round';
     ctx.beginPath();
-    ctx.roundRect(-sW / 2, ropeLen, sW, sH, 6);
+    ctx.moveTo(rCX - rRX*0.32, rCY - rRY*0.12);
+    ctx.quadraticCurveTo(rCX - rRX*0.10, rCY + rRY*0.08, rCX + rRX*0.08, rCY - rRY*0.08);
+    ctx.moveTo(rCX + rRX*0.18, rCY + rRY*0.10);
+    ctx.quadraticCurveTo(rCX + rRX*0.32, rCY - rRY*0.06, rCX + rRX*0.42, rCY + rRY*0.18);
     ctx.stroke();
 
-    // Text
-    const ta = Math.max(0.20, 0.92 - nf * 0.58);
-    ctx.fillStyle = rgba(lerpRGB([255, 250, 226], [176, 150, 106], nf * 0.45), ta);
-    ctx.font = `bold ${Math.round(sH * 0.33)}px Arial, sans-serif`;
+    // Text on rock
+    const ta = Math.max(0.28, 0.96 - nf * 0.62);
+    const textDark = lerpRGB([36, 26, 16], [14, 10, 6], nf * 0.50);
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(text, 0, ropeLen + sH * 0.60);
+
+    ctx.fillStyle = rgba(textDark, ta);
+    ctx.font = `bold ${Math.round(rRY * 0.36)}px Arial Black, Arial, sans-serif`;
+    ctx.fillText('BOOK', rCX - rRX*0.06, rCY - rRY*0.42);
+    ctx.font = `bold ${Math.round(rRY * 0.30)}px Arial Black, Arial, sans-serif`;
+    ctx.fillText('YOUR STAY!', rCX - rRX*0.06, rCY - rRY*0.10);
+
+    ctx.strokeStyle = rgba(textDark, ta * 0.42);
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(rCX - rRX*0.60, rCY + rRY*0.14); ctx.lineTo(rCX + rRX*0.48, rCY + rRY*0.14);
+    ctx.stroke();
+
+    ctx.fillStyle = rgba(textDark, ta * 0.85);
+    ctx.font = `bold ${Math.round(rRY * 0.25)}px Arial, sans-serif`;
+    ctx.fillText('VIEW ROOMS', rCX - rRX*0.06, rCY + rRY*0.40);
     ctx.textBaseline = 'alphabetic';
-    ctx.restore();
+
+    // Monkey beside rock
+    drawMonkeyAtRock(ctx, nf, rCX + rRX * 1.12, gY, H);
   }
 
-  function drawMonkey(ctx, nf, mx, my, H) {
-    const mS    = H * 0.080;
-    const bob   = Math.sin(Date.now() * 0.0022) * H * 0.006;
-    const scr   = Math.sin(Date.now() * 0.003) > 0.65;
-    my += bob;
+  function drawMonkeyAtRock(ctx, nf, mx, gY, H) {
+    const mS  = H * 0.082;
+    const bob = Math.sin(Date.now() * 0.0022) * H * 0.004;
+    const my  = gY - mS * 0.52;
 
-    // Tail
+    // Tail curled behind
     ctx.save();
-    ctx.strokeStyle = rgba(lerpRGB([130, 82, 38], [50, 31, 12], nf * 0.55), 0.92);
-    ctx.lineWidth = mS * 0.19; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.strokeStyle = rgba(lerpRGB([132, 85, 40], [52, 33, 13], nf*0.55), 0.90);
+    ctx.lineWidth = mS * 0.175; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     ctx.beginPath();
-    ctx.moveTo(mx - mS*0.20, my + mS*0.58);
-    ctx.bezierCurveTo(mx - mS*0.82, my + mS*1.05, mx - mS*1.05, my + mS*0.28, mx - mS*0.72, my - mS*0.08);
+    ctx.moveTo(mx - mS*0.16, my + mS*0.58 + bob);
+    ctx.bezierCurveTo(mx - mS*0.78, my + mS*1.05, mx - mS*1.02, my + mS*0.28, mx - mS*0.70, my - mS*0.05);
     ctx.stroke();
     ctx.restore();
+
+    // Legs (seated)
+    ctx.strokeStyle = rgb(lerpRGB([145, 96, 46], [58, 36, 14], nf*0.55));
+    ctx.lineWidth = mS * 0.19; ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(mx - mS*0.18, my + mS*0.60 + bob);
+    ctx.quadraticCurveTo(mx - mS*0.45, my + mS*0.82, mx - mS*0.26, my + mS*1.06);
+    ctx.moveTo(mx + mS*0.16, my + mS*0.60 + bob);
+    ctx.quadraticCurveTo(mx + mS*0.40, my + mS*0.82, mx + mS*0.20, my + mS*1.06);
+    ctx.stroke();
 
     // Body
-    ctx.fillStyle = rgb(lerpRGB([150, 100, 50], [62, 40, 15], nf * 0.55));
+    ctx.fillStyle = rgb(lerpRGB([150, 100, 50], [62, 40, 15], nf*0.55));
     ctx.beginPath();
-    ctx.ellipse(mx, my + mS*0.20, mS*0.47, mS*0.58, 0, 0, Math.PI * 2);
+    ctx.ellipse(mx, my + mS*0.17 + bob, mS*0.44, mS*0.50, 0, 0, Math.PI*2);
     ctx.fill();
 
-    // Belly cream patch
-    ctx.fillStyle = rgba(lerpRGB([220, 178, 125], [110, 78, 40], nf * 0.50), 0.70);
+    // Belly patch
+    ctx.fillStyle = rgba(lerpRGB([220, 175, 120], [95, 68, 36], nf*0.50), 0.70);
     ctx.beginPath();
-    ctx.ellipse(mx, my + mS*0.28, mS*0.28, mS*0.38, 0, 0, Math.PI * 2);
+    ctx.ellipse(mx, my + mS*0.24 + bob, mS*0.25, mS*0.32, 0, 0, Math.PI*2);
     ctx.fill();
 
-    // Arms
-    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-
-    // Left arm — gripping branch
-    ctx.strokeStyle = rgb(lerpRGB([140, 92, 44], [56, 34, 13], nf * 0.55));
-    ctx.lineWidth = mS * 0.21;
+    // Left arm (leaning on rock)
+    ctx.strokeStyle = rgb(lerpRGB([140, 92, 44], [56, 34, 13], nf*0.55));
+    ctx.lineWidth = mS * 0.20; ctx.lineCap = 'round';
     ctx.beginPath();
-    ctx.moveTo(mx - mS*0.38, my - mS*0.05);
-    ctx.quadraticCurveTo(mx - mS*0.68, my - mS*0.30, mx - mS*0.60, my - mS*0.62);
+    ctx.moveTo(mx - mS*0.36, my - mS*0.02 + bob);
+    ctx.quadraticCurveTo(mx - mS*0.70, my - mS*0.04, mx - mS*0.88, my + mS*0.08);
     ctx.stroke();
 
-    // Right arm — scratching head or waving
-    ctx.lineWidth = mS * 0.19;
+    // Right arm (pointing at rock signs)
     ctx.beginPath();
-    ctx.moveTo(mx + mS*0.38, my - mS*0.05);
-    if (scr) {
-      ctx.quadraticCurveTo(mx + mS*0.75, my - mS*0.40, mx + mS*0.28, my - mS*0.80);
-    } else {
-      ctx.quadraticCurveTo(mx + mS*0.78, my - mS*0.25, mx + mS*0.75, my + mS*0.25);
-    }
+    ctx.moveTo(mx + mS*0.36, my - mS*0.02 + bob);
+    ctx.quadraticCurveTo(mx + mS*0.08, my - mS*0.44, mx - mS*0.26, my - mS*0.58);
     ctx.stroke();
 
     // Head
-    ctx.fillStyle = rgb(lerpRGB([150, 100, 50], [62, 40, 15], nf * 0.55));
-    ctx.beginPath();
-    ctx.arc(mx, my - mS*0.58, mS*0.45, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.fillStyle = rgb(lerpRGB([150, 100, 50], [62, 40, 15], nf*0.55));
+    ctx.beginPath(); ctx.arc(mx, my - mS*0.54 + bob, mS*0.43, 0, Math.PI*2); ctx.fill();
 
     // Ears
-    ctx.fillStyle = rgb(lerpRGB([150, 100, 50], [62, 40, 15], nf * 0.55));
-    ctx.beginPath();
-    ctx.arc(mx - mS*0.43, my - mS*0.56, mS*0.18, 0, Math.PI * 2);
-    ctx.arc(mx + mS*0.43, my - mS*0.56, mS*0.18, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = rgba(lerpRGB([220, 175, 120], [96, 62, 30], nf * 0.45), 0.62);
-    ctx.beginPath();
-    ctx.arc(mx - mS*0.43, my - mS*0.56, mS*0.10, 0, Math.PI * 2);
-    ctx.arc(mx + mS*0.43, my - mS*0.56, mS*0.10, 0, Math.PI * 2);
-    ctx.fill();
+    [[mx - mS*0.41, mS*0.17], [mx + mS*0.41, mS*0.17]].forEach(([ex, er]) => {
+      ctx.fillStyle = rgb(lerpRGB([150, 100, 50], [62, 40, 15], nf*0.55));
+      ctx.beginPath(); ctx.arc(ex, my - mS*0.54 + bob, er, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = rgba(lerpRGB([220, 172, 115], [95, 60, 26], nf*0.45), 0.60);
+      ctx.beginPath(); ctx.arc(ex, my - mS*0.54 + bob, er*0.55, 0, Math.PI*2); ctx.fill();
+    });
 
     // Face patch
-    ctx.fillStyle = rgba(lerpRGB([220, 175, 120], [96, 62, 30], nf * 0.45), 0.78);
-    ctx.beginPath();
-    ctx.ellipse(mx, my - mS*0.52, mS*0.28, mS*0.32, 0, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.fillStyle = rgba(lerpRGB([220, 172, 115], [95, 60, 26], nf*0.45), 0.76);
+    ctx.beginPath(); ctx.ellipse(mx, my - mS*0.48 + bob, mS*0.26, mS*0.29, 0, 0, Math.PI*2); ctx.fill();
 
     // Eyes
     if (nf > 0.72) {
-      ctx.strokeStyle = rgba([52, 32, 14], 0.80);
-      ctx.lineWidth = mS * 0.085; ctx.lineCap = 'round';
+      ctx.strokeStyle = rgba([52, 32, 14], 0.82); ctx.lineWidth = mS * 0.082; ctx.lineCap = 'round';
       ctx.beginPath();
-      ctx.arc(mx - mS*0.155, my - mS*0.62, mS*0.10, Math.PI, 0, true);
-      ctx.arc(mx + mS*0.155, my - mS*0.62, mS*0.10, Math.PI, 0, true);
+      ctx.arc(mx - mS*0.148, my - mS*0.60 + bob, mS*0.095, Math.PI, 0, true);
+      ctx.arc(mx + mS*0.148, my - mS*0.60 + bob, mS*0.095, Math.PI, 0, true);
       ctx.stroke();
     } else {
+      ctx.fillStyle = 'white';
+      ctx.beginPath();
+      ctx.arc(mx - mS*0.150, my - mS*0.61 + bob, mS*0.115, 0, Math.PI*2);
+      ctx.arc(mx + mS*0.150, my - mS*0.61 + bob, mS*0.115, 0, Math.PI*2);
+      ctx.fill();
       ctx.fillStyle = '#180800';
       ctx.beginPath();
-      ctx.arc(mx - mS*0.155, my - mS*0.62, mS*0.095, 0, Math.PI * 2);
-      ctx.arc(mx + mS*0.155, my - mS*0.62, mS*0.095, 0, Math.PI * 2);
+      ctx.arc(mx - mS*0.130, my - mS*0.625 + bob, mS*0.075, 0, Math.PI*2);
+      ctx.arc(mx + mS*0.170, my - mS*0.625 + bob, mS*0.075, 0, Math.PI*2);
       ctx.fill();
-      ctx.fillStyle = 'rgba(255,255,255,0.68)';
+      ctx.fillStyle = 'rgba(255,255,255,0.72)';
       ctx.beginPath();
-      ctx.arc(mx - mS*0.125, my - mS*0.65, mS*0.040, 0, Math.PI * 2);
-      ctx.arc(mx + mS*0.185, my - mS*0.65, mS*0.040, 0, Math.PI * 2);
+      ctx.arc(mx - mS*0.108, my - mS*0.648 + bob, mS*0.038, 0, Math.PI*2);
+      ctx.arc(mx + mS*0.192, my - mS*0.648 + bob, mS*0.038, 0, Math.PI*2);
       ctx.fill();
     }
 
     // Nose
-    ctx.fillStyle = rgba([100, 58, 24], 0.84);
-    ctx.beginPath();
-    ctx.ellipse(mx, my - mS*0.46, mS*0.088, mS*0.065, 0, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.fillStyle = rgba([100, 58, 22], 0.84);
+    ctx.beginPath(); ctx.ellipse(mx, my - mS*0.42 + bob, mS*0.085, mS*0.060, 0, 0, Math.PI*2); ctx.fill();
 
-    // Mouth
-    ctx.strokeStyle = rgba([72, 40, 14], 0.82);
-    ctx.lineWidth = mS * 0.062; ctx.lineCap = 'round';
+    // Smile / sleep
+    ctx.strokeStyle = rgba([72, 40, 14], 0.82); ctx.lineWidth = mS * 0.060; ctx.lineCap = 'round';
     ctx.beginPath();
     if (nf < 0.65) {
-      ctx.arc(mx, my - mS*0.34, mS*0.14, 0.12, Math.PI - 0.12, false);
+      ctx.arc(mx, my - mS*0.31 + bob, mS*0.135, 0.14, Math.PI - 0.14, false);
     } else {
-      ctx.moveTo(mx - mS*0.10, my - mS*0.37);
-      ctx.lineTo(mx + mS*0.10, my - mS*0.37);
+      ctx.moveTo(mx - mS*0.09, my - mS*0.34 + bob); ctx.lineTo(mx + mS*0.09, my - mS*0.34 + bob);
     }
     ctx.stroke();
+  }
+
+  // ── Draw: Location Pin (bouncing above hotel) ────────────────────────
+  function drawLocationPin(ctx, t, W, H) {
+    const gY  = H * 0.70;
+    const nf  = nightF(t);
+    const HX  = W * 0.67, HW = W * 0.28, HH = H * 0.44;
+    const pX  = HX + HW * 0.50;
+    const pY0 = gY - HH - H * 0.068;
+    const pY  = pY0 + Math.sin(Date.now() * 0.0020) * H * 0.010;
+    const pS  = H * 0.058;
+
+    ctx.fillStyle = 'rgba(0,0,0,0.12)';
+    ctx.beginPath();
+    ctx.ellipse(pX + 2, pY0 + 2, pS*0.24, pS*0.09, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    const pinC = rgba(lerpRGB([34, 115, 228], [16, 55, 110], nf*0.55), 0.96);
+    ctx.fillStyle = pinC;
+    ctx.beginPath(); ctx.arc(pX, pY, pS * 0.40, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(pX - pS*0.25, pY + pS*0.20);
+    ctx.quadraticCurveTo(pX, pY + pS*0.88, pX, pY + pS*0.88);
+    ctx.quadraticCurveTo(pX, pY + pS*0.88, pX + pS*0.25, pY + pS*0.20);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.90)';
+    ctx.beginPath(); ctx.arc(pX, pY, pS * 0.20, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = rgba(lerpRGB([80, 155, 255], [30, 72, 148], nf*0.40), 0.48);
+    ctx.beginPath(); ctx.arc(pX - pS*0.14, pY - pS*0.14, pS*0.14, 0, Math.PI*2); ctx.fill();
   }
 
   // ── Main ─────────────────────────────────────────────────────────────
@@ -1169,15 +1231,13 @@
     resize();
     new ResizeObserver(resize).observe(hero);
 
-    // ── Sign hit-testing (matches drawMonkeyTree sign positions) ──────
+    // ── Sign hit-testing (matches drawMonkeyRock sign positions) ──────
     function signBounds() {
-      const tx      = W * 0.46;
-      const branchY = H * 0.70 - H * 0.48 * 0.28 - H * 0.02; // = H * 0.5456
-      const s1cy = branchY + H * 0.008, s1sH = H * 0.062;
-      const s2cy = branchY + H * 0.066, s2sH = H * 0.055;
+      const rCX = W * 0.50, rCY = H * 0.70 - H * 0.092;
+      const rRX = W * 0.092, rRY = H * 0.100;
       return {
-        book:  { l: tx + W*0.084, r: tx + W*0.232, t: s1cy + s1sH*0.52, b: s1cy + s1sH*1.52 },
-        rooms: { l: tx + W*0.058, r: tx + W*0.186, t: s2cy + s2sH*0.52, b: s2cy + s2sH*1.52 },
+        book:  { l: rCX - rRX*0.72, r: rCX + rRX*0.60, t: rCY - rRY*0.88, b: rCY + rRY*0.18 },
+        rooms: { l: rCX - rRX*0.68, r: rCX + rRX*0.56, t: rCY + rRY*0.18, b: rCY + rRY*0.82 },
       };
     }
     function hitSign(ex, ey) {
@@ -1215,13 +1275,14 @@
       drawSun(ctx, t, W, H);
       drawMoon(ctx, t, W, H);
       drawGround(ctx, t, W, H);
-      drawMonkeyTree(ctx, t, W, H);
       drawTrees(ctx, t, W, H);
       drawHangingBoard(ctx, t, W, H);
 
       const moving = t < 0.18 || t > 0.90;
       drawRoad(ctx, t, W, H, null, moving);
       drawHotel(ctx, t, W, H);
+      drawLocationPin(ctx, t, W, H);
+      drawMonkeyRock(ctx, t, W, H);
       drawCar(ctx, t, W, H);
       drawPerson(ctx, t, W, H);
       drawPopups(ctx, t, W, H);
