@@ -775,7 +775,7 @@
   function drawHangingBoard(ctx, t, W, H) {
     const gY      = H * 0.70;
     const nf      = nightF(t);
-    const postX   = W * 0.26;
+    const postX   = W * 0.19;
     const barTop  = gY - H * 0.40;
     const armLen  = W * 0.14;
     const armEndX = postX + armLen;
@@ -1010,101 +1010,142 @@
     const gY  = H * 0.70;
     const nf  = nightF(t);
     const rCX = W * 0.50;
-    const rRX = W * 0.108;       // horizontal half-span
-    const rRY = H * 0.112;       // vertical half-span (for text placement)
-    const bY  = gY - H * 0.005;  // rock bottom (sits just on the grass)
-    const rH  = rRY * 2.18;      // total rock height
+    const rRX = W * 0.112;
+    const bY  = gY - H * 0.004;
+    const rH  = H * 0.245;       // total rock height
 
-    // Irregular boulder outline — reused for fill and stroke
+    // Boulder silhouette — mix of lineTo (flat planes) + small curves (worn edges)
+    // This combination is what makes it read as "rock" rather than a blob.
     function boulderPath() {
       ctx.beginPath();
-      ctx.moveTo(rCX - rRX*0.82, bY);
-      ctx.bezierCurveTo(
-        rCX - rRX*1.08, bY - rH*0.18, rCX - rRX*1.06, bY - rH*0.46,
-        rCX - rRX*0.92, bY - rH*0.60);
-      ctx.bezierCurveTo(
-        rCX - rRX*0.80, bY - rH*0.74, rCX - rRX*0.58, bY - rH*0.88,
-        rCX - rRX*0.24, bY - rH*0.97);
-      ctx.bezierCurveTo(
-        rCX - rRX*0.02, bY - rH*1.04, rCX + rRX*0.22, bY - rH*1.02,
-        rCX + rRX*0.48, bY - rH*0.95);
-      ctx.bezierCurveTo(
-        rCX + rRX*0.76, bY - rH*0.86, rCX + rRX*0.98, bY - rH*0.66,
-        rCX + rRX*1.02, bY - rH*0.48);
-      ctx.bezierCurveTo(
-        rCX + rRX*1.05, bY - rH*0.28, rCX + rRX*0.96, bY - rH*0.10,
-        rCX + rRX*0.80, bY);
+      ctx.moveTo(rCX - rRX*0.80, bY);                        // ground-left
+      ctx.lineTo(rCX - rRX*1.05, bY - rH*0.26);             // left-lower face ◄ straight = flat stone plane
+      ctx.quadraticCurveTo(
+        rCX - rRX*1.08, bY - rH*0.48,
+        rCX - rRX*0.96, bY - rH*0.62);                       // left-mid (slightly worn)
+      ctx.lineTo(rCX - rRX*0.66, bY - rH*0.84);             // upper-left face ◄ straight
+      ctx.quadraticCurveTo(
+        rCX - rRX*0.38, bY - rH*1.02,
+        rCX - rRX*0.04, bY - rH*1.04);                       // top shoulder (rounded)
+      ctx.lineTo(rCX + rRX*0.40, bY - rH*0.95);             // top-right slope ◄ straight
+      ctx.quadraticCurveTo(
+        rCX + rRX*0.76, bY - rH*0.83,
+        rCX + rRX*1.00, bY - rH*0.58);                       // right shoulder
+      ctx.lineTo(rCX + rRX*1.05, bY - rH*0.36);             // right face ◄ straight + steep
+      ctx.quadraticCurveTo(
+        rCX + rRX*1.02, bY - rH*0.12,
+        rCX + rRX*0.80, bY);                                  // ground-right
       ctx.closePath();
     }
 
-    // Ground shadow (ellipse is fine for the cast shadow)
-    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    // Ridge / fulcrum point — where planes meet on the front face
+    const rdgX = rCX - rRX * 0.04;
+    const rdgY = bY - rH * 0.63;
+
+    // Cast shadow on ground
+    ctx.fillStyle = 'rgba(0,0,0,0.20)';
     ctx.beginPath();
-    ctx.ellipse(rCX + W*0.012, bY + H*0.008, rRX * 0.88, H * 0.022, 0, 0, Math.PI*2);
+    ctx.ellipse(rCX + W*0.014, bY + H*0.010, rRX * 0.86, H * 0.022, 0, 0, Math.PI*2);
     ctx.fill();
 
-    // Rock fill — gradient top-left light → lower-right dark
-    const rg = ctx.createLinearGradient(rCX - rRX, bY - rH, rCX + rRX*0.30, bY);
-    rg.addColorStop(0,    rgb(lerpRGB([180, 183, 188], [72, 75, 80], nf*0.68)));
-    rg.addColorStop(0.42, rgb(lerpRGB([155, 158, 163], [62, 65, 70], nf*0.68)));
-    rg.addColorStop(1,    rgb(lerpRGB([122, 125, 130], [46, 48, 53], nf*0.68)));
-    ctx.fillStyle = rg;
+    // ── Base fill (shadow / darkest tone) ──────────────────────────────
+    ctx.fillStyle = rgb(lerpRGB([100, 104, 110], [38, 40, 46], nf*0.70));
     boulderPath(); ctx.fill();
 
-    // Flat face patch in the centre (where signs are "painted")
-    ctx.fillStyle = rgba(lerpRGB([200, 203, 208], [82, 85, 92], nf*0.55), 0.26);
+    // ── Left face (medium lit — side light from left sky) ──────────────
+    ctx.fillStyle = rgb(lerpRGB([148, 152, 158], [56, 60, 66], nf*0.65));
     ctx.beginPath();
-    ctx.ellipse(rCX - rRX*0.04, bY - rH*0.52, rRX*0.62, rH*0.37, 0, 0, Math.PI*2);
-    ctx.fill();
+    ctx.moveTo(rCX - rRX*0.78, bY);
+    ctx.lineTo(rCX - rRX*1.05, bY - rH*0.26);
+    ctx.lineTo(rCX - rRX*0.96, bY - rH*0.62);
+    ctx.lineTo(rCX - rRX*0.66, bY - rH*0.84);
+    ctx.lineTo(rdgX, rdgY);
+    ctx.lineTo(rdgX, bY - rH*0.08);
+    ctx.closePath(); ctx.fill();
 
-    // Upper-left highlight (light catching the top face)
-    ctx.fillStyle = rgba(lerpRGB([218, 220, 226], [88, 90, 98], nf*0.50), 0.42);
+    // ── Top cap face (brightest — direct sunlight from above) ──────────
+    ctx.fillStyle = rgb(lerpRGB([195, 200, 206], [78, 82, 90], nf*0.62));
     ctx.beginPath();
-    ctx.ellipse(rCX - rRX*0.40, bY - rH*0.78, rRX*0.30, rH*0.16, -0.4, 0, Math.PI*2);
-    ctx.fill();
+    ctx.moveTo(rCX - rRX*0.66, bY - rH*0.84);
+    ctx.lineTo(rCX - rRX*0.04, bY - rH*1.04);
+    ctx.lineTo(rCX + rRX*0.40, bY - rH*0.95);
+    ctx.lineTo(rCX + rRX*0.18, bY - rH*0.70);
+    ctx.lineTo(rdgX, rdgY);
+    ctx.closePath(); ctx.fill();
 
-    // Boulder border
-    ctx.strokeStyle = rgba(lerpRGB([95, 98, 105], [36, 38, 44], nf*0.65), 0.58);
+    // ── Top-left edge highlight (sky catchlight) ────────────────────────
+    ctx.fillStyle = rgba(lerpRGB([222, 226, 232], [88, 92, 100], nf*0.50), 0.48);
+    ctx.beginPath();
+    ctx.moveTo(rCX - rRX*0.66, bY - rH*0.84);
+    ctx.quadraticCurveTo(rCX - rRX*0.38, bY - rH*1.02, rCX - rRX*0.04, bY - rH*1.04);
+    ctx.lineTo(rCX - rRX*0.08, bY - rH*0.92);
+    ctx.quadraticCurveTo(rCX - rRX*0.36, bY - rH*0.90, rCX - rRX*0.62, bY - rH*0.80);
+    ctx.closePath(); ctx.fill();
+
+    // ── Face-plane seam lines (crisp boundary = stone cleavage look) ────
+    ctx.strokeStyle = rgba(lerpRGB([68, 72, 78], [26, 28, 34], nf*0.55), 0.52);
+    ctx.lineWidth = 1.5; ctx.lineCap = 'round';
+    ctx.beginPath();
+    // Central vertical ridge (top → centre → base)
+    ctx.moveTo(rCX - rRX*0.04, bY - rH*1.04);
+    ctx.lineTo(rdgX, rdgY);
+    ctx.lineTo(rdgX, bY - rH*0.08);
+    // Left-face upper boundary
+    ctx.moveTo(rCX - rRX*0.66, bY - rH*0.84);
+    ctx.lineTo(rdgX, rdgY);
+    // Top-right boundary
+    ctx.moveTo(rCX + rRX*0.40, bY - rH*0.95);
+    ctx.lineTo(rCX + rRX*0.18, bY - rH*0.70);
+    ctx.stroke();
+
+    // ── Surface crack lines ─────────────────────────────────────────────
+    ctx.strokeStyle = rgba(lerpRGB([80, 84, 90], [30, 32, 38], nf*0.50), 0.30);
+    ctx.lineWidth = 1; ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(rCX - rRX*0.48, bY - rH*0.40);
+    ctx.quadraticCurveTo(rCX - rRX*0.15, bY - rH*0.48, rCX + rRX*0.12, bY - rH*0.38);
+    ctx.moveTo(rCX + rRX*0.25, bY - rH*0.24);
+    ctx.quadraticCurveTo(rCX + rRX*0.44, bY - rH*0.18, rCX + rRX*0.58, bY - rH*0.26);
+    ctx.stroke();
+
+    // ── Boulder outline (strong edge) ───────────────────────────────────
+    ctx.strokeStyle = rgba(lerpRGB([62, 66, 72], [22, 24, 30], nf*0.65), 0.85);
     ctx.lineWidth = 2.5;
     boulderPath(); ctx.stroke();
 
-    // Surface cracks (natural rock veining)
-    ctx.strokeStyle = rgba(lerpRGB([88, 92, 98], [35, 37, 42], nf*0.50), 0.26);
-    ctx.lineWidth = 1; ctx.lineCap = 'round';
+    // ── Grass/dirt at base (rock sits in the ground) ────────────────────
+    ctx.fillStyle = rgba(lerpRGB([52, 108, 40], [20, 40, 14], nf*0.65), 0.40);
     ctx.beginPath();
-    ctx.moveTo(rCX - rRX*0.55, bY - rH*0.44);
-    ctx.quadraticCurveTo(rCX - rRX*0.18, bY - rH*0.51, rCX + rRX*0.10, bY - rH*0.40);
-    ctx.moveTo(rCX + rRX*0.22, bY - rH*0.28);
-    ctx.quadraticCurveTo(rCX + rRX*0.40, bY - rH*0.20, rCX + rRX*0.56, bY - rH*0.30);
-    ctx.moveTo(rCX - rRX*0.26, bY - rH*0.82);
-    ctx.quadraticCurveTo(rCX - rRX*0.04, bY - rH*0.76, rCX + rRX*0.16, bY - rH*0.80);
-    ctx.stroke();
+    ctx.ellipse(rCX - rRX*0.08, bY - rH*0.04, rRX*0.62, rH*0.06, 0, 0, Math.PI*2);
+    ctx.fill();
 
-    // === TEXT PAINTED ON ROCK ===
-    const ta = Math.max(0.30, 0.96 - nf * 0.62);
-    const textDark = lerpRGB([28, 20, 10], [11, 7, 3], nf * 0.50);
+    // ── TEXT PAINTED ON FRONT FACE ──────────────────────────────────────
+    const ta = Math.max(0.32, 0.96 - nf * 0.62);
+    // Chalk/painted text colour: off-white for contrast on stone
+    const textC = lerpRGB([22, 16, 8], [10, 7, 3], nf * 0.50);
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = rgba(textC, ta);
 
-    // "BOOK" — biggest, topmost
-    ctx.fillStyle = rgba(textDark, ta);
-    ctx.font = `bold ${Math.max(13, Math.round(rH * 0.178))}px Arial Black, Arial, sans-serif`;
-    ctx.fillText('BOOK', rCX - rRX*0.04, bY - rH*0.710);
+    // "BOOK" — top half of face
+    ctx.font = `bold ${Math.max(14, Math.round(rH * 0.178))}px Arial Black, Arial, sans-serif`;
+    ctx.fillText('BOOK', rCX - rRX*0.04, bY - rH*0.720);
 
-    // "YOUR STAY!" — slightly smaller
-    ctx.font = `bold ${Math.max(11, Math.round(rH * 0.150))}px Arial Black, Arial, sans-serif`;
-    ctx.fillText('YOUR STAY!', rCX - rRX*0.04, bY - rH*0.540);
+    // "YOUR STAY!"
+    ctx.font = `bold ${Math.max(12, Math.round(rH * 0.148))}px Arial Black, Arial, sans-serif`;
+    ctx.fillText('YOUR STAY!', rCX - rRX*0.04, bY - rH*0.548);
 
-    // Divider line
-    ctx.strokeStyle = rgba(textDark, ta * 0.35);
+    // Divider
+    ctx.strokeStyle = rgba(textC, ta * 0.36);
     ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.moveTo(rCX - rRX*0.64, bY - rH*0.430); ctx.lineTo(rCX + rRX*0.56, bY - rH*0.430);
+    ctx.moveTo(rCX - rRX*0.66, bY - rH*0.438);
+    ctx.lineTo(rCX + rRX*0.58, bY - rH*0.438);
     ctx.stroke();
 
     // "VIEW ROOMS"
-    ctx.fillStyle = rgba(textDark, ta * 0.86);
-    ctx.font = `bold ${Math.max(10, Math.round(rH * 0.124))}px Arial, sans-serif`;
-    ctx.fillText('VIEW ROOMS', rCX - rRX*0.04, bY - rH*0.300);
+    ctx.fillStyle = rgba(textC, ta * 0.88);
+    ctx.font = `bold ${Math.max(11, Math.round(rH * 0.122))}px Arial, sans-serif`;
+    ctx.fillText('VIEW ROOMS', rCX - rRX*0.04, bY - rH*0.302);
     ctx.textBaseline = 'alphabetic';
 
     // Monkey beside rock
@@ -1269,12 +1310,12 @@
 
     // ── Sign hit-testing (matches drawMonkeyRock boulder positions) ──
     function signBounds() {
-      const rCX = W * 0.50, rRX = W * 0.108;
-      const bY  = H * 0.70 - H * 0.005;
-      const rH  = H * 0.112 * 2.18;   // rRY * 2.18
+      const rCX = W * 0.50, rRX = W * 0.112;
+      const bY  = H * 0.70 - H * 0.004;
+      const rH  = H * 0.245;
       return {
-        book:  { l: rCX - rRX*0.75, r: rCX + rRX*0.60, t: bY - rH*0.82, b: bY - rH*0.42 },
-        rooms: { l: rCX - rRX*0.70, r: rCX + rRX*0.56, t: bY - rH*0.42, b: bY - rH*0.12 },
+        book:  { l: rCX - rRX*0.78, r: rCX + rRX*0.62, t: bY - rH*0.84, b: bY - rH*0.44 },
+        rooms: { l: rCX - rRX*0.74, r: rCX + rRX*0.58, t: bY - rH*0.44, b: bY - rH*0.14 },
       };
     }
     function hitSign(ex, ey) {
