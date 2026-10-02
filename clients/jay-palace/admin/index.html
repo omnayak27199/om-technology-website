@@ -2051,7 +2051,7 @@
     if (noLinkNote) {
       noLinkNote.style.display = hasUrl ? 'none' : ''
       noLinkNote.textContent   = b.status === 'checked_out'
-        ? 'Invoice link has expired (48 hrs). Use the Invoice button to download a fresh PDF.'
+        ? 'Invoice link could not be generated or has expired. Use Download PDF below to save a copy.'
         : 'Invoice link is generated automatically when the guest checks out.'
     }
 
@@ -2112,11 +2112,11 @@
     showAdminToast('Uploading invoice to cloud…', 'info')
     const invoiceUrl = await buildInvoiceUrl(b)
 
-    // Always show the share panel so admin can manually forward
-    if (invoiceUrl) showCheckoutSharePanel(b, invoiceUrl)
+    // Always open share panel after checkout so admin can forward or download
+    showCheckoutSharePanel(b, invoiceUrl)
 
     if (!b.customerEmail) {
-      showAdminToast(`${b.customerName} checked out. Share the invoice via the panel ↗`, 'info')
+      showAdminToast(`${b.customerName} checked out.${invoiceUrl ? ' Share via the panel ↗' : ' Invoice upload failed — check Storage rules.'}`, invoiceUrl ? 'success' : 'error')
       return
     }
 
