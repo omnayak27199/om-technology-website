@@ -4,8 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Invoice — Hotel Jay Palace</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="js/config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: system-ui, -apple-system, Arial, sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #EFF6FF; padding: 24px; }
@@ -14,55 +16,128 @@
     h2 { font-size: 21px; color: #1e293b; margin-bottom: 10px; }
     .sub { color: #64748b; font-size: 14px; line-height: 1.7; }
     .hotel { margin-top: 28px; padding-top: 20px; border-top: 1px solid #DBEAFE; color: #2563EB; font-weight: 700; font-size: 14px; }
-    .btn { display: inline-block; margin-top: 20px; padding: 12px 28px; background: #2563EB; color: #fff; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; border: none; }
+    .btn { display: inline-block; margin-top: 20px; padding: 12px 28px; background: #2563EB; color: #fff; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; border: none; text-decoration: none; }
     .btn:hover { background: #1D4ED8; }
+    .spinner { display: inline-block; width: 18px; height: 18px; border: 3px solid #BFDBFE; border-top-color: #2563EB; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
   <div class="card">
     <div class="icon" id="icon">📄</div>
-    <h2 id="title">Preparing your invoice...</h2>
-    <p class="sub" id="sub">Please wait while we generate your invoice PDF.</p>
-    <button class="btn" id="dlBtn" style="display:none" onclick="redownload()">⬇ Download Again</button>
+    <h2 id="title"><span class="spinner"></span> Loading invoice…</h2>
+    <p class="sub" id="sub">Please wait while we prepare your invoice.</p>
+    <a id="dlBtn" class="btn" style="display:none" target="_blank" rel="noopener noreferrer">⬇ Download Invoice</a>
     <div class="hotel">Hotel Jay Palace &nbsp;·&nbsp; Saraipali, Chhattisgarh</div>
   </div>
 
 <script>
-let _doc = null, _code = ''
-
 async function main() {
+  const params = new URLSearchParams(window.location.search)
+  const id  = params.get('id')
+  const raw = params.get('d')   // legacy URL-encoded format (old links)
+
+  // ── New format: ?id={bookingId} — look up in Firestore ────────────────
+  if (id) {
+    await handleNewLink(id)
+    return
+  }
+
+  // ── Legacy format: ?d={encoded JSON} — rebuild PDF in browser ─────────
+  if (raw) {
+    await handleLegacyLink(raw)
+    return
+  }
+
+  showState('⚠️', 'Invalid Link', 'No invoice ID found in this link. Please contact Hotel Jay Palace.')
+}
+
+// ── New link handler (Firebase Storage + Firestore) ───────────────────────
+async function handleNewLink(id) {
   try {
-    const params = new URLSearchParams(window.location.search)
-    const raw    = params.get('d')
-    if (!raw) throw new Error('No data')
+    firebase.initializeApp(window.FIREBASE_CONFIG)
+    const db   = firebase.firestore()
+    const snap = await db.collection('invoices').doc(id).get()
+
+    if (!snap.exists) {
+      showState('⚠️', 'Invoice Not Found',
+        'This invoice link is invalid or has already expired. Please contact Hotel Jay Palace at ' +
+        phone() + ' for a copy of your invoice.')
+      return
+    }
+
+    const inv = snap.data()
+
+    // Check 48-hour expiry
+    if (!inv.expiresAt || inv.expiresAt.toMillis() < Date.now()) {
+      showState('⏰', 'Link Expired',
+        'This invoice download link is valid for 48 hours and has now expired. Please contact Hotel Jay Palace at ' +
+        phone() + ' to request your invoice.')
+      return
+    }
+
+    // Valid — show download button and auto-open the PDF
+    const filename = 'Invoice-JP-' + (inv.code || id.slice(0, 8).toUpperCase()) + '.pdf'
+    const btn = document.getElementById('dlBtn')
+    btn.href        = inv.url
+    btn.textContent = '⬇ Download Invoice'
+    btn.style.display = 'inline-block'
+
+    showState('✅', 'Invoice Ready',
+      'Your invoice is ready. Tap the button below to download the PDF.')
+
+    // Auto-open after brief pause (browser opens or downloads the PDF)
+    setTimeout(() => { window.location.href = inv.url }, 500)
+
+  } catch (e) {
+    showState('⚠️', 'Error Loading Invoice',
+      'Could not load your invoice (' + e.message + '). Please contact Hotel Jay Palace at ' + phone() + '.')
+  }
+}
+
+// ── Legacy link handler (old ?d= format — kept for backward compatibility) ─
+let _legacyDoc = null, _legacyCode = ''
+async function handleLegacyLink(raw) {
+  try {
     const b = JSON.parse(decodeURIComponent(raw))
-    _code = b.bookingCode || 'INVOICE'
+    _legacyCode = b.bookingCode || 'INVOICE'
 
     let logo = null
     try {
       const r = await fetch('assets/images/logo.jpeg')
       if (r.ok) {
         const blob = await r.blob()
-        logo = await new Promise(res => { const fr = new FileReader(); fr.onloadend = () => res(fr.result); fr.readAsDataURL(blob) })
+        logo = await new Promise(res => {
+          const fr = new FileReader()
+          fr.onloadend = () => res(fr.result)
+          fr.readAsDataURL(blob)
+        })
       }
-    } catch(e) {}
+    } catch (_) {}
 
-    _doc = buildInvoice(b, logo)
-    _doc.save('Invoice-JP-' + _code + '.pdf')
+    _legacyDoc = buildInvoice(b, logo)
+    _legacyDoc.save('Invoice-JP-' + _legacyCode + '.pdf')
 
-    document.getElementById('icon').textContent  = '✅'
-    document.getElementById('title').textContent = 'Invoice Downloaded!'
-    document.getElementById('sub').textContent   = 'Your invoice for booking ' + _code + ' has been saved to your downloads folder.'
-    document.getElementById('dlBtn').style.display = 'inline-block'
-  } catch(e) {
-    document.getElementById('icon').textContent  = '⚠️'
-    document.getElementById('title').textContent = 'Invalid Link'
-    document.getElementById('sub').textContent   = 'This invoice link is invalid or expired. Please contact Hotel Jay Palace at ' + ((window.HOTEL && window.HOTEL.phone) || '+91 75877 80043') + ' for your invoice.'
+    showState('✅', 'Invoice Downloaded!',
+      'Your invoice for booking ' + _legacyCode + ' has been saved to your downloads folder.')
+
+    const btn = document.getElementById('dlBtn')
+    btn.onclick = () => _legacyDoc && _legacyDoc.save('Invoice-JP-' + _legacyCode + '.pdf')
+    btn.textContent  = '⬇ Download Again'
+    btn.style.display = 'inline-block'
+  } catch (_) {
+    showState('⚠️', 'Invalid Link', 'This invoice link appears to be broken. Please contact Hotel Jay Palace at ' + phone() + '.')
   }
 }
 
-function redownload() { if (_doc) _doc.save('Invoice-JP-' + _code + '.pdf') }
+function showState(icon, title, sub) {
+  document.getElementById('icon').textContent  = icon
+  document.getElementById('title').textContent = title
+  document.getElementById('sub').textContent   = sub
+}
+function phone() { return (window.HOTEL && window.HOTEL.phone) || '+91 75877 80043' }
 
+// ── Legacy PDF builder (used only for old ?d= links) ─────────────────────
 function fmtDate(d) {
   return d ? new Date(d).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'}) : '—'
 }
@@ -104,13 +179,11 @@ function buildInvoice(b, logoBase64) {
 
   let y = 10
 
-  // Page title
   doc.setFont('helvetica','bold'); doc.setFontSize(15); doc.setTextColor(...BK)
   doc.text('Invoice', PW/2, y+2, {align:'center'})
   y += 8
   const BORDER_TOP = y
 
-  // Hotel header
   if (logoBase64) {
     doc.addImage(logoBase64, 'JPEG', M+1, y+1, 28, 27)
   } else {
@@ -132,16 +205,13 @@ function buildInvoice(b, logoBase64) {
   doc.text('State: 22-Chhattisgarh', HX, y+27)
   y += 32
 
-  // Separator
   doc.setDrawColor(...BK); doc.setLineWidth(0.5); doc.line(M,y,M+IW,y); y += 3
 
-  // 3-column section
   const C1W=60, C2W=52, X2=M+C1W, X3=X2+C2W
   const INFO_Y=y, INFO_H=50
   doc.setDrawColor(...BK); doc.setLineWidth(0.3)
   doc.line(X2,INFO_Y,X2,INFO_Y+INFO_H); doc.line(X3,INFO_Y,X3,INFO_Y+INFO_H)
 
-  // Col 1 — Bill To
   doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...BK)
   doc.text('Bill To:', M+2, y+5)
   doc.setFont('helvetica','bold'); doc.setFontSize(8.5)
@@ -150,7 +220,6 @@ function buildInvoice(b, logoBase64) {
   doc.text('State: 22-Chhattisgarh', M+2, y+37)
   if (b.customerGstin) { doc.text('GSTIN: '+b.customerGstin, M+2, y+43) }
 
-  // Col 2 — Invoice Details
   doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...BK)
   doc.text('Invoice Details:', X2+2, y+5)
   let idy = y+12
@@ -166,7 +235,6 @@ function buildInvoice(b, logoBase64) {
   doc.setFont('helvetica','normal'); doc.setTextColor(...BK)
   doc.text('22-Chhattisgarh', X2+2, idy+5)
 
-  // Col 3 — Guest Info
   doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...BK)
   doc.text('Guest Name: '+(b.customerName||'—'), X3+2, y+5)
   doc.setFont('helvetica','normal'); doc.setFontSize(7)
@@ -176,7 +244,6 @@ function buildInvoice(b, logoBase64) {
   doc.text((H.checkOut||'11:00 AM')+' & '+fmtDate(b.checkOut), X3+2, y+33)
   y = INFO_Y + INFO_H
 
-  // Items table
   doc.setLineWidth(0.4); doc.line(M,y,M+IW,y); y += 2
   const tCols = [
     {w:8,  lbl:'#',          al:'center'},
@@ -219,7 +286,6 @@ function buildInvoice(b, logoBase64) {
   })
   y += IRH
 
-  // Summary
   const SUMX = M+IW-tCols[5].w-tCols[6].w
   const sumRows = [
     ['Sub Total', rs(total), false, 7],
@@ -248,7 +314,6 @@ function buildInvoice(b, logoBase64) {
     doc.setTextColor(...BK); doc.text(val, M+IW-2, y+5.5, {align:'right'}); y += 7
   })
 
-  // Payment Mode
   doc.setLineWidth(0.5); doc.line(M,y,M+IW,y); y += 3
   doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...BK)
   doc.text('Payment Mode:', M+2, y+5)
@@ -256,7 +321,6 @@ function buildInvoice(b, logoBase64) {
   doc.text(pmLabel[b.paymentMethod]||b.paymentMethod||'—', M+2, y+12)
   y += 19
 
-  // Description
   doc.setLineWidth(0.3); doc.line(M,y,M+IW,y); y += 3
   doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...BK)
   doc.text('Description:', M+2, y+5)
@@ -265,7 +329,6 @@ function buildInvoice(b, logoBase64) {
   doc.text('Visit again..', M+2, y+17)
   y += 22
 
-  // Bank Details + Signature
   doc.setLineWidth(0.3); doc.line(M,y,M+IW,y); y += 3
   const BDW = IW*0.52, SX = M+BDW+5
   doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...BK)
@@ -284,7 +347,6 @@ function buildInvoice(b, logoBase64) {
   doc.text('Authorized Signatory', (SX+8+M+IW-5)/2, y+32, {align:'center'})
   y += 36
 
-  // Outer border
   doc.setDrawColor(...BK); doc.setLineWidth(0.6)
   doc.rect(M, BORDER_TOP, IW, y-BORDER_TOP+2, 'D')
 

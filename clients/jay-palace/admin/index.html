@@ -1187,6 +1187,7 @@
       document.getElementById('adminUser').textContent      = user.email
       loadBookings()
       initWiPanel()
+      cleanupExpiredInvoices()
     } else {
       document.getElementById('loginScreen').style.display = 'flex'
       document.getElementById('adminWrap').style.display   = 'none'
@@ -1731,32 +1732,43 @@
       })
   }
 
-  // Build a URL-safe invoice link (base64url — no +/= chars that break URLs)
-  function buildInvoiceUrl(b) {
+  // Build guest invoice link — uploads PDF to Firebase Storage, valid for 48 hours
+  async function buildInvoiceUrl(b) {
+    const code = b.bookingCode || b.id.slice(0, 8).toUpperCase()
     try {
-      const code = b.bookingCode || b.id.slice(0,8).toUpperCase()
-      const data = {
-        bookingCode:   code,
-        customerName:  b.customerName  || '',
-        customerEmail: b.customerEmail || '',
-        customerPhone: b.customerPhone || '',
-        customerGstin: b.customerGstin || '',
-        roomName:      b.roomName      || '',
-        checkIn:       b.checkIn,
-        checkOut:      b.checkOut,
-        nights:        b.nights        || 1,
-        guests:        b.guestsAtCheckin || b.guests || 1,
-        totalAmount:   b.totalAmount   || 0,
-        pricePerNight: b.pricePerNight || 0,
-        paymentMethod: b.paymentMethod || 'cash',
-        paymentId:     b.paymentId     || '',
-        paymentStatus: b.paymentStatus || '',
-        status:        b.status        || 'checked_out',
-      }
-      return 'https://jaypalace.online/invoice.html?d=' + encodeURIComponent(JSON.stringify(data))
-    } catch(e) {
-      console.warn('[Invoice URL] Failed:', e.message)
+      // Generate PDF blob from booking data (same as admin download, no change needed there)
+      const pdfBlob   = buildInvoiceDoc(b).output('blob')
+
+      // Upload to Firebase Storage at invoices/{bookingId}.pdf
+      const storageRef = storage.ref('invoices/' + b.id + '.pdf')
+      await storageRef.put(pdfBlob, { contentType: 'application/pdf' })
+      const fileUrl = await storageRef.getDownloadURL()
+
+      // Store URL + 48-hour expiry in a dedicated Firestore 'invoices' collection
+      // (separate from 'bookings' so guests can read it without seeing all booking data)
+      const expiresAt = firebase.firestore.Timestamp.fromMillis(Date.now() + 48 * 3600 * 1000)
+      await db.collection('invoices').doc(b.id).set({ url: fileUrl, expiresAt, code })
+
+      return 'https://jaypalace.online/invoice.html?id=' + b.id
+    } catch (e) {
+      console.error('[Invoice URL] Upload failed:', e)
+      showAdminToast('Invoice upload failed — please retry checkout.', 'error')
       return ''
+    }
+  }
+
+  // Delete expired invoice files from Storage + Firestore (runs silently on admin login)
+  async function cleanupExpiredInvoices() {
+    try {
+      const now  = firebase.firestore.Timestamp.now()
+      const snap = await db.collection('invoices').where('expiresAt', '<', now).get()
+      for (const doc of snap.docs) {
+        try { await storage.ref('invoices/' + doc.id + '.pdf').delete() } catch (_) {}
+        await db.collection('invoices').doc(doc.id).delete()
+      }
+      if (snap.size > 0) console.log('[Cleanup] Removed', snap.size, 'expired invoice(s)')
+    } catch (e) {
+      console.warn('[Cleanup] Could not clean expired invoices:', e.message)
     }
   }
 
@@ -1824,10 +1836,11 @@
     console.log('[Checkout] booking:', b.id, '| email:', b.customerEmail || '(none)')
 
     const code = b.bookingCode || b.id.slice(0,8).toUpperCase()
-    const invoiceUrl = buildInvoiceUrl(b)
+    showAdminToast('Uploading invoice to cloud…', 'info')
+    const invoiceUrl = await buildInvoiceUrl(b)
 
     // Always show the share panel so admin can manually forward
-    showCheckoutSharePanel(b, invoiceUrl)
+    if (invoiceUrl) showCheckoutSharePanel(b, invoiceUrl)
 
     if (!b.customerEmail) {
       showAdminToast(`${b.customerName} checked out. Share the invoice via the panel ↗`, 'info')
