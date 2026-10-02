@@ -370,8 +370,9 @@
 
     /* PAYMENT STATUS CHIP */
     .pay-status-chip { font-size: .68rem; font-weight: 800; padding: 2px 8px; border-radius: 9999px; display: inline-block; margin-bottom: 6px; }
-    .pay-status-chip.paid   { background: rgba(21,128,61,.12); color: var(--success); border: 1px solid rgba(21,128,61,.3); }
-    .pay-status-chip.unpaid { background: rgba(180,83,9,.10);  color: var(--warning); border: 1px solid rgba(180,83,9,.25); }
+    .pay-status-chip.paid    { background: rgba(21,128,61,.12); color: var(--success); border: 1px solid rgba(21,128,61,.3); }
+    .pay-status-chip.unpaid  { background: rgba(180,83,9,.10);  color: var(--warning); border: 1px solid rgba(180,83,9,.25); }
+    .pay-status-chip.advance { background: rgba(99,102,241,.10); color: #6366f1; border: 1px solid rgba(99,102,241,.3); }
 
     /* SEARCH */
     .search-wrap { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
@@ -469,6 +470,44 @@
     .btn-wi-book { background: linear-gradient(135deg, #3B82F6, #2563EB); color: #fff; border: none; padding: 13px 44px; border-radius: 9999px; font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 8px; box-shadow: 0 4px 14px rgba(37,99,235,.50); }
     .btn-wi-book:hover { opacity: .88; }
     @media (max-width: 800px) { .wi-fp-grid { grid-template-columns: 1fr; } .wi-panel { padding: 18px 16px; } }
+
+    /* Walk-in outer grid (form + room status) */
+    .wi-outer-grid { display: flex; gap: 20px; align-items: flex-start; }
+    .wi-outer-grid .wi-fullpage-wrap { flex: 1; min-width: 0; max-width: none; }
+    @media (max-width: 1100px) { .wi-outer-grid { flex-direction: column; } }
+
+    /* Room Status Panel */
+    .wi-room-status { width: 268px; flex-shrink: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 16px; position: sticky; top: 76px; }
+    @media (max-width: 1100px) { .wi-room-status { width: 100%; position: static; } }
+    .wi-rs-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .wi-rs-header span:first-child { font-size: .9rem; font-weight: 800; }
+    .wi-rs-live { font-size: .68rem; font-weight: 700; color: var(--success); background: rgba(21,128,61,.10); border: 1px solid rgba(21,128,61,.3); border-radius: 9999px; padding: 2px 8px; animation: wi-pulse 2s infinite; }
+    @keyframes wi-pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+    .wi-rs-row { border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; transition: border-color .15s; }
+    .wi-rs-row:last-child { margin-bottom: 0; }
+    .wi-rs-clickable { cursor: pointer; }
+    .wi-rs-clickable:hover { border-color: var(--accent); background: rgba(99,102,241,.04); }
+    .wi-rs-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .wi-rs-name { font-size: .8rem; font-weight: 700; color: var(--text); }
+    .wi-rs-free { font-size: .68rem; font-weight: 800; color: var(--success); background: rgba(21,128,61,.10); border: 1px solid rgba(21,128,61,.3); border-radius: 9999px; padding: 2px 8px; white-space: nowrap; }
+    .wi-rs-occ  { font-size: .68rem; font-weight: 800; color: #b45309; background: rgba(180,83,9,.10); border: 1px solid rgba(180,83,9,.3); border-radius: 9999px; padding: 2px 8px; white-space: nowrap; }
+    .wi-rs-guest { font-size: .72rem; color: var(--muted); margin-top: 5px; padding-top: 5px; border-top: 1px solid var(--border); }
+    .wi-rs-footer { font-size: .72rem; color: var(--muted); text-align: center; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+
+    /* Checkout Balance Payment Modal */
+    .cop-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:9999; align-items:center; justify-content:center; }
+    .cop-overlay.open { display:flex; }
+    .cop-card { background:var(--surface); border-radius:14px; padding:28px 28px 24px; width:100%; max-width:380px; box-shadow:0 20px 60px rgba(0,0,0,.25); }
+    .cop-summary { background:var(--bg); border:1.5px solid var(--border); border-radius:10px; padding:14px 18px; margin-bottom:18px; }
+    .cop-row { display:flex; justify-content:space-between; align-items:center; font-size:.875rem; padding:4px 0; }
+    .cop-row span { color:var(--muted); }
+    .cop-balance { border-top:1.5px solid var(--border); margin-top:6px; padding-top:10px; font-size:1rem; }
+    .cop-balance span { color:var(--text); font-weight:700; }
+    .cop-balance strong { color:var(--accent); font-size:1.15rem; }
+    .cop-btns { display:flex; gap:10px; margin-top:20px; }
+    .btn-cop-cancel { flex:1; background:var(--bg); border:1.5px solid var(--border); border-radius:9999px; padding:10px; font-size:.875rem; font-weight:700; cursor:pointer; font-family:inherit; color:var(--text); }
+    .btn-cop-confirm { flex:2; background:linear-gradient(135deg,#3B82F6,#2563EB); color:#fff; border:none; border-radius:9999px; padding:10px; font-size:.875rem; font-weight:700; cursor:pointer; font-family:inherit; box-shadow:0 4px 12px rgba(37,99,235,.4); }
+    .btn-cop-confirm:hover { opacity:.88; }
 
     .admin-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
     .admin-section-title { font-size: 1.1rem; font-weight: 800; color: #1C1510; }
@@ -761,6 +800,7 @@
           <p style="font-size:.8rem;color:var(--muted);margin-top:4px">Front desk · Direct arrival · Instant check-in</p>
         </div>
       </div>
+      <div class="wi-outer-grid">
       <div class="wi-fullpage-wrap">
         <div class="wi-panel">
 
@@ -843,8 +883,19 @@
           <div class="wi-fp-grid">
             <div>
               <div class="wi-field" style="margin-bottom:12px">
-                <label>Final Amount (Rs.) *</label>
+                <label>Total Charge (Rs.) *</label>
                 <input type="number" id="wiAmount" min="0" step="1" placeholder="Edit to apply discount">
+              </div>
+              <div class="wi-field" style="margin-bottom:12px">
+                <label>Payment Type *</label>
+                <select id="wiPayType" onchange="toggleWiAdvance()">
+                  <option value="full">Full Payment</option>
+                  <option value="advance">Advance / Partial</option>
+                </select>
+              </div>
+              <div class="wi-field" id="wiAdvanceWrap" style="display:none;margin-bottom:12px">
+                <label>Advance Amount (Rs.) *</label>
+                <input type="number" id="wiAdvanceAmt" min="0" step="1" placeholder="Amount paid now">
               </div>
             </div>
             <div>
@@ -871,6 +922,19 @@
 
         </div><!-- end wi-panel -->
       </div><!-- end wi-fullpage-wrap -->
+
+      <!-- Room Status Panel -->
+      <div class="wi-room-status" id="wiRoomStatus">
+        <div class="wi-rs-header">
+          <span>🛏 Room Status</span>
+          <span class="wi-rs-live">● Live</span>
+        </div>
+        <div id="wiRsGrid">
+          <div style="font-size:.78rem;color:var(--muted);text-align:center;padding:20px 0">Loading…</div>
+        </div>
+      </div>
+
+      </div><!-- end wi-outer-grid -->
     </div><!-- end walkinView -->
 
   </div><!-- end admin-body -->
@@ -1051,6 +1115,33 @@
 </div>
 
 <!-- WALK-IN BOOKING MODAL -->
+
+<!-- CHECKOUT BALANCE PAYMENT MODAL -->
+<div class="cop-overlay" id="copModal">
+  <div class="cop-card">
+    <h3 style="margin:0 0 16px;font-size:1rem">💳 Collect Balance &amp; Checkout</h3>
+    <div class="cop-summary">
+      <div class="cop-row"><span>Total Charge</span><strong id="copTotal">Rs. 0</strong></div>
+      <div class="cop-row"><span>Advance Paid</span><strong id="copAdvance">Rs. 0</strong></div>
+      <div class="cop-row cop-balance"><span>Balance Due</span><strong id="copBalance">Rs. 0</strong></div>
+    </div>
+    <div class="wi-field" style="margin-bottom:12px">
+      <label>Payment Method for Balance *</label>
+      <select id="copMethod" onchange="toggleCopUtr()">
+        <option value="cash">Cash</option>
+        <option value="upi">UPI</option>
+      </select>
+    </div>
+    <div class="wi-field" id="copUtrWrap" style="display:none;margin-bottom:12px">
+      <label>UTR / Reference No. *</label>
+      <input type="text" id="copUtr" placeholder="UPI transaction reference">
+    </div>
+    <div class="cop-btns">
+      <button class="btn-cop-cancel" onclick="closeCopModal()">Cancel</button>
+      <button class="btn-cop-confirm" onclick="submitCheckoutPay()">✓ Collect &amp; Checkout</button>
+    </div>
+  </div>
+</div>
 
 <!-- CHECKOUT SHARE MODAL -->
 <div class="share-overlay" id="shareModal" onclick="if(event.target===this)closeShareModal()">
@@ -1242,6 +1333,7 @@
 
   function getPaymentStatus(b) {
     if (b.paymentStatus === 'paid') return 'paid'
+    if (b.paymentStatus === 'advance_paid') return 'advance_paid'
     if (b.status === 'paid') return 'paid'
     if (b.paymentMethod === 'razorpay' && b.paymentId && !b.paymentId.startsWith('UTR:')) return 'paid'
     return 'unpaid'
@@ -1311,8 +1403,9 @@
                         : b.status === 'checked_in'  ? 'Checked In'
                         : b.status.charAt(0).toUpperCase() + b.status.slice(1)
       const statusBadge = `<span class="badge badge-${b.status}">${statusLabel}</span>`
+      const _ps = getPaymentStatus(b)
       const payBadge = (b.status !== 'pending' && b.status !== 'rejected')
-        ? `<span class="pay-status-chip ${getPaymentStatus(b) === 'paid' ? 'paid' : 'unpaid'}">${getPaymentStatus(b) === 'paid' ? '✓ Paid' : 'Unpaid'}</span>`
+        ? `<span class="pay-status-chip ${_ps === 'paid' ? 'paid' : _ps === 'advance_paid' ? 'advance' : 'unpaid'}">${_ps === 'paid' ? '✓ Paid' : _ps === 'advance_paid' ? '⬤ Advance Paid' : 'Unpaid'}</span>`
         : ''
       const chipClass = b.paymentMethod || 'cash'
       const chipLabel = b.paymentMethod === 'razorpay' ? 'Razorpay'
@@ -1380,6 +1473,47 @@
         </div>`
     }).join('')
     refreshStayTimers()
+    renderWiRoomStatus()
+  }
+
+  function renderWiRoomStatus() {
+    const grid = document.getElementById('wiRsGrid')
+    if (!grid) return
+    const checkedIn = allBookings.filter(b => b.status === 'checked_in')
+    const rooms = window.ROOMS || []
+    const freeCount = rooms.filter(r => !checkedIn.some(b => b.roomId === r.id)).length
+
+    grid.innerHTML = rooms.map(r => {
+      const occupants = checkedIn.filter(b => b.roomId === r.id)
+      const occupied  = occupants.length > 0
+      const badge = occupied
+        ? `<span class="wi-rs-occ">● Occupied</span>`
+        : `<span class="wi-rs-free">✓ Free</span>`
+      const guests = occupants.map(b => {
+        const rm = b.roomNumber && b.roomNumber !== '—' ? ' · Rm ' + b.roomNumber : ''
+        return `<div class="wi-rs-guest">👤 ${b.customerName}${rm}</div>`
+      }).join('')
+      const clickAttr = occupied ? '' : `onclick="wiSelectRoom('${r.id}')" title="Click to select this room type"`
+      return `<div class="wi-rs-row${occupied ? '' : ' wi-rs-clickable'}" ${clickAttr}>
+        <div class="wi-rs-top">
+          <span class="wi-rs-name">${r.emoji||'🛏'} ${r.name}</span>
+          ${badge}
+        </div>
+        ${guests}
+      </div>`
+    }).join('')
+
+    const footer = `<div class="wi-rs-footer">${freeCount} of ${rooms.length} room type${rooms.length !== 1 ? 's' : ''} free · Click free room to select</div>`
+    grid.insertAdjacentHTML('beforeend', footer)
+  }
+
+  function wiSelectRoom(roomId) {
+    const sel = document.getElementById('wiRoomType')
+    if (!sel) return
+    sel.value = roomId
+    updateWiAmount()
+    sel.focus()
+    sel.closest('.wi-field').scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
   function buildActions(b) {
@@ -1419,15 +1553,18 @@
         </div>`
     }
     if (b.status === 'checked_in') {
-      const markLabel = b.paymentMethod === 'razorpay' ? '✓ Confirm Razorpay'
-                      : b.paymentMethod === 'upi'      ? '✓ Confirm UPI'
-                      : '✓ Mark Paid'
-      const isPaid = getPaymentStatus(b) === 'paid'
+      const _payStatus = getPaymentStatus(b)
+      const markLabel  = b.paymentMethod === 'razorpay' ? '✓ Confirm Razorpay'
+                       : b.paymentMethod === 'upi'      ? '✓ Confirm UPI'
+                       : '✓ Mark Paid'
+      const payWidget  = _payStatus === 'paid'
+        ? `<span style="font-size:.78rem;color:var(--success);font-weight:700;padding:0 4px">✓ Paid</span>`
+        : _payStatus === 'advance_paid'
+          ? `<span style="font-size:.78rem;color:#6366f1;font-weight:700;padding:0 4px">⬤ Advance — Balance at Checkout</span>`
+          : `<button class="btn-ac-primary" onclick="markAsPaid('${id}')">${markLabel}</button>`
       return `
         <button class="btn-ac-primary dark" onclick="checkoutBooking('${id}')">🚪 Checkout</button>
-        ${!isPaid
-          ? `<button class="btn-ac-primary" onclick="markAsPaid('${id}')">${markLabel}</button>`
-          : `<span style="font-size:.78rem;color:var(--success);font-weight:700;padding:0 4px">✓ Paid</span>`}
+        ${payWidget}
         <div class="bc-actions-right">
           <button class="btn-ac-icon wa" onclick="sendWhatsApp('${id}')">💬</button>
           <button class="btn-ac-icon invoice" onclick="downloadInvoice('${id}')">📄 Invoice</button>
@@ -1542,6 +1679,7 @@
       sel.appendChild(o)
     })
     resetWiForm()
+    renderWiRoomStatus()
   }
 
   function resetWiForm() {
@@ -1558,11 +1696,19 @@
     document.getElementById('wiGuests').value       = 1
     document.getElementById('wiIdType').value       = ''
     document.getElementById('wiIdNumber').value     = ''
+    document.getElementById('wiPayType').value      = 'full'
+    document.getElementById('wiAdvanceAmt').value   = ''
+    document.getElementById('wiAdvanceWrap').style.display = 'none'
     document.getElementById('wiPayMethod').value    = 'cash'
     document.getElementById('wiUtr').value          = ''
     document.getElementById('wiUtrWrap').style.display = 'none'
     document.getElementById('wiNotes').value        = ''
     updateWiAmount()
+  }
+
+  function toggleWiAdvance() {
+    const isAdvance = document.getElementById('wiPayType').value === 'advance'
+    document.getElementById('wiAdvanceWrap').style.display = isAdvance ? 'block' : 'none'
   }
 
   function updateWiAmount() {
@@ -1601,10 +1747,12 @@
     const guests    = parseInt(document.getElementById('wiGuests').value) || 1
     const idType    = document.getElementById('wiIdType').value
     const idNum     = document.getElementById('wiIdNumber').value.trim()
-    const amount    = parseFloat(document.getElementById('wiAmount').value) || 0
-    const payMethod = document.getElementById('wiPayMethod').value
-    const utr       = document.getElementById('wiUtr').value.trim()
-    const notes     = document.getElementById('wiNotes').value.trim()
+    const amount     = parseFloat(document.getElementById('wiAmount').value) || 0
+    const payType    = document.getElementById('wiPayType').value
+    const advanceAmt = payType === 'advance' ? (parseFloat(document.getElementById('wiAdvanceAmt').value) || 0) : 0
+    const payMethod  = document.getElementById('wiPayMethod').value
+    const utr        = document.getElementById('wiUtr').value.trim()
+    const notes      = document.getElementById('wiNotes').value.trim()
 
     if (!roomId)      { showAdminToast('Select a room type', 'error'); return }
     if (!ci || !co)   { showAdminToast('Select check-in and check-out dates', 'error'); return }
@@ -1613,10 +1761,15 @@
     if (!name)        { showAdminToast('Enter guest name', 'error'); return }
     if (!phone)       { showAdminToast('Enter guest phone number', 'error'); return }
     if (amount <= 0)  { showAdminToast('Enter a valid amount', 'error'); return }
+    if (payType === 'advance') {
+      if (advanceAmt <= 0)      { showAdminToast('Enter the advance amount paid now', 'error'); return }
+      if (advanceAmt >= amount) { showAdminToast('Advance must be less than total — use Full Payment instead', 'error'); return }
+    }
     if (payMethod === 'upi' && !utr) { showAdminToast('Enter UTR / reference number for UPI', 'error'); return }
 
-    const code   = 'JP-W' + Math.random().toString(36).slice(2, 8).toUpperCase()
-    const payRef = payMethod === 'upi' ? 'UTR:' + utr : 'CASH-' + Date.now()
+    const isAdvance = payType === 'advance'
+    const code      = 'JP-W' + Math.random().toString(36).slice(2, 8).toUpperCase()
+    const payRef    = payMethod === 'upi' ? 'UTR:' + utr : 'CASH-' + Date.now()
 
     const booking = {
       bookingCode: code, source: 'walkin',
@@ -1624,25 +1777,38 @@
       pricePerNight: ppn, nights, checkIn: ci, checkOut: co,
       customerName: name, customerPhone: phone, customerEmail: email,
       guests, idType, idNumber: idNum,
-      status: 'checked_in', paymentStatus: 'paid',
-      paymentMethod: payMethod, paymentId: payRef, totalAmount: amount,
+      status: 'checked_in',
+      paymentStatus: isAdvance ? 'advance_paid' : 'paid',
+      totalAmount: amount,
       specialRequests: notes,
-      checkedInAt:  firebase.firestore.FieldValue.serverTimestamp(),
-      paidAt:       firebase.firestore.FieldValue.serverTimestamp(),
-      createdAt:    firebase.firestore.FieldValue.serverTimestamp(),
+      checkedInAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdAt:   firebase.firestore.FieldValue.serverTimestamp(),
+    }
+    if (isAdvance) {
+      booking.advancePaid          = advanceAmt
+      booking.advancePaymentMethod = payMethod
+      booking.advancePaymentRef    = payRef
+    } else {
+      booking.paymentMethod = payMethod
+      booking.paymentId     = payRef
+      booking.paidAt        = firebase.firestore.FieldValue.serverTimestamp()
     }
 
     const btn = document.querySelector('.btn-wi-book')
     btn.disabled = true; btn.textContent = 'Saving…'
 
     db.collection('bookings').add(booking).then(ref => {
+      const now = Date.now() / 1000
       const local = { id: ref.id, ...booking,
-        checkedInAt: { seconds: Date.now() / 1000 },
-        paidAt:      { seconds: Date.now() / 1000 },
-        createdAt:   { seconds: Date.now() / 1000 } }
+        checkedInAt: { seconds: now },
+        createdAt:   { seconds: now },
+        ...(isAdvance ? {} : { paidAt: { seconds: now } }) }
       allBookings.unshift(local)
       resetWiForm()
-      showAdminToast(`Walk-in ${code} saved! Use Invoice button to download PDF.`, 'success')
+      const msg = isAdvance
+        ? `Walk-in ${code} saved! Balance Rs. ${(amount - advanceAmt).toLocaleString('en-IN')} due at checkout.`
+        : `Walk-in ${code} saved! Use Invoice button to download PDF.`
+      showAdminToast(msg, 'success')
     }).catch(err => {
       showAdminToast('Failed: ' + err.message, 'error')
     }).finally(() => { btn.disabled = false; btn.textContent = '✓ Book Walk-in' })
@@ -1725,12 +1891,86 @@
   // ── Checkout Guest ───────────────────────────────────────────
   function checkoutBooking(id) {
     const b = allBookings.find(x => x.id === id)
+    if (!b) return
+    if (b.paymentStatus === 'advance_paid') {
+      openCheckoutPayModal(id)
+      return
+    }
     if (!confirm(`Mark checkout for ${b.customerName}?\nThis will deactivate their booking tracker.`)) return
     db.collection('bookings').doc(id).update({ status: 'checked_out', checkedOutAt: firebase.firestore.FieldValue.serverTimestamp() })
       .then(async () => {
         const checkedOut = { ...b, status: 'checked_out' }
         await sendCheckoutEmailWithPDF(checkedOut)
       })
+  }
+
+  // ── Checkout Balance Payment Modal ───────────────────────────
+  let _copBookingId = null
+
+  function openCheckoutPayModal(id) {
+    const b = allBookings.find(x => x.id === id)
+    if (!b) return
+    _copBookingId = id
+    const advance = b.advancePaid || 0
+    const balance = (b.totalAmount || 0) - advance
+    document.getElementById('copTotal').textContent   = 'Rs. ' + (b.totalAmount || 0).toLocaleString('en-IN')
+    document.getElementById('copAdvance').textContent = 'Rs. ' + advance.toLocaleString('en-IN')
+    document.getElementById('copBalance').textContent = 'Rs. ' + balance.toLocaleString('en-IN')
+    document.getElementById('copMethod').value = 'cash'
+    document.getElementById('copUtr').value    = ''
+    document.getElementById('copUtrWrap').style.display = 'none'
+    document.getElementById('copModal').classList.add('open')
+  }
+
+  function closeCopModal() {
+    document.getElementById('copModal').classList.remove('open')
+    _copBookingId = null
+  }
+
+  function toggleCopUtr() {
+    document.getElementById('copUtrWrap').style.display =
+      document.getElementById('copMethod').value === 'upi' ? 'block' : 'none'
+  }
+
+  async function submitCheckoutPay() {
+    const id     = _copBookingId
+    const b      = allBookings.find(x => x.id === id)
+    if (!b) return
+    const method = document.getElementById('copMethod').value
+    const utr    = document.getElementById('copUtr').value.trim()
+    if (method === 'upi' && !utr) { showAdminToast('Enter UTR for UPI payment', 'error'); return }
+
+    const payRef      = method === 'upi' ? 'UTR:' + utr : 'CASH-' + Date.now()
+    const balancePaid = (b.totalAmount || 0) - (b.advancePaid || 0)
+
+    const btn = document.querySelector('.btn-cop-confirm')
+    btn.disabled = true; btn.textContent = 'Processing…'
+
+    try {
+      await db.collection('bookings').doc(id).update({
+        status:               'checked_out',
+        paymentStatus:        'paid',
+        paymentMethod:        method,
+        paymentId:            payRef,
+        balancePaid,
+        balancePaymentMethod: method,
+        balancePaymentRef:    payRef,
+        balancePaidAt:        firebase.firestore.FieldValue.serverTimestamp(),
+        paidAt:               firebase.firestore.FieldValue.serverTimestamp(),
+        checkedOutAt:         firebase.firestore.FieldValue.serverTimestamp(),
+      })
+      closeCopModal()
+      const checkedOut = {
+        ...b, status: 'checked_out', paymentStatus: 'paid',
+        paymentMethod: method, balancePaid,
+        balancePaymentMethod: method, balancePaymentRef: payRef,
+      }
+      await sendCheckoutEmailWithPDF(checkedOut)
+    } catch (e) {
+      showAdminToast('Checkout failed: ' + e.message, 'error')
+    } finally {
+      btn.disabled = false; btn.textContent = '✓ Collect & Checkout'
+    }
   }
 
   // Build guest invoice link — uploads PDF to Firebase Storage, valid for 48 hours
@@ -2120,7 +2360,12 @@
     }
     const nights        = b.nights || 1
     const pricePerNight = Math.round(taxable / nights)
-    const received      = isPaid ? total : 0
+    const cgst          = Math.round(gstAmt / 2)
+    const sgst          = gstAmt - cgst
+    const advancePaid   = b.advancePaid || 0
+    const hasAdvance    = advancePaid > 0
+    const balancePaid   = b.balancePaid || (isPaid && hasAdvance ? total - advancePaid : 0)
+    const received      = isPaid ? total : advancePaid
     const balance       = total - received
     const pmLabel       = {razorpay:'Online (Razorpay)', upi:'UPI', cash:'Cash at Hotel'}
     const now           = new Date()
@@ -2239,7 +2484,9 @@
 
     // Data row
     const IRH = 16
-    const gstLabel = gstAmt > 0 ? rs(gstAmt)+'\n('+gstRate.toFixed(1)+'%)' : 'Nil'
+    const gstLabel = gstAmt > 0
+      ? 'CGST: '+rs(cgst)+'\nSGST: '+rs(sgst)
+      : 'Nil'
     const rowVals = ['1', null, String(nights), nights>1?'Nights':'Night', rs(pricePerNight), gstLabel, rs(total)]
     tx = M
     tCols.forEach((c,ci) => {
@@ -2267,17 +2514,31 @@
     // ── Summary (right side, below items) ─────────────────────
     const SUMX = M + IW - tCols[5].w - tCols[6].w  // left edge of GST column
 
-    // Sub Total
+    // Taxable Value
     doc.setLineWidth(0.15); doc.line(M, y, M+IW, y)
     doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...MG)
-    doc.text('Sub Total', SUMX+2, y+5.5)
+    doc.text('Taxable Value', SUMX+2, y+5.5)
     doc.text(':', SUMX+23, y+5.5)
-    doc.setTextColor(...BK); doc.text(rs(total), M+IW-2, y+5.5, {align:'right'}); y += 7
+    doc.setTextColor(...BK); doc.text(rs(taxable), M+IW-2, y+5.5, {align:'right'}); y += 7
 
-    // Total
+    // CGST
+    doc.setLineWidth(0.15); doc.line(M, y, M+IW, y)
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...MG)
+    doc.text('CGST (2.5%)', SUMX+2, y+5.5)
+    doc.text(':', SUMX+23, y+5.5)
+    doc.setTextColor(...BK); doc.text(rs(cgst), M+IW-2, y+5.5, {align:'right'}); y += 7
+
+    // SGST
+    doc.setLineWidth(0.15); doc.line(M, y, M+IW, y)
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...MG)
+    doc.text('SGST (2.5%)', SUMX+2, y+5.5)
+    doc.text(':', SUMX+23, y+5.5)
+    doc.setTextColor(...BK); doc.text(rs(sgst), M+IW-2, y+5.5, {align:'right'}); y += 7
+
+    // Total Amount
     doc.setLineWidth(0.15); doc.line(M, y, M+IW, y)
     doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(...BK)
-    doc.text('Total', SUMX+2, y+6)
+    doc.text('Total Amount', SUMX+2, y+6)
     doc.text(':', SUMX+23, y+6)
     doc.text(rs(total), M+IW-2, y+6, {align:'right'}); y += 8
 
@@ -2290,11 +2551,28 @@
     wLines.forEach((l,i) => doc.text(l, SUMX+2, y+5+4.5*(i+1)))
     y += 5 + wLines.length*4.5 + 2
 
-    // Received
-    doc.setLineWidth(0.15); doc.line(M, y, M+IW, y)
-    doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...MG)
-    doc.text('Received', SUMX+2, y+5.5); doc.text(':', SUMX+23, y+5.5)
-    doc.setTextColor(...BK); doc.text(rs(received), M+IW-2, y+5.5, {align:'right'}); y += 7
+    // Payment rows — show advance/balance split when applicable
+    if (hasAdvance) {
+      doc.setLineWidth(0.15); doc.line(M, y, M+IW, y)
+      doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...MG)
+      doc.text('Advance Paid', SUMX+2, y+5.5); doc.text(':', SUMX+23, y+5.5)
+      doc.setTextColor(...BK); doc.text(rs(advancePaid), M+IW-2, y+5.5, {align:'right'}); y += 7
+
+      doc.setLineWidth(0.15); doc.line(M, y, M+IW, y)
+      doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...MG)
+      doc.text('Balance Paid', SUMX+2, y+5.5); doc.text(':', SUMX+23, y+5.5)
+      doc.setTextColor(...BK); doc.text(rs(balancePaid), M+IW-2, y+5.5, {align:'right'}); y += 7
+
+      doc.setLineWidth(0.15); doc.line(M, y, M+IW, y)
+      doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...MG)
+      doc.text('Total Received', SUMX+2, y+5.5); doc.text(':', SUMX+23, y+5.5)
+      doc.setTextColor(...BK); doc.text(rs(advancePaid + balancePaid), M+IW-2, y+5.5, {align:'right'}); y += 7
+    } else {
+      doc.setLineWidth(0.15); doc.line(M, y, M+IW, y)
+      doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...MG)
+      doc.text('Received', SUMX+2, y+5.5); doc.text(':', SUMX+23, y+5.5)
+      doc.setTextColor(...BK); doc.text(rs(received), M+IW-2, y+5.5, {align:'right'}); y += 7
+    }
 
     // Balance
     doc.setLineWidth(0.15); doc.line(M, y, M+IW, y)
@@ -2307,8 +2585,16 @@
     doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...BK)
     doc.text('Payment Mode:', M+2, y+5)
     doc.setFont('helvetica','normal')
-    doc.text(pmLabel[b.paymentMethod]||b.paymentMethod||'—', M+2, y+12)
-    y += 19
+    if (hasAdvance) {
+      const advLabel = pmLabel[b.advancePaymentMethod] || b.advancePaymentMethod || 'Cash at Hotel'
+      const balLabel = pmLabel[b.balancePaymentMethod]  || b.balancePaymentMethod  || '—'
+      doc.text('Advance: ' + advLabel, M+2, y+12)
+      doc.text('Balance: ' + balLabel, M+2, y+18)
+      y += 25
+    } else {
+      doc.text(pmLabel[b.paymentMethod]||b.paymentMethod||'—', M+2, y+12)
+      y += 19
+    }
 
     // ── Description ───────────────────────────────────────────
     doc.setLineWidth(0.3); doc.line(M, y, M+IW, y); y += 3

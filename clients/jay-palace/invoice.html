@@ -167,9 +167,14 @@ function buildInvoice(b, logoBase64) {
   const gstRate  = H.gstRate || 0
   let taxable = total, gstAmt = 0
   if (H.gstIncluded && gstRate > 0) { taxable = Math.round(total * 100 / (100 + gstRate)); gstAmt = total - taxable }
+  const cgst          = Math.round(gstAmt / 2)
+  const sgst          = gstAmt - cgst
   const nights        = b.nights || 1
   const pricePerNight = Math.round(taxable / nights)
-  const received      = isPaid ? total : 0
+  const advancePaid   = b.advancePaid || 0
+  const hasAdvance    = advancePaid > 0
+  const balancePaid   = b.balancePaid || (isPaid && hasAdvance ? total - advancePaid : 0)
+  const received      = isPaid ? total : advancePaid
   const balance       = total - received
   const pmLabel       = {razorpay:'Online (Razorpay)', upi:'UPI', cash:'Cash at Hotel'}
   const code          = b.bookingCode || 'INV'
@@ -266,7 +271,7 @@ function buildInvoice(b, logoBase64) {
   y += 8
 
   const IRH=16
-  const gstLabel = gstAmt>0 ? rs(gstAmt)+'\n('+gstRate.toFixed(1)+'%)' : 'Nil'
+  const gstLabel = gstAmt>0 ? 'CGST: '+rs(cgst)+'\nSGST: '+rs(sgst) : 'Nil'
   const rowVals = ['1',null,String(nights),nights>1?'Nights':'Night',rs(pricePerNight),gstLabel,rs(total)]
   tx = M
   tCols.forEach((c,ci) => {
@@ -287,17 +292,30 @@ function buildInvoice(b, logoBase64) {
   y += IRH
 
   const SUMX = M+IW-tCols[5].w-tCols[6].w
-  const sumRows = [
-    ['Sub Total', rs(total), false, 7],
-    ['Total',     rs(total), true,  8],
-  ]
-  sumRows.forEach(([lbl,val,bold,rh]) => {
-    doc.setLineWidth(0.15); doc.line(M,y,M+IW,y)
-    doc.setFont('helvetica',bold?'bold':'normal'); doc.setFontSize(bold?8.5:7.5)
-    doc.setTextColor(bold?BK:MG)
-    doc.text(lbl, SUMX+2, y+rh/2+2); doc.text(':', SUMX+23, y+rh/2+2)
-    doc.setTextColor(...BK); doc.text(val, M+IW-2, y+rh/2+2, {align:'right'}); y += rh
-  })
+
+  // Taxable Value
+  doc.setLineWidth(0.15); doc.line(M,y,M+IW,y)
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...MG)
+  doc.text('Taxable Value', SUMX+2, y+5.5); doc.text(':', SUMX+23, y+5.5)
+  doc.setTextColor(...BK); doc.text(rs(taxable), M+IW-2, y+5.5, {align:'right'}); y += 7
+
+  // CGST
+  doc.setLineWidth(0.15); doc.line(M,y,M+IW,y)
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...MG)
+  doc.text('CGST (2.5%)', SUMX+2, y+5.5); doc.text(':', SUMX+23, y+5.5)
+  doc.setTextColor(...BK); doc.text(rs(cgst), M+IW-2, y+5.5, {align:'right'}); y += 7
+
+  // SGST
+  doc.setLineWidth(0.15); doc.line(M,y,M+IW,y)
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...MG)
+  doc.text('SGST (2.5%)', SUMX+2, y+5.5); doc.text(':', SUMX+23, y+5.5)
+  doc.setTextColor(...BK); doc.text(rs(sgst), M+IW-2, y+5.5, {align:'right'}); y += 7
+
+  // Total Amount
+  doc.setLineWidth(0.15); doc.line(M,y,M+IW,y)
+  doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(...BK)
+  doc.text('Total Amount', SUMX+2, y+6); doc.text(':', SUMX+23, y+6)
+  doc.text(rs(total), M+IW-2, y+6, {align:'right'}); y += 8
 
   doc.setLineWidth(0.15); doc.line(M,y,M+IW,y)
   doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...BK)
@@ -307,19 +325,43 @@ function buildInvoice(b, logoBase64) {
   wLines.forEach((l,i) => doc.text(l, SUMX+2, y+5+4.5*(i+1)))
   y += 5+wLines.length*4.5+2
 
-  ;[['Received', rs(received)],['Balance', rs(balance)]].forEach(([lbl,val]) => {
+  if (hasAdvance) {
+    ;[['Advance Paid', rs(advancePaid)],['Balance Paid', rs(balancePaid)]].forEach(([lbl,val]) => {
+      doc.setLineWidth(0.15); doc.line(M,y,M+IW,y)
+      doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...MG)
+      doc.text(lbl, SUMX+2, y+5.5); doc.text(':', SUMX+23, y+5.5)
+      doc.setTextColor(...BK); doc.text(val, M+IW-2, y+5.5, {align:'right'}); y += 7
+    })
+    doc.setLineWidth(0.15); doc.line(M,y,M+IW,y)
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...MG)
+    doc.text('Total Received', SUMX+2, y+5.5); doc.text(':', SUMX+23, y+5.5)
+    doc.setTextColor(...BK); doc.text(rs(advancePaid+balancePaid), M+IW-2, y+5.5, {align:'right'}); y += 7
+  } else {
     doc.setLineWidth(0.15); doc.line(M,y,M+IW,y)
     doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...MG)
-    doc.text(lbl, SUMX+2, y+5.5); doc.text(':', SUMX+23, y+5.5)
-    doc.setTextColor(...BK); doc.text(val, M+IW-2, y+5.5, {align:'right'}); y += 7
-  })
+    doc.text('Received', SUMX+2, y+5.5); doc.text(':', SUMX+23, y+5.5)
+    doc.setTextColor(...BK); doc.text(rs(received), M+IW-2, y+5.5, {align:'right'}); y += 7
+  }
+
+  doc.setLineWidth(0.15); doc.line(M,y,M+IW,y)
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...MG)
+  doc.text('Balance', SUMX+2, y+5.5); doc.text(':', SUMX+23, y+5.5)
+  doc.setTextColor(...BK); doc.text(rs(balance), M+IW-2, y+5.5, {align:'right'}); y += 7
 
   doc.setLineWidth(0.5); doc.line(M,y,M+IW,y); y += 3
   doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...BK)
   doc.text('Payment Mode:', M+2, y+5)
   doc.setFont('helvetica','normal')
-  doc.text(pmLabel[b.paymentMethod]||b.paymentMethod||'—', M+2, y+12)
-  y += 19
+  if (hasAdvance) {
+    const advLabel = pmLabel[b.advancePaymentMethod]||b.advancePaymentMethod||'Cash at Hotel'
+    const balLabel = pmLabel[b.balancePaymentMethod]||b.balancePaymentMethod||'—'
+    doc.text('Advance: '+advLabel, M+2, y+12)
+    doc.text('Balance: '+balLabel, M+2, y+18)
+    y += 25
+  } else {
+    doc.text(pmLabel[b.paymentMethod]||b.paymentMethod||'—', M+2, y+12)
+    y += 19
+  }
 
   doc.setLineWidth(0.3); doc.line(M,y,M+IW,y); y += 3
   doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...BK)
