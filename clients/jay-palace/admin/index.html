@@ -493,6 +493,16 @@
     .wi-rs-occ  { font-size: .68rem; font-weight: 800; color: #b45309; background: rgba(180,83,9,.10); border: 1px solid rgba(180,83,9,.3); border-radius: 9999px; padding: 2px 8px; white-space: nowrap; }
     .wi-rs-guest { font-size: .72rem; color: var(--muted); margin-top: 5px; padding-top: 5px; border-top: 1px solid var(--border); }
     .wi-rs-footer { font-size: .72rem; color: var(--muted); text-align: center; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+    .wi-rs-numgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+    .wi-rs-num { border: 1.5px solid var(--border); border-radius: 9px; padding: 9px 10px; text-align: center; }
+    .wi-rs-num.wi-rs-clickable { cursor: pointer; }
+    .wi-rs-num.wi-rs-clickable:hover { border-color: var(--accent); background: rgba(99,102,241,.05); }
+    .wi-rs-num-occ { border-color: rgba(180,83,9,.35) !important; background: rgba(180,83,9,.05); }
+    .wi-rs-num-label { font-size: .78rem; font-weight: 800; color: var(--text); }
+    .wi-rs-num-status { font-size: .65rem; font-weight: 700; margin-top: 3px; }
+    .wi-rs-num:not(.wi-rs-num-occ) .wi-rs-num-status { color: var(--success); }
+    .wi-rs-num-occ .wi-rs-num-status { color: #b45309; }
+    .wi-rs-num-guest { font-size: .62rem; color: var(--muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     /* Checkout Balance Payment Modal */
     .cop-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:9999; align-items:center; justify-content:center; }
@@ -1480,40 +1490,32 @@
     const grid = document.getElementById('wiRsGrid')
     if (!grid) return
     const checkedIn = allBookings.filter(b => b.status === 'checked_in')
-    const rooms = window.ROOMS || []
-    const freeCount = rooms.filter(r => !checkedIn.some(b => b.roomId === r.id)).length
+    const ROOM_NUMS = Array.from({length: 10}, (_, i) => String(101 + i))
+    const freeCount = ROOM_NUMS.filter(n => !checkedIn.some(b => b.roomNumber === n)).length
 
-    grid.innerHTML = rooms.map(r => {
-      const occupants = checkedIn.filter(b => b.roomId === r.id)
-      const occupied  = occupants.length > 0
-      const badge = occupied
-        ? `<span class="wi-rs-occ">● Occupied</span>`
-        : `<span class="wi-rs-free">✓ Free</span>`
-      const guests = occupants.map(b => {
-        const rm = b.roomNumber && b.roomNumber !== '—' ? ' · Rm ' + b.roomNumber : ''
-        return `<div class="wi-rs-guest">👤 ${b.customerName}${rm}</div>`
+    grid.innerHTML = `<div class="wi-rs-numgrid">${
+      ROOM_NUMS.map(n => {
+        const booking  = checkedIn.find(b => b.roomNumber === n)
+        const occupied = !!booking
+        return `<div class="wi-rs-num${occupied ? ' wi-rs-num-occ' : ' wi-rs-clickable'}"
+          ${occupied ? '' : `onclick="wiSelectRoomNum('${n}')" title="Room ${n} — click to fill"`}>
+          <div class="wi-rs-num-label">Rm ${n}</div>
+          <div class="wi-rs-num-status">${occupied ? '● Occupied' : '✓ Free'}</div>
+          ${occupied ? `<div class="wi-rs-num-guest">${booking.customerName}</div>` : ''}
+        </div>`
       }).join('')
-      const clickAttr = occupied ? '' : `onclick="wiSelectRoom('${r.id}')" title="Click to select this room type"`
-      return `<div class="wi-rs-row${occupied ? '' : ' wi-rs-clickable'}" ${clickAttr}>
-        <div class="wi-rs-top">
-          <span class="wi-rs-name">${r.emoji||'🛏'} ${r.name}</span>
-          ${badge}
-        </div>
-        ${guests}
-      </div>`
-    }).join('')
+    }</div>`
 
-    const footer = `<div class="wi-rs-footer">${freeCount} of ${rooms.length} room type${rooms.length !== 1 ? 's' : ''} free · Click free room to select</div>`
+    const footer = `<div class="wi-rs-footer">${freeCount} of ${ROOM_NUMS.length} rooms free · Click free room to fill number</div>`
     grid.insertAdjacentHTML('beforeend', footer)
   }
 
-  function wiSelectRoom(roomId) {
-    const sel = document.getElementById('wiRoomType')
-    if (!sel) return
-    sel.value = roomId
-    updateWiAmount()
-    sel.focus()
-    sel.closest('.wi-field').scrollIntoView({ behavior: 'smooth', block: 'center' })
+  function wiSelectRoomNum(num) {
+    const inp = document.getElementById('wiRoomNumber')
+    if (!inp) return
+    inp.value = num
+    inp.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    inp.focus()
   }
 
   function buildActions(b) {
