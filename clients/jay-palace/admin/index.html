@@ -1542,7 +1542,6 @@
         ${showCollect ? `<button class="btn-ac-icon" onclick="openPayModal('${id}')">💳 Collect Online</button>` : ''}
         <div class="bc-actions-right">
           <button class="btn-ac-icon wa" onclick="sendWhatsApp('${id}')">💬</button>
-          <button class="btn-ac-icon invoice" onclick="downloadInvoice('${id}')">📄 Invoice</button>
           <button class="btn-ac-icon share" onclick="openSharePanel('${id}')">📤 Share</button>
         </div>`
     }
@@ -1551,7 +1550,6 @@
         <button class="btn-ac-primary blue" onclick="openCheckinModal('${id}')">🏨 Check In</button>
         <div class="bc-actions-right">
           <button class="btn-ac-icon wa" onclick="sendWhatsApp('${id}')">💬 WhatsApp</button>
-          <button class="btn-ac-icon invoice" onclick="downloadInvoice('${id}')">📄 Invoice</button>
           <button class="btn-ac-icon share" onclick="openSharePanel('${id}')">📤 Share</button>
         </div>`
     }
@@ -1570,7 +1568,6 @@
         ${payWidget}
         <div class="bc-actions-right">
           <button class="btn-ac-icon wa" onclick="sendWhatsApp('${id}')">💬</button>
-          <button class="btn-ac-icon invoice" onclick="downloadInvoice('${id}')">📄 Invoice</button>
           <button class="btn-ac-icon share" onclick="openSharePanel('${id}')">📤 Share</button>
         </div>`
     }
@@ -1810,7 +1807,7 @@
       resetWiForm()
       const msg = isAdvance
         ? `Walk-in ${code} saved! Balance Rs. ${(amount - advanceAmt).toLocaleString('en-IN')} due at checkout.`
-        : `Walk-in ${code} saved! Use Invoice button to download PDF.`
+        : `Walk-in ${code} saved! Invoice will be available after checkout.`
       showAdminToast(msg, 'success')
     }).catch(err => {
       showAdminToast('Failed: ' + err.message, 'error')
