@@ -1064,7 +1064,8 @@
       <button class="share-close" onclick="closeShareModal()">✕</button>
     </div>
     <p class="share-desc">Share the invoice link with the guest via WhatsApp or email, or copy the link.</p>
-    <div class="share-url-row">
+    <p id="shareNoLinkNote" style="display:none;font-size:.82rem;color:#b45309;background:#fef3c7;border-radius:8px;padding:10px 12px;margin-bottom:12px;"></p>
+    <div class="share-url-row" id="shareUrlRow">
       <input id="shareUrlInput" class="share-url-input" readonly type="text" placeholder="Invoice link…" />
       <button class="share-copy-btn" id="shareCopyBtn" onclick="copyShareUrl()">Copy</button>
     </div>
@@ -1779,22 +1780,40 @@
     const code = b.bookingCode || b.id.slice(0,8).toUpperCase()
     document.getElementById('shareName').textContent = b.customerName || 'Guest'
     document.getElementById('shareCode').textContent = 'Booking ' + code
-    document.getElementById('shareUrlInput').value   = invoiceUrl
+    document.getElementById('shareUrlInput').value = invoiceUrl
 
-    // WhatsApp — send to guest phone if available, else hotel WhatsApp
-    const waNum = (b.customerPhone || '').replace(/\D/g, '') || (HOTEL.whatsapp || '')
-    const waMsg = `Dear ${b.customerName},\n\nThank you for staying at *Hotel Jay Palace*, Saraipali! 🙏\n\n📄 Your invoice: ${invoiceUrl}\n\nWe hope to see you again soon!\n\n– Hotel Jay Palace`
-    document.getElementById('shareWaBtn').href = 'https://wa.me/' + waNum + '?text=' + encodeURIComponent(waMsg)
+    const hasUrl = !!invoiceUrl
 
-    // Email mailto
-    const mailSub = encodeURIComponent('Invoice ' + code + ' — Hotel Jay Palace')
-    const mailBody = encodeURIComponent(
-      'Dear ' + (b.customerName || 'Guest') + ',\n\n' +
-      'Thank you for your stay at Hotel Jay Palace, Saraipali.\n\n' +
-      'Please find your invoice here:\n' + invoiceUrl + '\n\n' +
-      'Best regards,\nHotel Jay Palace\n' + (HOTEL.phone || '')
-    )
-    document.getElementById('shareMailBtn').href = 'mailto:' + (b.customerEmail || '') + '?subject=' + mailSub + '&body=' + mailBody
+    // Show/hide share buttons depending on whether a valid invoice link exists
+    document.getElementById('shareWaBtn').style.display   = hasUrl ? '' : 'none'
+    document.getElementById('shareMailBtn').style.display = hasUrl ? '' : 'none'
+    document.getElementById('shareUrlRow').style.display  = hasUrl ? '' : 'none'
+
+    if (hasUrl) {
+      // WhatsApp — send to guest phone if available, else hotel WhatsApp
+      const waNum = (b.customerPhone || '').replace(/\D/g, '') || (HOTEL.whatsapp || '')
+      const waMsg = `Dear ${b.customerName},\n\nThank you for staying at *Hotel Jay Palace*, Saraipali! 🙏\n\n📄 Your invoice: ${invoiceUrl}\n\nWe hope to see you again soon!\n\n– Hotel Jay Palace`
+      document.getElementById('shareWaBtn').href = 'https://wa.me/' + waNum + '?text=' + encodeURIComponent(waMsg)
+
+      // Email mailto
+      const mailSub = encodeURIComponent('Invoice ' + code + ' — Hotel Jay Palace')
+      const mailBody = encodeURIComponent(
+        'Dear ' + (b.customerName || 'Guest') + ',\n\n' +
+        'Thank you for your stay at Hotel Jay Palace, Saraipali.\n\n' +
+        'Please find your invoice here:\n' + invoiceUrl + '\n\n' +
+        'Best regards,\nHotel Jay Palace\n' + (HOTEL.phone || '')
+      )
+      document.getElementById('shareMailBtn').href = 'mailto:' + (b.customerEmail || '') + '?subject=' + mailSub + '&body=' + mailBody
+    }
+
+    // Show note when no shareable link is available
+    const noLinkNote = document.getElementById('shareNoLinkNote')
+    if (noLinkNote) {
+      noLinkNote.style.display = hasUrl ? 'none' : ''
+      noLinkNote.textContent   = b.status === 'checked_out'
+        ? 'Invoice link has expired (48 hrs). Use the Invoice button to download a fresh PDF.'
+        : 'Invoice link is generated automatically when the guest checks out.'
+    }
 
     document.getElementById('shareModal').classList.add('open')
   }
@@ -1805,10 +1824,24 @@
   }
 
   // Open share panel from any booking card's Share button
-  function openSharePanel(id) {
+  // Never generates a new invoice — only reads the existing URL from Firestore.
+  // Invoice is only generated (uploaded) during the checkout flow.
+  async function openSharePanel(id) {
     const b = allBookings.find(x => x.id === id)
     if (!b) return
-    showCheckoutSharePanel(b, buildInvoiceUrl(b))
+    let invoiceUrl = ''
+    if (b.status === 'checked_out') {
+      try {
+        const snap = await db.collection('invoices').doc(id).get()
+        if (snap.exists) {
+          const inv = snap.data()
+          if (inv.expiresAt && inv.expiresAt.toMillis() > Date.now()) {
+            invoiceUrl = 'https://jaypalace.online/invoice.html?id=' + id
+          }
+        }
+      } catch(e) { console.warn('[Share] Could not fetch invoice:', e.message) }
+    }
+    showCheckoutSharePanel(b, invoiceUrl)
   }
 
   function copyShareUrl() {
