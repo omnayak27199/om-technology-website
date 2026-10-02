@@ -1166,7 +1166,8 @@
       <button class="share-close" onclick="closeShareModal()">✕</button>
     </div>
     <p class="share-desc">Share the invoice link with the guest via WhatsApp or email, or copy the link.</p>
-    <p id="shareNoLinkNote" style="display:none;font-size:.82rem;color:#b45309;background:#fef3c7;border-radius:8px;padding:10px 12px;margin-bottom:12px;"></p>
+    <p id="shareNoLinkNote" style="display:none;font-size:.82rem;color:#b45309;background:#fef3c7;border-radius:8px;padding:10px 12px;margin-bottom:8px;"></p>
+    <button id="shareGenLinkBtn" onclick="generateShareLink()" style="display:none;margin-bottom:12px;width:100%;padding:10px;background:var(--primary);color:#fff;border:none;border-radius:9px;font-size:.92rem;cursor:pointer;font-weight:600;">🔗 Generate Invoice Link</button>
     <div class="share-url-row" id="shareUrlRow">
       <input id="shareUrlInput" class="share-url-input" readonly type="text" placeholder="Invoice link…" />
       <button class="share-copy-btn" id="shareCopyBtn" onclick="copyShareUrl()">Copy</button>
@@ -2004,7 +2005,10 @@
       return 'https://jaypalace.online/invoice.html?id=' + b.id
     } catch (e) {
       console.error('[Invoice URL] Firestore write failed:', e)
-      showAdminToast('Invoice link failed — check Firestore rules for invoices collection.', 'error')
+      const hint = e.code === 'permission-denied'
+        ? 'Firestore PERMISSION DENIED — add rule for invoices collection in Firebase Console.'
+        : 'Invoice link failed (' + (e.code || e.message) + '). Check browser console.'
+      showAdminToast(hint, 'error')
       return ''
     }
   }
@@ -2034,35 +2038,40 @@
 
     const hasUrl = !!invoiceUrl
 
-    // Show/hide share buttons depending on whether a valid invoice link exists
-    document.getElementById('shareWaBtn').style.display   = hasUrl ? '' : 'none'
-    document.getElementById('shareMailBtn').style.display = hasUrl ? '' : 'none'
-    document.getElementById('shareUrlRow').style.display  = hasUrl ? '' : 'none'
+    // URL row (copy link) only shows when there's a link
+    document.getElementById('shareUrlRow').style.display = hasUrl ? '' : 'none'
 
-    if (hasUrl) {
-      // WhatsApp — send to guest phone if available, else hotel WhatsApp
-      const waNum = (b.customerPhone || '').replace(/\D/g, '') || (HOTEL.whatsapp || '')
-      const waMsg = `Dear ${b.customerName},\n\nThank you for staying at *Hotel Jay Palace*, Saraipali! 🙏\n\n📄 Your invoice: ${invoiceUrl}\n\nWe hope to see you again soon!\n\n– Hotel Jay Palace`
-      document.getElementById('shareWaBtn').href = 'https://wa.me/' + waNum + '?text=' + encodeURIComponent(waMsg)
+    // WhatsApp — always visible; include invoice link if available
+    const waNum = (b.customerPhone || '').replace(/\D/g, '') || (HOTEL.whatsapp || '')
+    const waMsg = hasUrl
+      ? `Dear ${b.customerName},\n\nThank you for staying at *Hotel Jay Palace*, Saraipali! 🙏\n\n📄 Your invoice: ${invoiceUrl}\n\nWe hope to see you again soon!\n\n– Hotel Jay Palace`
+      : `Dear ${b.customerName},\n\nThank you for staying at *Hotel Jay Palace*, Saraipali! 🙏\n\nWe hope to see you again soon!\n\n– Hotel Jay Palace`
+    document.getElementById('shareWaBtn').href    = 'https://wa.me/' + waNum + '?text=' + encodeURIComponent(waMsg)
+    document.getElementById('shareWaBtn').style.display = ''
 
-      // Email mailto
-      const mailSub = encodeURIComponent('Invoice ' + code + ' — Hotel Jay Palace')
-      const mailBody = encodeURIComponent(
-        'Dear ' + (b.customerName || 'Guest') + ',\n\n' +
-        'Thank you for your stay at Hotel Jay Palace, Saraipali.\n\n' +
-        'Please find your invoice here:\n' + invoiceUrl + '\n\n' +
-        'Best regards,\nHotel Jay Palace\n' + (HOTEL.phone || '')
-      )
-      document.getElementById('shareMailBtn').href = 'mailto:' + (b.customerEmail || '') + '?subject=' + mailSub + '&body=' + mailBody
-    }
+    // Email — always visible; include invoice link if available
+    const mailSub  = encodeURIComponent('Thank you for your stay — Booking ' + code + ' | Hotel Jay Palace')
+    const mailBody = encodeURIComponent(
+      'Dear ' + (b.customerName || 'Guest') + ',\n\n' +
+      'Thank you for your stay at Hotel Jay Palace, Saraipali.\n\n' +
+      (hasUrl ? 'Please find your invoice here:\n' + invoiceUrl + '\n\n' : '') +
+      'Best regards,\nHotel Jay Palace\n' + (HOTEL.phone || '')
+    )
+    document.getElementById('shareMailBtn').href         = 'mailto:' + (b.customerEmail || '') + '?subject=' + mailSub + '&body=' + mailBody
+    document.getElementById('shareMailBtn').style.display = ''
 
-    // Show note when no shareable link is available
-    const noLinkNote = document.getElementById('shareNoLinkNote')
+    // Show note + retry button when no shareable link is available
+    const noLinkNote   = document.getElementById('shareNoLinkNote')
+    const genLinkBtn   = document.getElementById('shareGenLinkBtn')
+    const isCheckedOut = b.status === 'checked_out'
     if (noLinkNote) {
       noLinkNote.style.display = hasUrl ? 'none' : ''
-      noLinkNote.textContent   = b.status === 'checked_out'
-        ? 'Invoice link could not be generated or has expired. Use Download PDF below to save a copy.'
+      noLinkNote.textContent   = isCheckedOut
+        ? 'Invoice link could not be generated. Click "Generate Invoice Link" to retry, or use Download PDF.'
         : 'Invoice link is generated automatically when the guest checks out.'
+    }
+    if (genLinkBtn) {
+      genLinkBtn.style.display = (!hasUrl && isCheckedOut) ? '' : 'none'
     }
 
     document.getElementById('shareModal').classList.add('open')
@@ -2071,6 +2080,19 @@
   function closeShareModal() {
     document.getElementById('shareModal').classList.remove('open')
     _shareCurrentBooking = null
+  }
+
+  async function generateShareLink() {
+    const b = _shareCurrentBooking
+    if (!b) return
+    const btn = document.getElementById('shareGenLinkBtn')
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Generating…' }
+    const invoiceUrl = await buildInvoiceUrl(b)
+    if (btn) { btn.disabled = false; btn.textContent = '🔗 Generate Invoice Link' }
+    if (invoiceUrl) {
+      // Refresh the panel with the newly generated URL
+      showCheckoutSharePanel(b, invoiceUrl)
+    }
   }
 
   // Open share panel from any booking card's Share button
