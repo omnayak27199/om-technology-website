@@ -52,7 +52,8 @@ async function main() {
   showState('⚠️', 'Invalid Link', 'No invoice ID found in this link. Please contact Hotel Jay Palace.')
 }
 
-// ── New link handler (Firebase Storage + Firestore) ───────────────────────
+// ── New link handler (Firestore only — PDF generated client-side) ─────────
+let _newDoc = null, _newCode = ''
 async function handleNewLink(id) {
   try {
     firebase.initializeApp(window.FIREBASE_CONFIG)
@@ -68,7 +69,6 @@ async function handleNewLink(id) {
 
     const inv = snap.data()
 
-    // Check 48-hour expiry
     if (!inv.expiresAt || inv.expiresAt.toMillis() < Date.now()) {
       showState('⏰', 'Link Expired',
         'This invoice download link is valid for 48 hours and has now expired. Please contact Hotel Jay Palace at ' +
@@ -76,18 +76,18 @@ async function handleNewLink(id) {
       return
     }
 
-    // Valid — show download button and auto-open the PDF
-    const filename = 'Invoice-JP-' + (inv.code || id.slice(0, 8).toUpperCase()) + '.pdf'
+    // Build PDF from stored booking data
+    _newCode = inv.code || id.slice(0, 8).toUpperCase()
+    _newDoc  = buildInvoice(inv, null)
+    _newDoc.save('Invoice-JP-' + _newCode + '.pdf')
+
+    showState('✅', 'Invoice Downloaded!',
+      'Your invoice for booking ' + _newCode + ' has been saved to your downloads folder.')
+
     const btn = document.getElementById('dlBtn')
-    btn.href        = inv.url
-    btn.textContent = '⬇ Download Invoice'
+    btn.onclick = () => _newDoc && _newDoc.save('Invoice-JP-' + _newCode + '.pdf')
+    btn.textContent   = '⬇ Download Again'
     btn.style.display = 'inline-block'
-
-    showState('✅', 'Invoice Ready',
-      'Your invoice is ready. Tap the button below to download the PDF.')
-
-    // Auto-open after brief pause (browser opens or downloads the PDF)
-    setTimeout(() => { window.location.href = inv.url }, 500)
 
   } catch (e) {
     showState('⚠️', 'Error Loading Invoice',

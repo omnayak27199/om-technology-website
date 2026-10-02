@@ -1196,16 +1196,16 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
 <script>
   firebase.initializeApp(window.FIREBASE_CONFIG)
-  const auth    = firebase.auth()
-  const db      = firebase.firestore()
-  const storage = firebase.storage()
+  const auth = firebase.auth()
+  const db   = firebase.firestore()
+  let storage = null
+  try { storage = firebase.storage() } catch (_) {}
 
   // ── EmailJS ──────────────────────────────────────────────────
   ;(function initEmailJS() {
@@ -1977,34 +1977,44 @@
   async function buildInvoiceUrl(b) {
     const code = b.bookingCode || b.id.slice(0, 8).toUpperCase()
     try {
-      // Generate PDF blob from booking data (same as admin download, no change needed there)
-      const pdfBlob   = buildInvoiceDoc(b).output('blob')
-
-      // Upload to Firebase Storage at invoices/{bookingId}.pdf
-      const storageRef = storage.ref('invoices/' + b.id + '.pdf')
-      await storageRef.put(pdfBlob, { contentType: 'application/pdf' })
-      const fileUrl = await storageRef.getDownloadURL()
-
-      // Store URL + 48-hour expiry in a dedicated Firestore 'invoices' collection
-      // (separate from 'bookings' so guests can read it without seeing all booking data)
+      // Store invoice data in Firestore (no Storage needed)
       const expiresAt = firebase.firestore.Timestamp.fromMillis(Date.now() + 48 * 3600 * 1000)
-      await db.collection('invoices').doc(b.id).set({ url: fileUrl, expiresAt, code })
-
+      await db.collection('invoices').doc(b.id).set({
+        expiresAt, code,
+        customerName:         b.customerName         || '',
+        customerEmail:        b.customerEmail         || '',
+        customerPhone:        b.customerPhone         || '',
+        customerAddress:      b.customerAddress       || '',
+        customerGstin:        b.customerGstin         || '',
+        roomName:             b.roomName              || '',
+        roomNumber:           b.roomNumber            || '',
+        checkIn:              b.checkIn               || '',
+        checkOut:             b.checkOut              || '',
+        nights:               b.nights                || 1,
+        totalAmount:          b.totalAmount           || 0,
+        pricePerNight:        b.pricePerNight         || 0,
+        paymentMethod:        b.paymentMethod         || '',
+        paymentStatus:        b.paymentStatus         || '',
+        advancePaid:          b.advancePaid           || 0,
+        advancePaymentMethod: b.advancePaymentMethod  || '',
+        balancePaid:          b.balancePaid           || 0,
+        balancePaymentMethod: b.balancePaymentMethod  || '',
+        source:               b.source               || '',
+      })
       return 'https://jaypalace.online/invoice.html?id=' + b.id
     } catch (e) {
-      console.error('[Invoice URL] Upload failed:', e)
-      showAdminToast('Invoice upload failed — please retry checkout.', 'error')
+      console.error('[Invoice URL] Firestore write failed:', e)
+      showAdminToast('Invoice link failed — check Firestore rules for invoices collection.', 'error')
       return ''
     }
   }
 
-  // Delete expired invoice files from Storage + Firestore (runs silently on admin login)
+  // Delete expired invoice docs from Firestore (runs silently on admin login)
   async function cleanupExpiredInvoices() {
     try {
       const now  = firebase.firestore.Timestamp.now()
       const snap = await db.collection('invoices').where('expiresAt', '<', now).get()
       for (const doc of snap.docs) {
-        try { await storage.ref('invoices/' + doc.id + '.pdf').delete() } catch (_) {}
         await db.collection('invoices').doc(doc.id).delete()
       }
       if (snap.size > 0) console.log('[Cleanup] Removed', snap.size, 'expired invoice(s)')
@@ -3305,6 +3315,7 @@
     }
 
     if (photoFile) {
+      if (!storage) { showAdminToast('Photo upload requires Firebase Storage — not configured.', 'error'); btnSave.disabled = false; btnSave.textContent = 'Save Changes'; return }
       const roomId  = id || document.getElementById('editRoomName').value.trim().toLowerCase().replace(/\s+/g, '-')
       const ref     = storage.ref('rooms/' + roomId + '/photo.' + photoFile.name.split('.').pop())
       const upload  = ref.put(photoFile)
